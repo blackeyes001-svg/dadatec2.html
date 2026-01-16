@@ -1,0 +1,259 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f8;
+    color: #333;
+    text-align: center;
+}
+
+
+nav {
+    display: flex;
+    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: #0a3cff;
+    color: white;
+    position: sticky;
+    top: 0;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* HERO */
+.hero {
+    padding: 90px 20px;
+    background: linear-gradient(to right, #0a3cff, #5f7cff);
+    color: white;
+}
+
+/* SECTIONS */
+section {
+    padding: 60px 20px;
+}
+
+/* ABOUT */
+.about p {
+    max-width: 700px;
+    margin: auto;
+    line-height: 1.6;
+}
+
+/* CREW */
+.crew-container {
+    display: inline-block;
+    justify-content: center;
+    gap: 70px;
+    flex-wrap: wrap;
+    margin-top: 70px;
+    
+}
+
+.crew-card {
+    background: white;
+    width: 230px;
+    padding: 25px;
+    border-radius: 12px;
+    margin: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.crew-card img {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* CONTACT */
+.contact form {
+    max-width: 400px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact input,
+.contact textarea {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* AUTH */
+.auth-section {
+    background: linear-gradient(to right, #0a3cff, #5f7cff);
+}
+
+.auth-box {
+    background: white;
+    width: 350px;
+    padding: 30px;
+    margin: auto;
+    border-radius: 12px;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.auth-box button {
+    width: 100%;
+    padding: 12px;
+    background: #0a3cff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+
+
+footer {
+    background: #222;
+    color: white;
+    padding: 15px;
+}
+
+
+body.dark {
+    background: #121212;
+    color: #eee;
+}
+
+body.dark nav {
+    background: #000;
+}
+
+body.dark .crew-card,
+body.dark .auth-box {
+    background: #1e1e1e;
+    color: white;
+}
+
+.title-logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; 
+}
+
+.logo-img {
+    width: 50px;  
+    height: 50px;
+    object-fit: contain;
+}
+
+.title-text h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.title-text p {
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.9;
+}
+nav {
+    background: #0a3cff;
+    padding: 10px 20px;
+    color: white;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hamburger {
+    display: none;  
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: white;
+    border-radius: 3px;
+}
+
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav {
+    background: #0a3cff;
+    padding: 10px 20px;
+    color: white;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* HAMBURGER */
+.hamburger {
+    display: flex;  /* always show */
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: white;
+    border-radius: 3px;
+}
+
+
+.nav-links {
+    display: none;          
+    flex-direction: column;
+    gap: 15px;
+    position: absolute;
+    top: 60px;            
+    right: 20px;
+    background: #0a3cff;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+
+.nav-links.active {
+    display: flex;
+}
+
+
+@media (min-width: 769px) {
+    .nav-links {
+        top: 70px;
+        right: 20px;
+        width: 200px;
+    }
+}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dada's Tech</title>
+    <link rel="stylesheet" href="CSS/dada.css">
+</head>
+<body>
+
+    <header class="site-title">
+    <div class="title-logo-container">
+        <img src="img.jpg" alt="Dada's Tech Logo" class="logo-img">
+        <div class="title-text">
+            <h1>Dada’s Tech</h1>
+            <p>Innovating Technology, Building the Future</p>
+        </div>
+    </div>
+</header>
+
+    
+<nav>
+    <div class="nav-container">
+    <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#crew">Crew</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#login">Login</a></li>
+        <li><a href="#signup">Sign Up</a></li>
+    </ul>
+
+    <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <button id="darkModeBtn">🌙</button>
+</nav>
+
+
+<section id="home" class="hero">
+    <h1>Welcome to Dada's Tech</h1>
+    <p><b>Innovating Technology, Building the Future</b></p>
+</section>
+
+
+<section id="about" class="about">
+    <h2>About Us</h2>
+    <p>
+       <b> Dada's Tech is a modern technology brand focused on web development,
+        UI/UX design, and digital solutions.</b>
+    </p>
+</section>
+
+
+<section id="crew" class="crew">
+    <h2>Our Crew</h2>
+    <p><b>Our team is made up of talented and passionate individuals committed to driving innovation and excellence in every project.<br>
+    We are dedicated to delivering exceptional results and working collaboratively to achieve success. </b></p>
+    <div class="crew-container">
+        <div class="crew-card">
+            <img src="photo1.jpg">
+            <h3>DADA DAVID</h3>
+            <p>Founder & Developer</p>
+        </div>
+        <div class="crew-card">
+            <img src="photo2.jpg">
+            <h3>OLORUNYOMI MARY</h3>
+            <p>UI/UX Designer</p>
+        </div>
+        <div class="crew-card">
+            <img src="photo3.jpg">
+            <h3>BIG  DOO</h3>
+            <p>Frontend Developer</p>
+        </div>
+        <div class="crew-card">
+            <img src="photo4.jpg">
+            <h3>WINIFERD ADAMU</h3>
+            <p>Backend Developer</p>
+        </div>
+    </div>
+</section>
+
+
+<section id="contact" class="contact">
+    <h2>Contact Us</h2>
+    <form>
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Your Email" required>
+        <textarea placeholder="Your Message"></textarea>
+        <button>Send Message</button>
+    </form>
+</section>
+
+
+<section id="login" class="auth-section">
+    <div class="auth-box">
+        <h2>Login</h2>
+        <form>
+            <input type="email" placeholder="Email" required>
+            <input type="password" placeholder="Password" required>
+            <button>Login</button>
+        </form>
+        <p>No account? <a href="#signup">Sign Up</a></p>
+    </div>
+</section>
+
+
+<section id="signup" class="auth-section">
+    <div class="auth-box">
+        <h2>Create Account</h2>
+        <form>
+            <input type="text" placeholder="Full Name" required>
+            <input type="email" placeholder="Email" required>
+            <input type="password" placeholder="Password" required>
+            <input type="password" placeholder="Confirm Password" required>
+            <button>Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="#login">Login</a></p>
+    </div>
+</section>
+
+
+<footer>
+    <p>© 2026 Dada's Tech. All Rights Reserved.<br>
+
+         privacy policy<br>
+
+         cookie policy
+    </p>
+</footer>
+
+<script>
+document.getElementById("darkModeBtn").onclick = () => {
+    document.body.classList.toggle("dark");
+};
+</script>
+
+<script>
+const hamburger = document.getElementById("hamburger");
+const navLinks = document.querySelector(".nav-links");
+
+hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+});
+</script>
+
+</body>
+</html>

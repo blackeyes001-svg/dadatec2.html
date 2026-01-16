@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item {
+    width: 100px;
+    height: 100px;
+    background-color: skyblue;
+    margin: 10px;
+}
+
+/* Transition */
+.button {
+    background-color: green;
+    color: white;
+    padding: 10px;
+    transition: background-color 0.5s;
+}
+
+.button:hover {
+    background-color: darkgreen;
+}
+
+/* Responsive design */
+@media screen and (max-width: 600px) {
+    .container {
+        flex-direction: column;
+    }
+}

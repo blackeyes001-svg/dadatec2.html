@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Element selector */
+h1 {
+    color: blue;
+}
+
+/* Class selector */
+.text {
+    color: green;
+    font-size: 16px;
+}
+
+/* ID selector */
+#main {
+    background-color: #f2f2f2;
+    padding: 10px;
+}
+
+/* Text styling */
+p {
+    color: black;
+    font-size: 14px;
+    text-align: left;
+}
+
+/* Background styling */
+.section {
+    background-color: lightgray;
+    padding: 15px;
+}
