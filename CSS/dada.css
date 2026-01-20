@@ -81,7 +81,7 @@ section {
     object-fit: cover;
 }
 
-/* CONTACT */
+
 .contact form {
     max-width: 400px;
     margin: auto;
@@ -97,7 +97,7 @@ section {
     border: 1px solid #ccc;
 }
 
-/* AUTH */
+
 .auth-section {
     background: linear-gradient(to right, #0a3cff, #5f7cff);
 }
@@ -256,4 +256,51 @@ nav {
         right: 20px;
         width: 200px;
     }
+}
+
+.vision-mission {
+    padding: 70px 20px;
+    text-align: center;
+    color: white;
+
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url("images/vision-bg.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.vision-mission h2 {
+    font-size: 2.2rem;
+    margin-bottom: 40px;
+}
+
+/* Container */
+.vm-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+/* Cards */
+.vm-card {
+    background: rgba(255, 255, 255, 0.95);
+    color: #000;
+    padding: 30px;
+    width: 280px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.vm-card h3 {
+    color: #0a3cff;
+    margin-bottom: 15px;
+}
+
+.vm-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
