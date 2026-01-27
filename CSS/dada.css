@@ -36,26 +36,26 @@ nav a {
     font-weight: bold;
 }
 
-/* HERO */
+
 .hero {
     padding: 90px 20px;
     background: linear-gradient(to right, #0a3cff, #5f7cff);
     color: white;
 }
 
-/* SECTIONS */
+
 section {
     padding: 60px 20px;
 }
 
-/* ABOUT */
+
 .about p {
     max-width: 700px;
     margin: auto;
     line-height: 1.6;
 }
 
-/* CREW */
+
 .crew-container {
     display: inline-block;
     justify-content: center;
@@ -216,7 +216,7 @@ nav {
     align-items: center;
 }
 
-/* HAMBURGER */
+
 .hamburger {
     display: flex;  /* always show */
     flex-direction: column;
@@ -277,7 +277,7 @@ nav {
     margin-bottom: 40px;
 }
 
-/* Container */
+
 .vm-container {
     display: flex;
     justify-content: center;
@@ -285,7 +285,7 @@ nav {
     flex-wrap: wrap;
 }
 
-/* Cards */
+
 .vm-card {
     background: rgba(255, 255, 255, 0.95);
     color: #000;
