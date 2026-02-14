@@ -18,7 +18,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     padding: 15px 30px;
-    background: #0a3cff;
+    background: #142d16;
     color: white;
     position: sticky;
     top: 0;
@@ -39,7 +39,7 @@ nav a {
 
 .hero {
     padding: 90px 20px;
-    background: linear-gradient(to right, #0a3cff, #5f7cff);
+    background: linear-gradient(to right, #2f6e34, #5fffca);
     color: white;
 }
 
@@ -99,7 +99,7 @@ section {
 
 
 .auth-section {
-    background: linear-gradient(to right, #0a3cff, #5f7cff);
+    background: linear-gradient(to right, #245228, #1a5134);
 }
 
 .auth-box {
@@ -119,7 +119,7 @@ section {
 .auth-box button {
     width: 100%;
     padding: 12px;
-    background: #0a3cff;
+    background: #2f6e34;
     color: white;
     border: none;
     border-radius: 6px;
@@ -172,7 +172,7 @@ body.dark .auth-box {
     opacity: 0.9;
 }
 nav {
-    background: #0a3cff;
+    background: #2f6e34;
     padding: 10px 20px;
     color: white;
 }
@@ -205,7 +205,7 @@ nav {
 }
 
 nav {
-    background: #0a3cff;
+    background: #2f6e34;
     padding: 10px 20px;
     color: white;
 }
@@ -239,7 +239,7 @@ nav {
     position: absolute;
     top: 60px;            
     right: 20px;
-    background: #0a3cff;
+    background: #2f6e34;
     padding: 15px;
     border-radius: 8px;
 }
@@ -296,7 +296,7 @@ nav {
 }
 
 .vm-card h3 {
-    color: #0a3cff;
+    color: #2f6e34;
     margin-bottom: 15px;
 }
 
