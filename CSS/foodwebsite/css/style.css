@@ -21,7 +21,7 @@ nav{
 }
 
 nav h2{
-    color:#00bcd4;
+    color:#ff7200;
 }
 
 nav ul{
@@ -35,13 +35,13 @@ nav ul li{
 }
 
 nav ul li:hover{
-    color:#00bcd4;
+    color:#ff7200;
 }
 
 .dark-btn{
     padding:8px 15px;
     border:none;
-    background:#00bcd4;
+    background:#ff7200;
     color:white;
     cursor:pointer;
     border-radius:5px;
@@ -76,7 +76,7 @@ nav ul li:hover{
 }
 
 .price{
-    color:green;
+    color:#ff7200;;
     font-weight:bold;
     margin:10px 0;
 }
@@ -91,7 +91,7 @@ nav ul li:hover{
 }
 
 .btn:hover{
-    background:#00bcd4;
+    background:#ff7200;
 }
 
 footer{
@@ -115,4 +115,49 @@ footer{
 
 .dark nav{
     background:#000;
+}
+
+.contact{
+    background:#fff;
+    padding:50px 20px;
+    text-align:center;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    margin:40px auto;
+    max-width:600px;
+}
+
+.contact h2{
+    margin-bottom:30px;
+    color:#f68b1e;
+}
+
+.contact form{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.contact input,
+.contact textarea{
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:16px;
+    width:100%;
+}
+
+.contact button{
+    background:#f68b1e;
+    color:white;
+    border:none;
+    padding:12px;
+    cursor:pointer;
+    border-radius:5px;
+    font-size:16px;
+    transition:0.3s;
+}
+
+.contact button:hover{
+    background:#d97706;
 }
