@@ -1,26 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login - Huff & Puff</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware Hub Login</title>
+
+  <!-- CSS LINK -->
+  <link rel="stylesheet" href="login.css">
 </head>
-<body class="login-body">
 
-<div class="login-box">
-    <h2>Welcome Back</h2>
-    <form id="loginForm">
-        <input type="text" placeholder="Username" required>
-        <input type="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
-</div>
+<body>
 
-<script>
-document.getElementById("loginForm").addEventListener("submit", function(e){
-    e.preventDefault();
-    window.location.href = "index.html";
-});
-</script>
+  <div class="login-container">
+
+    <h1>Hardware Hub</h1>
+
+    <div class="input-box">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter Username">
+    </div>
+
+    <div class="input-box">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter Password">
+    </div>
+
+    <button onclick="login()" class="btn">
+      Login
+    </button>
+
+    <p id="message"></p>
+
+  </div>
+
+  <script>
+
+    function login(){
+
+      let username =
+      document.getElementById("username").value;
+
+      let password =
+      document.getElementById("password").value;
+
+      // LOGIN VALIDATION
+
+      if(username === "admin" &&
+         password === "12345"){
+
+        // REDIRECT TO HOME PAGE
+        window.location.href = "home.html";
+
+      } else {
+
+        document.getElementById("message").innerHTML =
+        "Wrong Username or Password";
+
+      }
+
+    }
+
+  </script>
 
 </body>
 </html>

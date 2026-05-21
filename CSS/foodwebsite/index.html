@@ -1,106 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tech Hardware Store</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware Hub Home</title>
 
-    <!-- Link to CSS -->
-    <link rel="stylesheet" href="css/style.css">
+  <!-- CSS LINK -->
+  <link rel="stylesheet" href="index.css">
 </head>
 
-<body>
+<body id="body">
 
-<nav>
-    <h2>Dada<br>Tech-Store</h2>
+  <!-- NAVBAR -->
+
+  <nav>
+
+    <h1>Hardware Hub</h1>
+
     <ul>
-        <li>Home</li>
-        <li>Products</li>
-        <li>About</li>
-        <li>Contact</li>
+
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Components</a></li>
+      <li><a href="#">Processors</a></li>
+      <li><a href="#">Contact</a></li>
+
     </ul>
-    <button class="dark-btn" onclick="toggleDark()">Dark Mode</button>
-</nav>
 
-<section id="Products" class="Products">
-   
-    <h2>Products</h2>
-<section class="container">
+    <button onclick="toggleMode()" class="dark-btn">
+      Dark Mode
+    </button>
+
+  </nav>
+
+  <!-- HERO SECTION -->
+
+  <section class="hero">
+
+    <h2>Hardware Parts & Components</h2>
+
+    <p>
+      Explore computer hardware components like RAM,
+      processors, graphics cards and motherboards.
+    </p>
+
+  </section>
+
+  <!-- CARDS -->
+
+  <div class="container">
 
     <div class="card">
-        <img src="" alt="Processor">
-        <h3>Intel Core i7 Processor</h3>
-        <p class="price">₦350,000</p>
-        <button class="btn">Add to Cart</button>
+
+      <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800" alt="">
+
+      <h3>Processor</h3>
+
+      <p>
+        High speed processors for multitasking and gaming.
+      </p>
+
     </div>
 
     <div class="card">
-        <img src="" alt="Graphics Card">
-        <h3>NVIDIA RTX 4060</h3>
-        <p class="price">₦550,000</p>
-        <button class="btn">Add to Cart</button>
+
+      <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800" alt="">
+
+      <h3>Graphics Card</h3>
+
+      <p>
+        Powerful graphics cards for rendering and gaming.
+      </p>
+
     </div>
 
     <div class="card">
-        <img src="" alt="RAM">
-        <h3>16GB DDR4 RAM</h3>
-        <p class="price">₦75,000</p>
-        <button class="btn">Add to Cart</button>
+
+      <img src="https://images.unsplash.com/photo-1562976540-1502c2145186?q=80&w=800" alt="">
+
+      <h3>Motherboard</h3>
+
+      <p>
+        Main hardware board connecting all components.
+      </p>
+
     </div>
 
-    <div class="card">
-        <img src="2tb.jpeg">
-        <h3>2TB SSD Drive</h3>
-        <p class="price">₦120,000</p>
-        <button class="btn">Add to Cart</button>
-    </div>
+  </div>
 
-<div class="card">
-    <img src="img.jpg" alt="Processor">
-    <h3>24 full HD Monitor</h3>
-    <p class="price">₦850,000</p>
-    <button class="btn">Add to Cart</button>
-</div>
+  <script>
 
-<div class="card">
-     <img src="rgbkeyborad.jpg" alt="Gaming Keyboard">
-    <h3>Mechanical RGB Gaming Keyboard</h3>
-    <p class="price">₦200,000</p>
-    <button class="btn">Add to Cart</button>
-</div>
+    // DARK MODE FUNCTION
 
-<div class="card">
-    <img src="aircpucooler.jpg" alt="Air CPU Cooler">
-    <h3>Air CPU Cooler</h3>
-    <p class="price">₦90,000</p>
-    <button class="btn">Add to Cart</button>
-</div>
+    function toggleMode(){
 
-<div class="card">
-  <img src="images/Modular PSU.jpg" alt="CPU">
-    <h3>1000W Modular PSU</h3>
-    <p class="price">₦170,000</p>
-    <button class="btn">Add to Cart</button>
-</div>
-</section>
-<section class="contact">
-    <h2>Contact Us</h2>
-    <form>
-        <input type="text" placeholder="Your Name" required>
-        <input type="email" placeholder="Your Email" required>
-        <textarea placeholder="Your Message" rows="5" required></textarea>
-        <button type="submit" class="btn">Send Message</button>
-    </form>
-</section>
+      document.body.classList.toggle("light-mode");
 
- <script>
-        function toggleDark(){
-            document.body.classList.toggle("dark");
-        }
-    </script>
+    }
 
-<footer>
-    © 2026 TechStore | All Rights Reserved
-</footer>
+  </script>
+
 </body>
 </html>
