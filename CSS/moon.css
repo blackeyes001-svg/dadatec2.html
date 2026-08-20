@@ -1,0 +1,506 @@
+/* ===================================
+   GENERAL SETTINGS
+=================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+
+    width: 100%;
+    height: 100vh;
+
+    overflow: hidden;
+
+    font-family: Arial, sans-serif;
+
+    background: black;
+}
+
+
+/* ===================================
+   SKY
+=================================== */
+
+.sky {
+
+    position: relative;
+
+    width: 100%;
+    height: 100vh;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #020111,
+            #08052b,
+            #15105c,
+            #020111
+        );
+
+    transition: background 3s ease;
+}
+
+
+/* ===================================
+   MOON
+=================================== */
+
+.moon {
+
+    position: absolute;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    background: #fff8dc;
+
+    top: 100px;
+    left: -200px;
+
+    box-shadow:
+
+        0 0 20px #ffffff,
+        0 0 40px #fff8dc,
+        0 0 80px rgba(255, 255, 220, 0.7);
+
+    z-index: 5;
+
+    transition: transform 0.2s ease;
+}
+
+
+/* Moon surface */
+
+.moon::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 25px;
+    height: 25px;
+
+    background: rgba(180, 180, 160, 0.3);
+
+    border-radius: 50%;
+
+    top: 35px;
+    left: 40px;
+}
+
+.moon::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 18px;
+    height: 18px;
+
+    background: rgba(180, 180, 160, 0.3);
+
+    border-radius: 50%;
+
+    top: 90px;
+    left: 80px;
+}
+
+
+/* Moon phase shadow */
+
+.moon-shadow {
+
+    position: absolute;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    background: #05051a;
+
+    left: 60px;
+
+    opacity: 0;
+
+    transition:
+        left 2s ease,
+        opacity 2s ease;
+}
+
+
+/* ===================================
+   STARS
+=================================== */
+
+.star {
+
+    position: absolute;
+
+    background: white;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 5px white,
+        0 0 10px white;
+
+    animation: twinkle 2s infinite ease-in-out;
+
+    z-index: 1;
+}
+
+
+@keyframes twinkle {
+
+    0% {
+        opacity: 0.2;
+        transform: scale(0.6);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: scale(0.6);
+    }
+
+}
+
+
+/* ===================================
+   SHOOTING STAR
+=================================== */
+
+.shooting-star {
+
+    position: absolute;
+
+    width: 120px;
+    height: 3px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 10px white,
+        0 0 20px white;
+
+    transform: rotate(-35deg);
+
+    z-index: 4;
+
+    animation:
+        shootingStar 1.5s linear forwards;
+}
+
+
+@keyframes shootingStar {
+
+    0% {
+
+        opacity: 1;
+
+        transform:
+            translate(0, 0)
+            rotate(-35deg);
+
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translate(-500px, 500px)
+            rotate(-35deg);
+
+    }
+
+}
+
+
+/* ===================================
+   CLOUDS
+=================================== */
+
+.cloud {
+
+    position: absolute;
+
+    width: 250px;
+    height: 70px;
+
+    background: rgba(255, 255, 255, 0.12);
+
+    border-radius: 100px;
+
+    filter: blur(2px);
+
+    z-index: 6;
+}
+
+
+/* Cloud bubbles */
+
+.cloud::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+
+    background: inherit;
+
+    border-radius: 50%;
+
+    top: -40px;
+    left: 40px;
+}
+
+
+.cloud::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 130px;
+    height: 130px;
+
+    background: inherit;
+
+    border-radius: 50%;
+
+    top: -60px;
+    right: 30px;
+}
+
+
+/* Cloud positions */
+
+.cloud1 {
+
+    top: 220px;
+    left: -300px;
+
+    animation:
+        cloudMove 45s linear infinite;
+}
+
+
+.cloud2 {
+
+    top: 350px;
+    left: -500px;
+
+    transform: scale(0.8);
+
+    animation:
+        cloudMove 60s linear infinite;
+}
+
+
+.cloud3 {
+
+    top: 150px;
+    left: -700px;
+
+    transform: scale(0.6);
+
+    animation:
+        cloudMove 75s linear infinite;
+}
+
+
+@keyframes cloudMove {
+
+    from {
+
+        transform:
+            translateX(-300px);
+
+    }
+
+    to {
+
+        transform:
+            translateX(1800px);
+
+    }
+
+}
+
+
+/* ===================================
+   MOUNTAINS
+=================================== */
+
+.mountains {
+
+    position: absolute;
+
+    bottom: 80px;
+
+    width: 100%;
+    height: 300px;
+
+    z-index: 8;
+}
+
+
+/* Individual mountains */
+
+.mountain {
+
+    position: absolute;
+
+    bottom: 0;
+
+    width: 0;
+    height: 0;
+
+    border-left: 180px solid transparent;
+    border-right: 180px solid transparent;
+    border-bottom: 300px solid #050514;
+}
+
+
+.mountain1 {
+
+    left: 5%;
+}
+
+
+.mountain2 {
+
+    left: 35%;
+
+    transform: scale(1.3);
+}
+
+
+.mountain3 {
+
+    left: 70%;
+
+    transform: scale(0.9);
+}
+
+
+/* ===================================
+   GROUND
+=================================== */
+
+.ground {
+
+    position: absolute;
+
+    bottom: 0;
+
+    width: 100%;
+    height: 100px;
+
+    background: #020207;
+
+    z-index: 10;
+}
+
+
+/* ===================================
+   TITLE
+=================================== */
+
+.title {
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    text-align: center;
+
+    color: white;
+
+    z-index: 12;
+
+    pointer-events: none;
+}
+
+
+.title h1 {
+
+    font-size: 55px;
+
+    letter-spacing: 8px;
+
+    text-shadow:
+        0 0 10px white,
+        0 0 20px white;
+}
+
+
+.title p {
+
+    margin-top: 15px;
+
+    font-size: 18px;
+
+    letter-spacing: 4px;
+
+    opacity: 0.8;
+}
+
+
+/* ===================================
+   RESPONSIVE DESIGN
+=================================== */
+
+@media (max-width: 600px) {
+
+    .moon {
+
+        width: 100px;
+        height: 100px;
+
+    }
+
+    .moon-shadow {
+
+        width: 100px;
+        height: 100px;
+
+    }
+
+    .title h1 {
+
+        font-size: 32px;
+
+        letter-spacing: 4px;
+    }
+
+    .title p {
+
+        font-size: 12px;
+
+        letter-spacing: 2px;
+    }
+
+}

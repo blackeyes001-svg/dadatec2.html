@@ -1,189 +1,932 @@
-*{
+
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-body{
+
+/* =========================================================
+   BODY
+========================================================= */
+
+body {
     width: 100%;
-    height: 100vh;
-    margin: 0;
+    min-height: 100vh;
 
-    
-    background-color: rgba(0,0,0,0.6);
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(255, 114, 0, 0.12),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 114, 0, 0.08),
+            transparent 35%
+        ),
+        #000000;
 
-    /* background-image: url(tree.jpg); */
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
 
-    
-    background-blend-mode: overlay;
+    background-attachment: fixed;
 
-    color: #fff;
-    
+    color: #ffffff;
+
+    overflow-x: hidden;
 }
 
 
-.navbar{
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.navbar {
     width: 100%;
     height: 80px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     padding: 0 80px;
-}
 
-.logo{
-    color: #ff7200;
-    font-size: 32px;
-}
+    background: rgba(0, 0, 0, 0.90);
 
-.menu{
-    display: flex;
-    list-style: none;
-}
-
-.menu li{
-    margin: 0 15px;
-}
-
-.menu li a{
-    text-decoration: none;
-    color: #fff;
-    font-weight: bold;
-}
-
-.menu li a:hover{
-    color: #ff7200;
-}
-
-.search{
-    display: flex;
-}
-
-.search input{
-    padding: 8px;
-    border: 1px solid #ff7200;
-    background: transparent;
-    color: #fff;
-}
-
-.search button{
-    padding: 8px 15px;
-    background: #ff7200;
-    border: none;
-    cursor: pointer;
-    color: #000;
-}
-
-
-.content{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 80px;
-}
-
-.text{
-    width: 50%;
-}
-
-.text h1{
-    font-size: 50px;
-}
-
-.text span{
-    color: #ff7200;
-}
-
-.text p{
-    margin: 20px 0;
-    line-height: 1.6;
-}
-
-.join{
-    background: #ff7200;
-    padding: 12px 30px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-
-.login-box{
-    width: 300px;
-    background: rgba(0,0,0,0.7);
-    padding: 25px;
-    border-radius: 10px;
-}
-
-.login-box h2{
-    background: #fff;
-    color: #ff7200;
-    text-align: center;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.login-box input{
-    width: 100%;
-    padding: 10px;
-    margin-top: 15px;
-    background: transparent;
-    border: none;
     border-bottom: 1px solid #ff7200;
-    color: #fff;
+
+    box-shadow:
+        0 0 10px rgba(255, 114, 0, 0.25),
+        0 0 25px rgba(255, 114, 0, 0.10);
+
+    position: relative;
+    z-index: 10;
 }
 
-.login-btn{
-    width: 100%;
-    margin-top: 20px;
-    padding: 10px;
-    background: #ff7200;
-    border: none;
-    cursor: pointer;
-}
 
-.link{
-    text-align: center;
-    margin-top: 15px;
-}
+/* =========================================================
+   LOGO
+========================================================= */
 
-.link a{
-    color: #ff7200;
-    text-decoration: none;
-}
-
-.icons-text{
-    text-align: center;
-    margin-top: 15px;
-}
-
-.icons{
-    text-align: center;
-    margin-top: 10px;
-}
-
-.icons i{
-    margin: 0 8px;
-    font-size: 20px;
-    cursor: pointer;
-}
-.logo{
+.logo {
     display: flex;
+
     align-items: center;
+
     gap: 10px;
+
+    color: #ff7200;
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+    text-shadow:
+        0 0 8px rgba(255, 114, 0, 0.6);
 }
 
-.logo img{
+.logo img {
     width: 45px;
+
     height: auto;
 }
 
-.logo span{
+.logo span {
     font-size: 32px;
+
     font-weight: bold;
+
     color: #ff7200;
+
+    text-shadow:
+        0 0 8px rgba(255, 114, 0, 0.6);
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.menu {
+    display: flex;
+
+    list-style: none;
+}
+
+.menu li {
+    margin: 0 15px;
+}
+
+.menu li a {
+    text-decoration: none;
+
+    color: #ffffff;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.menu li a:hover {
+    color: #ff7200;
+
+    text-shadow:
+        0 0 8px #ff7200;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.search {
+    display: flex;
+}
+
+.search input {
+    padding: 8px;
+
+    border: 1px solid #ff7200;
+
+    background: rgba(0, 0, 0, 0.60);
+
+    color: #ffffff;
+
+    outline: none;
+
+    transition: 0.3s;
+}
+
+.search input::placeholder {
+    color: #aaaaaa;
+}
+
+.search input:focus {
+    border-color: #ff7200;
+
+    box-shadow:
+        0 0 8px rgba(255, 114, 0, 0.5);
+}
+
+.search button {
+    padding: 8px 15px;
+
+    background: #ff7200;
+
+    border: none;
+
+    cursor: pointer;
+
+    color: #000000;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.search button:hover {
+    background: #ffffff;
+
+    color: #ff7200;
+
+    box-shadow:
+        0 0 12px rgba(255, 114, 0, 0.6);
+}
+
+
+/* =========================================================
+   CONTENT / HERO
+========================================================= */
+
+.content {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 80px;
+}
+
+.text {
+    width: 50%;
+}
+
+.text h1 {
+    font-size: 50px;
+
+    color: #ffffff;
+
+    text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.08);
+}
+
+.text span {
+    color: #ff7200;
+
+    text-shadow:
+        0 0 10px rgba(255, 114, 0, 0.7),
+        0 0 20px rgba(255, 114, 0, 0.3);
+}
+
+.text p {
+    margin: 20px 0;
+
+    line-height: 1.6;
+
+    color: #dddddd;
+}
+
+
+/* =========================================================
+   JOIN BUTTON
+========================================================= */
+
+.join {
+    background: #ff7200;
+
+    padding: 12px 30px;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    color: #000000;
+
+    font-weight: bold;
+
+    border-radius: 5px;
+
+    transition: 0.3s;
+
+    box-shadow:
+        0 0 8px rgba(255, 114, 0, 0.4);
+}
+
+.join:hover {
+    background: #ffffff;
+
+    color: #ff7200;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 0 10px #ff7200,
+        0 0 25px rgba(255, 114, 0, 0.5);
+}
+
+
+/* =========================================================
+   ORIGINAL LOGIN BOX
+========================================================= */
+
+.login-box {
+    width: 300px;
+
+    background: rgba(0, 0, 0, 0.80);
+
+    padding: 25px;
+
+    border-radius: 10px;
+
+    border: 1px solid rgba(255, 114, 0, 0.5);
+
+    box-shadow:
+        0 0 20px rgba(255, 114, 0, 0.2);
+}
+
+.login-box h2 {
+    background: #ffffff;
+
+    color: #ff7200;
+
+    text-align: center;
+
+    padding: 10px;
+
+    border-radius: 5px;
+}
+
+.login-box input {
+    width: 100%;
+
+    padding: 10px;
+
+    margin-top: 15px;
+
+    background: transparent;
+
+    border: none;
+
+    border-bottom: 1px solid #ff7200;
+
+    color: #ffffff;
+
+    outline: none;
+}
+
+.login-box input:focus {
+    box-shadow:
+        0 5px 10px rgba(255, 114, 0, 0.2);
+}
+
+.login-btn {
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 10px;
+
+    background: #ff7200;
+
+    border: none;
+
+    cursor: pointer;
+
+    color: #000000;
+
+    font-weight: bold;
+
+    border-radius: 5px;
+
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background: #ffffff;
+
+    color: #ff7200;
+
+    box-shadow:
+        0 0 15px rgba(255, 114, 0, 0.6);
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+.link {
+    text-align: center;
+
+    margin-top: 15px;
+}
+
+.link a {
+    color: #ff7200;
+
+    text-decoration: none;
+
+    transition: 0.3s;
+}
+
+.link a:hover {
+    color: #ffffff;
+
+    text-shadow:
+        0 0 8px #ff7200;
+}
+
+
+/* =========================================================
+   ICONS
+========================================================= */
+
+.icons-text {
+    text-align: center;
+
+    margin-top: 15px;
+}
+
+.icons {
+    text-align: center;
+
+    margin-top: 10px;
+}
+
+.icons i {
+    margin: 0 8px;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+    color: #ffffff;
+}
+
+.icons i:hover {
+    color: #ff7200;
+
+    text-shadow:
+        0 0 10px #ff7200;
+
+    transform: scale(1.15);
+}
+
+
+/* =========================================================
+   GENERAL SECTIONS
+========================================================= */
+
+.hero,
+.about,
+.crew,
+.contact,
+.vm-container {
+    background: rgba(0, 0, 0, 0.70);
+
+    border-bottom: 1px solid rgba(255, 114, 0, 0.15);
+}
+
+
+/* =========================================================
+   SECTION HEADINGS
+========================================================= */
+
+.hero h1,
+.about h2,
+.crew h2,
+.contact h2 {
+    color: #ff7200;
+
+    text-shadow:
+        0 0 10px rgba(255, 114, 0, 0.5);
+}
+
+
+/* =========================================================
+   CREW CARDS
+========================================================= */
+
+.crew-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 20, 20, 0.95),
+            rgba(0, 0, 0, 0.95)
+        );
+
+    border: 1px solid rgba(255, 114, 0, 0.45);
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 0 15px rgba(255, 114, 0, 0.12);
+
+    transition: 0.3s;
+}
+
+.crew-card:hover {
+    border-color: #ff7200;
+
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 0 10px rgba(255, 114, 0, 0.4),
+        0 0 25px rgba(255, 114, 0, 0.2);
+}
+
+
+/* =========================================================
+   VISION / MISSION BOXES
+========================================================= */
+
+.vm-box {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 20, 20, 0.95),
+            rgba(0, 0, 0, 0.95)
+        );
+
+    border: 1px solid rgba(255, 114, 0, 0.45);
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 0 15px rgba(255, 114, 0, 0.12);
+
+    transition: 0.3s;
+}
+
+.vm-box:hover {
+    border-color: #ff7200;
+
+    box-shadow:
+        0 0 20px rgba(255, 114, 0, 0.3);
+}
+
+.vm-box h3 {
+    color: #ff7200;
+
+    text-shadow:
+        0 0 8px rgba(255, 114, 0, 0.5);
+}
+
+
+/* =========================================================
+   CONTACT FORM
+========================================================= */
+
+.contact form {
+    background: rgba(0, 0, 0, 0.80);
+
+    border: 1px solid rgba(255, 114, 0, 0.45);
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 0 20px rgba(255, 114, 0, 0.15);
+}
+
+.contact input,
+.contact textarea {
+    background: rgba(0, 0, 0, 0.60);
+
+    color: #ffffff;
+
+    border: 1px solid #ff7200;
+
+    outline: none;
+}
+
+.contact input::placeholder,
+.contact textarea::placeholder {
+    color: #aaaaaa;
+}
+
+.contact input:focus,
+.contact textarea:focus {
+    box-shadow:
+        0 0 10px rgba(255, 114, 0, 0.5);
+}
+
+
+/* =========================================================
+   AUTHENTICATION PAGE
+========================================================= */
+
+.auth-page {
+    min-height: 100vh;
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 30px;
+
+    position: relative;
+
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(255, 114, 0, 0.15),
+            transparent 40%
+        ),
+        linear-gradient(
+            135deg,
+            #000000,
+            #0b0b0b,
+            #151515,
+            #000000
+        );
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+
+    background-attachment: fixed;
+}
+
+
+/* =========================================================
+   AUTH ORANGE GLOW
+========================================================= */
+
+.auth-page::before {
+    content: "";
+
+    position: absolute;
+
+    width: 450px;
+
+    height: 450px;
+
+    background: #ff7200;
+
+    filter: blur(180px);
+
+    opacity: 0.12;
+
+    border-radius: 50%;
+
+    top: -150px;
+
+    left: -150px;
+
+    pointer-events: none;
+}
+
+.auth-page::after {
+    content: "";
+
+    position: absolute;
+
+    width: 400px;
+
+    height: 400px;
+
+    background: #ff7200;
+
+    filter: blur(180px);
+
+    opacity: 0.10;
+
+    border-radius: 50%;
+
+    bottom: -150px;
+
+    right: -150px;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   AUTH BOX
+========================================================= */
+
+.auth-box {
+    position: relative;
+
+    z-index: 2;
+
+    width: 350px;
+
+    padding: 30px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 20, 20, 0.97),
+            rgba(0, 0, 0, 0.97)
+        );
+
+    border: 1px solid #ff7200;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 0 10px rgba(255, 114, 0, 0.3),
+        0 0 30px rgba(255, 114, 0, 0.2);
+
+    text-align: center;
+
+    animation: authGlow 3s ease-in-out infinite alternate;
+}
+
+
+/* =========================================================
+   AUTH BOX GLOW
+========================================================= */
+
+@keyframes authGlow {
+
+    from {
+        box-shadow:
+            0 0 10px rgba(255, 114, 0, 0.25),
+            0 0 25px rgba(255, 114, 0, 0.15);
+    }
+
+    to {
+        box-shadow:
+            0 0 15px rgba(255, 114, 0, 0.45),
+            0 0 40px rgba(255, 114, 0, 0.25);
+    }
+}
+
+
+/* =========================================================
+   AUTH TITLE
+========================================================= */
+
+.auth-box h2 {
+    background: #ffffff;
+
+    color: #ff7200;
+
+    text-align: center;
+
+    padding: 12px;
+
+    border-radius: 5px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 0 10px rgba(255, 114, 0, 0.25);
+}
+
+
+/* =========================================================
+   AUTH INPUTS
+========================================================= */
+
+.auth-box input {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 15px;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    border: 1px solid rgba(255, 114, 0, 0.4);
+
+    border-bottom: 1px solid #ff7200;
+
+    border-radius: 5px;
+
+    color: #ffffff;
+
+    outline: none;
+
+    font-size: 15px;
+
+    transition: 0.3s;
+}
+
+.auth-box input::placeholder {
+    color: #cccccc;
+}
+
+.auth-box input:focus {
+    border-color: #ff7200;
+
+    box-shadow:
+        0 0 5px #ff7200,
+        0 0 15px rgba(255, 114, 0, 0.35);
+}
+
+
+/* =========================================================
+   AUTH BUTTON
+========================================================= */
+
+.auth-box button {
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 12px;
+
+    background: #ff7200;
+
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    color: #000000;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+
+    box-shadow:
+        0 0 8px rgba(255, 114, 0, 0.4);
+}
+
+.auth-box button:hover {
+    background: #ffffff;
+
+    color: #ff7200;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 0 10px #ff7200,
+        0 0 25px rgba(255, 114, 0, 0.5);
+}
+
+.auth-box button:active {
+    transform: scale(0.98);
+}
+
+
+/* =========================================================
+   AUTH TEXT
+========================================================= */
+
+.auth-box p {
+    text-align: center;
+
+    margin-top: 15px;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   AUTH LINKS
+========================================================= */
+
+.auth-box a {
+    color: #ff7200;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.auth-box a:hover {
+    color: #ffffff;
+
+    text-shadow:
+        0 0 8px #ff7200;
+
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+    background: #000000;
+
+    color: #cccccc;
+
+    border-top: 1px solid rgba(255, 114, 0, 0.3);
+
+    text-align: center;
+}
+
+footer a {
+    color: #ff7200;
+}
+
+
+/* =========================================================
+   MOBILE - AUTH
+========================================================= */
+
+@media (max-width: 500px) {
+
+    .auth-box {
+        width: 90%;
+
+        padding: 25px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE - WEBSITE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        padding: 0 25px;
+    }
+
+    .content {
+        padding: 40px 25px;
+
+        flex-direction: column;
+    }
+
+    .text {
+        width: 100%;
+    }
+
+    .text h1 {
+        font-size: 38px;
+    }
+
 }
