@@ -159,3 +159,4 @@ if (loginForm) {
     );
 
 }
+window.location.href = "products.html";

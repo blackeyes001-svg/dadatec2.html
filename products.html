@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Products - Dada's Tech</title>
+
+   <link rel="stylesheet" href="products.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="nav-container">
+
+            <a href="loz.html" class="brand">
+                <img src="img.jpg" alt="Dada's Tech Logo">
+                <span>Dada's <b>Tech</b></span>
+            </a>
+
+            <div class="nav-links" id="navLinks">
+                <a href="loz.html">Home</a>
+                <a href="products.html" class="active">Products</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+                <button class="cart-button" onclick="openCart()">
+                 🛒 Cart
+           <span id="cartCount">0</span>
+</button>
+            </div>
+
+            <div class="nav-actions">
+
+                <button id="darkModeBtn" title="Dark Mode">
+                    🌙
+                </button>
+
+                <button class="cart-btn" id="cartBtn">
+                    🛒
+                    <span id="cartCount">0</span>
+                </button>
+
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <section class="products-hero">
+
+        <div class="hero-content">
+
+            <p class="hero-small">
+                DADA'S TECH STORE
+            </p>
+
+            <h1>
+                Explore Our
+                <span>Products</span>
+            </h1>
+
+            <p>
+                Quality technology, electronics and accessories
+                for your everyday needs.
+            </p>
+
+            <div class="search-box">
+
+                <span>🔍</span>
+
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search laptops, phones, TVs, gaming..."
+                >
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CATEGORIES
+    ========================== -->
+
+    <section class="category-section">
+
+        <div class="section-heading">
+            <p>SHOP BY CATEGORY</p>
+            <h2>What are you looking for?</h2>
+        </div>
+
+        <div class="category-buttons">
+
+            <button class="category-btn active" data-category="all">
+                All
+            </button>
+
+            <button class="category-btn" data-category="computers">
+                💻 Computers
+            </button>
+
+            <button class="category-btn" data-category="phones">
+                📱 Phones
+            </button>
+
+            <button class="category-btn" data-category="tv">
+                📺 TV & Entertainment
+            </button>
+
+            <button class="category-btn" data-category="gaming">
+                🎮 Gaming
+            </button>
+
+            <button class="category-btn" data-category="audio">
+                🎧 Audio
+            </button>
+
+            <button class="category-btn" data-category="accessories">
+                ⌨️ Accessories
+            </button>
+
+            <button class="category-btn" data-category="networking">
+                📡 Networking
+            </button>
+
+            <button class="category-btn" data-category="smart">
+                ⌚ Smart Devices
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         PRODUCTS
+    ========================== -->
+
+    <main class="products-section">
+
+        <div class="products-header">
+
+            <div>
+                <p>OUR COLLECTION</p>
+                <h2>Featured Products</h2>
+            </div>
+
+            <select id="sortProducts">
+
+                <option value="default">
+                    Sort Products
+                </option>
+
+                <option value="low">
+                    Price: Low to High
+                </option>
+
+                <option value="high">
+                    Price: High to Low
+                </option>
+
+                <option value="name">
+                    Name: A-Z
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="products-grid" id="productsGrid">
+
+
+            <!-- PRODUCT 1 -->
+
+            <article
+                class="product-card"
+                data-category="computers"
+                data-name="HP EliteBook Core i5 Laptop"
+                data-price="450000"
+            >
+
+                <div class="product-image">
+
+                    <span class="badge">
+                        Popular
+                    </span>
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=700&q=80"
+                        alt="HP Laptop"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Computers
+                    </p>
+
+                    <h3>
+                        HP EliteBook Core i5 Laptop
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐⭐
+                        <span>(24)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦450,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 2 -->
+
+            <article
+                class="product-card"
+                data-category="phones"
+                data-name="Samsung Galaxy S23 Ultra"
+                data-price="950000"
+            >
+
+                <div class="product-image">
+
+                    <span class="badge new">
+                        New
+                    </span>
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=700&q=80"
+                        alt="Samsung Galaxy Phone"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Phones
+                    </p>
+
+                    <h3>
+                        Samsung Galaxy S23 Ultra
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐⭐
+                        <span>(31)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦950,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 3 -->
+
+            <article
+                class="product-card"
+                data-category="tv"
+                data-name="Samsung 55 Inch Smart TV"
+                data-price="680000"
+            >
+
+                <div class="product-image">
+
+                    <span class="badge">
+                        Hot
+                    </span>
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=700&q=80"
+                        alt="Smart TV"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        TV & Entertainment
+                    </p>
+
+                    <h3>
+                        Samsung 55" Smart TV
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐☆
+                        <span>(18)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦680,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 4 -->
+
+            <article
+                class="product-card"
+                data-category="gaming"
+                data-name="PlayStation 5 Gaming Console"
+                data-price="850000"
+            >
+
+                <div class="product-image">
+
+                    <span class="badge">
+                        Popular
+                    </span>
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=700&q=80"
+                        alt="PlayStation 5"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Gaming
+                    </p>
+
+                    <h3>
+                        PlayStation 5 Console
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐⭐
+                        <span>(42)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦850,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 5 -->
+
+            <article
+                class="product-card"
+                data-category="audio"
+                data-name="Wireless Bluetooth Headphones"
+                data-price="85000"
+            >
+
+                <div class="product-image">
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80"
+                        alt="Wireless Headphones"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Audio
+                    </p>
+
+                    <h3>
+                        Wireless Bluetooth Headphones
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐☆
+                        <span>(16)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦85,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 6 -->
+
+            <article
+                class="product-card"
+                data-category="accessories"
+                data-name="Mechanical Gaming Keyboard"
+                data-price="65000"
+            >
+
+                <div class="product-image">
+
+                    <span class="badge new">
+                        New
+                    </span>
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80"
+                        alt="Gaming Keyboard"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Accessories
+                    </p>
+
+                    <h3>
+                        Mechanical Gaming Keyboard
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐⭐
+                        <span>(12)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦65,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 7 -->
+
+            <article
+                class="product-card"
+                data-category="networking"
+                data-name="TP-Link WiFi Router"
+                data-price="45000"
+            >
+
+                <div class="product-image">
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1647166545674-ce28ce93bdca?auto=format&fit=crop&w=700&q=80"
+                        alt="WiFi Router"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Networking
+                    </p>
+
+                    <h3>
+                        TP-Link WiFi Router
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐☆
+                        <span>(9)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦45,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- PRODUCT 8 -->
+
+            <article
+                class="product-card"
+                data-category="smart"
+                data-name="Smart Watch Pro"
+                data-price="120000"
+            >
+
+                <div class="product-image">
+
+                    <span class="badge">
+                        Hot
+                    </span>
+
+                    <button class="wishlist">
+                        ♡
+                    </button>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80"
+                        alt="Smart Watch"
+                    >
+
+                </div>
+
+                <div class="product-info">
+
+                    <p class="product-category">
+                        Smart Devices
+                    </p>
+
+                    <h3>
+                        Smart Watch Pro
+                    </h3>
+
+                    <div class="rating">
+                        ⭐⭐⭐⭐⭐
+                        <span>(27)</span>
+                    </div>
+
+                    <div class="price">
+                        ₦120,000
+                    </div>
+
+                    <button class="add-cart">
+                        🛒 Add to Cart
+                    </button>
+
+                </div>
+
+            </article>
+
+
+        </div>
+
+
+        <!-- NO PRODUCTS -->
+
+        <div id="noProducts" class="no-products">
+
+            <div>🔍</div>
+
+            <h3>
+                No products found
+            </h3>
+
+            <p>
+                Try searching for another product.
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         CART SIDEBAR
+    ========================== -->
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <aside class="cart-sidebar" id="cartSidebar">
+
+        <div class="cart-header">
+
+            <h2>
+                🛒 Your Cart
+            </h2>
+
+            <button id="closeCart">
+                ×
+            </button>
+
+        </div>
+
+        <div id="cartItems" class="cart-items">
+
+            <div class="empty-cart">
+                <span>🛒</span>
+
+                <h3>
+                    Your cart is empty
+                </h3>
+
+                <p>
+                    Add some products to get started.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="cart-footer">
+
+            <div class="cart-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="cartTotal">
+                    ₦0
+                </strong>
+
+            </div>
+
+            <button class="checkout-btn">
+                Proceed to Checkout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <div class="footer-content">
+
+            <h2>
+                Dada's <span>Tech</span>
+            </h2>
+
+            <p>
+                Innovating Technology, Building the Future.
+            </p>
+
+            <div class="footer-links">
+                <a href="loz.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
+
+            <p class="copyright">
+                © 2026 Dada's Tech. All Rights Reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script src="JS/products.js"></script>
+   
+   <script>
+
+    // =========================
+    // SHOPPING CART
+    // =========================
+
+    let cart = [];
+
+
+    function addToCart(productName, price) {
+
+        cart.push({
+            name: productName,
+            price: price
+        });
+
+        updateCart();
+
+        alert(productName + " added to your cart! 🛒");
+    }
+
+
+    function updateCart() {
+
+        const cartCount =
+            document.getElementById("cartCount");
+
+        cartCount.textContent = cart.length;
+
+    }
+
+
+    function openCart() {
+
+        const cartBox =
+            document.getElementById("cartBox");
+
+        cartBox.classList.add("show");
+
+        displayCart();
+
+    }
+
+
+    function closeCart() {
+
+        const cartBox =
+            document.getElementById("cartBox");
+
+        cartBox.classList.remove("show");
+
+    }
+
+
+    function displayCart() {
+
+        const cartItems =
+            document.getElementById("cartItems");
+
+        const cartTotal =
+            document.getElementById("cartTotal");
+
+
+        cartItems.innerHTML = "";
+
+
+        if (cart.length === 0) {
+
+            cartItems.innerHTML =
+                "<p>Your cart is empty 🛒</p>";
+
+            cartTotal.textContent = "₦0";
+
+            return;
+        }
+
+
+        let total = 0;
+
+
+        cart.forEach(function(item, index) {
+
+            total += item.price;
+
+
+            const itemElement =
+                document.createElement("div");
+
+            itemElement.className = "cart-item";
+
+
+            itemElement.innerHTML = `
+
+                <div>
+                    <strong>${item.name}</strong>
+
+                    <p>
+                        ₦${item.price.toLocaleString()}
+                    </p>
+                </div>
+
+                <button
+                    onclick="removeFromCart(${index})">
+
+                    Remove
+
+                </button>
+
+            `;
+
+
+            cartItems.appendChild(itemElement);
+
+        });
+
+
+        cartTotal.textContent =
+            "₦" + total.toLocaleString();
+
+    }
+
+
+    function removeFromCart(index) {
+
+        cart.splice(index, 1);
+
+        updateCart();
+
+        displayCart();
+
+    }
+
+
+    // =========================
+    // CATEGORY BUTTONS
+    // =========================
+
+    const categoryButtons =
+        document.querySelectorAll(".category-btn");
+
+
+    categoryButtons.forEach(function(button) {
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                categoryButtons.forEach(
+                    function(btn) {
+
+                        btn.classList.remove("active");
+
+                    }
+                );
+
+
+                this.classList.add("active");
+
+            }
+        );
+
+    });
+
+
+</script>
+
+<div id="cartBox" class="cart-box">
+
+    <div class="cart-header">
+
+        <h2>🛒 Your Cart</h2>
+
+        <button onclick="closeCart()">
+            ✕
+        </button>
+
+    </div>
+
+
+    <div id="cartItems">
+
+        <p>Your cart is empty 🛒</p>
+
+    </div>
+
+
+    <div class="cart-bottom">
+
+        <h3>
+            Total:
+            <span id="cartTotal">₦0</span>
+        </h3>
+
+        <button class="checkout-btn">
+            Proceed to Checkout →
+        </button>
+
+    </div>
+
+</div>
+
+</body>
+</html>
