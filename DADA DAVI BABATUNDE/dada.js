@@ -72,10 +72,6 @@ if (signupForm) {
 }
 
 
-// ======================================
-// LOGIN
-// ======================================
-
 const loginForm =
     document.getElementById("loginForm");
 
@@ -96,7 +92,6 @@ if (loginForm) {
                 document.getElementById("loginPassword").value;
 
 
-            // Get saved account
 
             const savedUser =
                 localStorage.getItem(
@@ -119,14 +114,12 @@ if (loginForm) {
                 JSON.parse(savedUser);
 
 
-            // Check login details
-
             if (
                 email === user.email &&
                 password === user.password
             ) {
 
-                // Save login status
+          
 
                 localStorage.setItem(
                     "dadasTechLoggedIn",

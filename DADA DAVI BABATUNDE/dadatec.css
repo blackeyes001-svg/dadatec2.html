@@ -221,6 +221,7 @@ nav {
     margin-bottom: 15px;
 
     background: linear-gradient(90deg, #ffffff, #00d4ff);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
@@ -1232,4 +1233,292 @@ body {
     .signup-btn {
         height: 50px;
     }
+}
+/* =========================
+   FOUNDER WELCOME
+========================= */
+
+.hero {
+    min-height: 600px;
+
+    padding: 80px 8%;
+
+    background:
+        linear-gradient(
+            120deg,
+            #061a3a,
+            #0866ff
+        );
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 60px;
+
+    overflow: hidden;
+}
+
+
+/* TEXT */
+
+.hero-content {
+    max-width: 650px;
+}
+
+.welcome-label {
+    display: inline-block;
+
+    color: #9ccaff;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: 55px;
+
+    line-height: 1.1;
+
+    margin-bottom: 25px;
+}
+
+.hero h1 span {
+    color: #9ccaff;
+
+    display: block;
+}
+
+.founder-welcome {
+    font-size: 17px;
+
+    line-height: 1.8;
+
+    color: #e5efff;
+
+    max-width: 600px;
+}
+
+.founder-name {
+    margin-top: 25px;
+
+    font-size: 18px;
+}
+
+.founder-name strong {
+    font-size: 20px;
+}
+
+.founder-name span {
+    color: #a9caff;
+
+    font-size: 14px;
+}
+
+
+/* BUTTON */
+
+.hero-btn {
+    display: inline-block;
+
+    margin-top: 25px;
+
+    padding: 14px 25px;
+
+    background: white;
+
+    color: #0866ff;
+
+    border-radius: 30px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.hero-btn:hover {
+    transform: translateY(-3px);
+
+    background: #e8f1ff;
+}
+
+
+/* =========================
+   FOUNDER PICTURE
+========================= */
+
+.founder-picture {
+    position: relative;
+
+    width: 360px;
+
+    min-width: 360px;
+
+    height: 440px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+/* BLUE GLOW */
+
+.picture-glow {
+    position: absolute;
+
+    width: 330px;
+
+    height: 330px;
+
+    background: #4da3ff;
+
+    border-radius: 50%;
+
+    filter: blur(70px);
+
+    opacity: 0.45;
+}
+
+
+/* IMAGE */
+
+.founder-picture img {
+    position: relative;
+
+    width: 350px;
+
+    height: 350px;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    border-radius: 25px;
+
+    border: 7px solid rgba(255,255,255,0.8);
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.35);
+
+    z-index: 2;
+}
+
+
+/* BADGE */
+
+.founder-badge {
+    position: absolute;
+
+    bottom: 5px;
+
+    right: 0;
+
+    z-index: 3;
+
+    background: white;
+
+    color: #172033;
+
+    padding: 15px 22px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.25);
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.founder-badge strong {
+    color: #0866ff;
+
+    font-size: 15px;
+}
+
+.founder-badge span {
+    font-size: 12px;
+
+    color: #667085;
+
+    margin-top: 3px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 850px) {
+
+    .hero {
+        flex-direction: column;
+
+        text-align: center;
+
+        padding: 70px 5%;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .founder-welcome {
+        margin: auto;
+    }
+
+    .founder-picture {
+        width: 300px;
+
+        min-width: 300px;
+
+        height: 400px;
+    }
+
+    .founder-picture img {
+        width: 270px;
+
+        height: 350px;
+    }
+
+    .founder-badge {
+        right: -5px;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .hero h1 {
+        font-size: 34px;
+    }
+
+    .founder-picture {
+        width: 270px;
+
+        min-width: 270px;
+    }
+
+    .founder-picture img {
+        width: 245px;
+
+        height: 320px;
+    }
+
 }
