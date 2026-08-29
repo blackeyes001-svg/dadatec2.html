@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -24,7 +25,7 @@
 
         <div class="nav-container">
 
-            <a href="loz.html" class="brand">
+            <a href="home.html" class="brand">
 
                 <img
                     src="img.jpg"
@@ -285,12 +286,14 @@
 
     <script>
 
+        // Get cart from localStorage
         const cart =
             JSON.parse(
                 localStorage.getItem("dadasTechCart")
             ) || [];
 
 
+        // Get page elements
         const orderItems =
             document.getElementById("orderItems");
 
@@ -313,6 +316,7 @@
             document.getElementById("successMessage");
 
 
+        // Format Nigerian currency
         function formatPrice(price) {
 
             return "₦" +
@@ -322,8 +326,10 @@
         }
 
 
+        // Display the order
         function displayOrder() {
 
+            // Check if cart is empty
             if (cart.length === 0) {
 
                 orderItems.innerHTML = `
@@ -363,6 +369,7 @@
             let total = 0;
 
 
+            // Display each product
             cart.forEach(product => {
 
                 const quantity =
@@ -414,9 +421,11 @@
             });
 
 
+            // Delivery fee
             const deliveryFee = 0;
 
 
+            // Update prices
             subtotal.textContent =
                 formatPrice(total);
 
@@ -431,13 +440,16 @@
         }
 
 
+        // Handle order submission
         checkoutForm.addEventListener(
             "submit",
             function(event) {
 
+                // Prevent page refresh
                 event.preventDefault();
 
 
+                // Make sure cart is not empty
                 if (cart.length === 0) {
 
                     alert(
@@ -449,12 +461,14 @@
                 }
 
 
+                // Get customer's name
                 const customerName =
                     document.getElementById(
                         "fullName"
                     ).value;
 
 
+                // Show order confirmation
                 alert(
                     "Thank you " +
                     customerName +
@@ -462,25 +476,40 @@
                 );
 
 
+                // Hide checkout form
                 checkoutContent.style.display =
                     "none";
 
 
+                // Show success message
                 successMessage.style.display =
                     "block";
 
 
+                // Clear cart
                 localStorage.removeItem(
                     "dadasTechCart"
                 );
+
+
+                // Redirect to home.html after 3 seconds
+                setTimeout(function() {
+
+                    window.location.href =
+                        "home.html";
+
+                }, 3000);
 
             }
         );
 
 
+        // Load order when page opens
         displayOrder();
+
     </script>
 
 </body>
 
 </html>
+```
