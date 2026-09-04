@@ -727,15 +727,223 @@
     <section
         id="contact"
         class="contact-section"
-    >
+    ><!-- ==========================================
+     CONTACT ME
+========================================== -->
 
-        <h2>
-            Contact Us
-        </h2>
+<section class="contact-section" id="contact">
 
-        <p>
-            Get in touch with Dada's Tech.
-        </p>
+    <div class="contact-container">
+
+        <div class="contact-heading">
+            <p class="section-label">GET IN TOUCH</p>
+
+            <h2>Contact <span>Me</span></h2>
+
+            <p>
+                Have a question, need a product, or want to work with
+                Dada's Tech? Feel free to reach out to me.
+            </p>
+        </div>
+
+
+        <div class="contact-content">
+
+            <!-- CONTACT INFORMATION -->
+            <div class="contact-info">
+
+                <h3>Let's Talk</h3>
+
+                <p>
+                    I'm always happy to hear from you. You can contact
+                    me through any of the options below.
+                </p>
+
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        📞
+                    </div>
+
+                    <div>
+                        <h4>Phone</h4>
+                        <a href="tel:+2347040628118">
+                            +234 704 062 8118
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        📧
+                    </div>
+
+                    <div>
+                        <h4>Email</h4>
+                        <a href="mailto:dadadavid097@gmail.com">
+                            dadadavid097@gmail.com
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        📍
+                    </div>
+
+                    <div>
+                        <h4>Location</h4>
+                        <p>
+                            Abuja, Nigeria
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        💬
+                    </div>
+
+                    <div>
+                        <h4>WhatsApp</h4>
+                        <a
+                            href="https://wa.me/234 7040628118"
+                            target="_blank"
+                        >
+                            Chat with me on WhatsApp
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <!-- SOCIAL LINKS -->
+
+                <div class="contact-socials">
+
+                    <a href="#" title="Facebook">
+                        f
+                    </a>
+
+                    <a href="#" title="Instagram">
+                        ◎
+                    </a>
+
+                    <a href="#" title="TikTok">
+                        ♪
+                    </a>
+
+                    <a href="#" title="X">
+                        𝕏
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONTACT FORM -->
+
+            <div class="contact-form-box">
+
+                <h3>Send Me a Message</h3>
+
+                <form id="contactForm">
+
+                    <div class="form-group">
+
+                        <label for="contactName">
+                            Your Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="contactName"
+                            name="name"
+                            placeholder="Enter your name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contactEmail">
+                            Your Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="contactEmail"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contactSubject">
+                            Subject
+                        </label>
+
+                        <input
+                            type="text"
+                            id="contactSubject"
+                            name="subject"
+                            placeholder="What is this about?"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contactMessage">
+                            Message
+                        </label>
+
+                        <textarea
+                            id="contactMessage"
+                            name="message"
+                            rows="6"
+                            placeholder="Write your message..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="contact-submit"
+                    >
+                        Send Message 🚀
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
     </section>
 
@@ -909,6 +1117,86 @@
             }
 
         };
+        /* ==========================================
+   CONTACT FORM
+========================================== */
+
+const contactForm =
+    document.getElementById("contactForm");
+
+if (contactForm) {
+
+    contactForm.addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            const name =
+                document.getElementById(
+                    "contactName"
+                ).value.trim();
+
+            const email =
+                document.getElementById(
+                    "contactEmail"
+                ).value.trim();
+
+            const subject =
+                document.getElementById(
+                    "contactSubject"
+                ).value.trim();
+
+            const message =
+                document.getElementById(
+                    "contactMessage"
+                ).value.trim();
+
+
+            if (
+                !name ||
+                !email ||
+                !subject ||
+                !message
+            ) {
+
+                alert(
+                    "Please fill in all the fields."
+                );
+
+                return;
+
+            }
+
+
+            /*
+              This opens the user's email app
+              with the message prepared.
+            */
+
+            const mailBody =
+                `Name: ${name}\n\n` +
+                `Email: ${email}\n\n` +
+                `Message:\n${message}`;
+
+
+            const mailto =
+                "mailto:dadastech@gmail.com" +
+                "?subject=" +
+                encodeURIComponent(subject) +
+                "&body=" +
+                encodeURIComponent(mailBody);
+
+
+            window.location.href = mailto;
+
+
+            contactForm.reset();
+
+        }
+    );
+
+}
 
     </script>
 
