@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Dada's Tech</title>
+
+    <link rel="stylesheet" href="dadatec.css">
+
+</head>
+
+<body class="auth-page">
+
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
+
+    <div class="auth-box">
+
+        <!-- Brand -->
+        <div class="brand">
+
+            <img
+                src="img.jpg"
+                alt="Dada's Tech Logo"
+                class="auth-logo"
+            >
+
+            <h1>Dada's <span>Tech</span></h1>
+
+            <p>
+                Innovating Technology, Building the Future
+            </p>
+
+        </div>
+
+
+        <!-- Login Heading -->
+        <div class="auth-heading">
+
+            <h2>Welcome Back</h2>
+
+            <p>
+                Login to continue to Dada's Tech
+            </p>
+
+        </div>
+
+
+        <!-- Login Form -->
+        <form id="loginForm">
+
+            <!-- Email -->
+            <div class="input-group">
+
+                <label for="loginEmail">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Password -->
+            <div class="input-group">
+
+                <label for="loginPassword">
+                    Password
+                </label>
+
+                <div class="password-box">
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="show-password"
+                        onclick="togglePassword()"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Forgot Password -->
+            <div class="forgot-password">
+
+                <a href="#" id="forgotPassword">
+                    Forgot Password?
+                </a>
+
+            </div>
+
+
+            <!-- Login Button -->
+            <button
+                type="submit"
+                class="signup-btn"
+            >
+                Login
+                <span>→</span>
+            </button>
+
+        </form>
+
+
+        <!-- Create Account -->
+        <p class="account-text">
+
+            Don't have an account?
+
+            <a href="signup.html">
+                Create Account
+            </a>
+
+        </p>
+
+
+        <!-- Back -->
+        <a
+            href="index.html"
+            class="back-home"
+        >
+            ← Back to Dada's Tech
+        </a>
+
+
+        <!-- Footer -->
+        <div class="auth-footer">
+
+            <p>
+                © 2026 Dada's Tech. All Rights Reserved.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // Show / Hide Password
+        function togglePassword() {
+
+            const password =
+                document.getElementById("loginPassword");
+
+            const button =
+                document.querySelector(".show-password");
+
+            if (password.type === "password") {
+
+                password.type = "text";
+
+                button.textContent = "🙈";
+
+            } else {
+
+                password.type = "password";
+
+                button.textContent = "👁";
+
+            }
+
+        }
+
+
+        // Login
+        document
+        .getElementById("loginForm")
+        .addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            const email =
+                document
+                .getElementById("loginEmail")
+                .value
+                .trim()
+                .toLowerCase();
+
+            const password =
+                document
+                .getElementById("loginPassword")
+                .value;
+
+
+            // Get saved account
+            const account =
+                JSON.parse(
+                    localStorage.getItem("dadaTechAccount")
+                );
+
+
+            // No account
+            if (!account) {
+
+                alert(
+                    "No account found. Please create an account first."
+                );
+
+                window.location.href = "signup.html";
+
+                return;
+            }
+
+
+            // Check login details
+            if (
+                email === account.email &&
+                password === account.password
+            ) {
+
+                // Save login status
+                localStorage.setItem(
+                    "dadaTechLoggedIn",
+                    "true"
+                );
+
+                localStorage.setItem(
+                    "dadaTechUser",
+                    account.fullName
+                );
+
+
+                // Go to website
+                window.location.href = "home.html";
+
+            } else {
+
+                alert(
+                    "Incorrect email or password."
+                );
+
+            }
+
+        });
+
+
+        // Forgot Password
+        document
+        .getElementById("forgotPassword")
+        .addEventListener("click", function(event) {
+
+            event.preventDefault();
+
+            const account =
+                JSON.parse(
+                    localStorage.getItem("dadaTechAccount")
+                );
+
+            if (!account) {
+
+                alert(
+                    "No account found. Please create an account first."
+                );
+
+                window.location.href = "home.html";
+
+                return;
+            }
+
+            alert(
+                "Password reset would normally be sent to your email. For this demo, please create a new account or use your saved password."
+            );
+
+        });
+
+    </script>
+
+</body>
+</html>

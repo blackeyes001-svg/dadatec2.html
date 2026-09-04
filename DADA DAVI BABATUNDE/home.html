@@ -12,22 +12,217 @@
 
 <body>
 
-    <!-- =========================
+    <!-- =====================================================
+         MOBILE MENU BUTTON
+    ====================================================== -->
+
+    <button class="menu-btn" id="menuBtn">
+        ☰
+    </button>
+
+
+    <!-- =====================================================
+         LEFT SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <!-- SIDEBAR HEADER -->
+
+        <div class="sidebar-header">
+
+            <div>
+                <h2>Dada's Tech</h2>
+
+                <p>
+                    Technology & Innovation
+                </p>
+            </div>
+
+            <button
+                class="close-sidebar"
+                id="closeSidebar"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- USER INFORMATION -->
+
+        <div class="sidebar-user">
+
+            <div class="user-avatar">
+                👤
+            </div>
+
+            <div>
+
+                <h3 id="sidebarUserName">
+                    Dada David
+                </h3>
+
+                <p>
+                    Founder & CEO
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAIN MENU -->
+
+        <div class="menu-section">
+
+            <h4>
+                MAIN
+            </h4>
+
+            <a
+                href="#home"
+                class="sidebar-link active"
+            >
+                🏠
+                <span>
+                    Home
+                </span>
+            </a>
+
+
+            <a
+                href="#about"
+                class="sidebar-link"
+            >
+                ℹ️
+                <span>
+                    About Us
+                </span>
+            </a>
+
+
+            <a
+                href="#crew"
+                class="sidebar-link"
+            >
+                👥
+                <span>
+                    Our Crew
+                </span>
+            </a>
+
+        </div>
+
+
+        <!-- SHOP MENU -->
+
+        <div class="menu-section">
+
+            <h4>
+                SHOP
+            </h4>
+
+
+            <a
+                href="products.html"
+                class="sidebar-link"
+            >
+                🛒
+                <span>
+                    Products
+                </span>
+            </a>
+
+
+            <a
+                href="wishlist.html"
+                class="sidebar-link"
+            >
+                ❤️
+                <span>
+                    Wishlist
+                </span>
+            </a>
+
+
+         
+
+        </div>
+
+
+        <!-- COMPANY MENU -->
+
+        <div class="menu-section">
+
+            <h4>
+                COMPANY
+            </h4>
+
+
+            <a
+                href="#contact"
+                class="sidebar-link"
+            >
+                📞
+                <span>
+                    Contact Us
+                </span>
+            </a>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <div class="sidebar-bottom">
+
+            <button
+                class="sidebar-link logout-btn"
+                id="logoutBtn"
+            >
+
+                🚪
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- SIDEBAR OVERLAY -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+
+    <!-- =====================================================
          HEADER
-    ========================== -->
+    ====================================================== -->
 
     <header class="site-title">
 
         <div class="title-logo-containergf">
 
-            <img src="./img.jpg"
+            <img
+                src="./img.jpg"
                 alt="Dada's Tech Logo"
                 class="logo-img"
             >
 
             <div class="title-text">
 
-                <h1>Dada’s Tech</h1>
+                <h1>
+                    Dada’s Tech
+                </h1>
 
                 <p>
                     Innovating Technology, Building the Future
@@ -39,160 +234,166 @@
 
     </header>
 
-<section id="home" class="hero">
-
-    <div class="hero-content">
-
-        <span class="welcome-label">
-            WELCOME TO DADA'S TECH
-        </span>
-
-        <h1>
-            Innovating Technology,
-            <span>Building the Future.</span>
-        </h1>
-
-        <p class="founder-welcome">
-            Welcome to Dada's Tech. I am <strong>Dada David</strong>,
-            Founder and Chief Executive Officer. It is my pleasure to
-            welcome you to our technology world, where innovation,
-            creativity, quality, and digital solutions come together.
-        </p>
-
-        <p class="founder-name">
-            <strong>DADA DAVID</strong><br>
-            <span>Founder & Chief Executive Officer</span>
-        </p>
-
-        <a href="#about" class="hero-btn">
-            Explore Dada's Tech →
-        </a>
-
-    </div>
 
 
-    <!-- FOUNDER PICTURE -->
-
-    <div class="founder-picture">
-
-        <div class="picture-glow"></div>
-
-        <img
-            src="photo1.jpg"
-            alt="Dada David - Founder and CEO"
-        >
-
-        <div class="founder-badge">
-            <strong>DADA DAVID</strong>
-            <span>Founder & CEO</span>
-        </div>
-
-    </div>
-
-</section>
-  
-    <nav>
-
-        <div class="nav-container">
-
-            <h2 class="logo"></h2>
-
-            <ul class="nav-links" id="navLinks">
-
-                <li>
-                    <a href="#home">
-                        Home
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#about">
-                        About
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#crew">
-                        Crew
-                    </a>
-                </li>
-
-                <!-- PRODUCTS GO DIRECTLY TO PRODUCTS PAGE -->
-                <li>
-                    <a href="products.html">
-                        Products
-                    </a>
-                </li>
-
-            </ul>
-
-
-            <!-- Hamburger Menu -->
-
-            <div
-                class="hamburger"
-                id="hamburger"
-            >
-
-                <span></span>
-                <span></span>
-                <span></span>
-
-            </div>
-
-        </div>
-
-    </nav>
-
-
-    <!-- =========================
-         DARK MODE
-    ========================== -->
-
-    <button id="darkModeBtn">
-        🌙
-    </button>
-
-
-    <!-- =========================
-         HOME
-    ========================== -->
+    <!-- =====================================================
+         HERO / HOME
+    ====================================================== -->
 
     <section
         id="home"
         class="hero"
     >
 
+        <div class="hero-content">
+
+            <span class="welcome-label">
+                WELCOME TO DADA'S TECH
+            </span>
+
+
+            <h1>
+                Innovating Technology,
+                <span>
+                    Building the Future.
+                </span>
+            </h1>
+
+
+            <p class="founder-welcome">
+
+                Welcome to Dada's Tech.
+                I am <strong>Dada David</strong>,
+                Founder and Chief Executive Officer.
+
+                It is my pleasure to welcome you to our
+                technology world, where innovation,
+                creativity, quality, and digital solutions
+                come together.
+
+            </p>
+
+
+            <p class="founder-name">
+
+                <strong>
+                    DADA DAVID
+                </strong>
+
+                <br>
+
+                <span>
+                    Founder & Chief Executive Officer
+                </span>
+
+            </p>
+
+
+            <a
+                href="#about"
+                class="hero-btn"
+            >
+                Explore Dada's Tech →
+            </a>
+
+        </div>
+
+
+
+        <!-- FOUNDER PICTURE -->
+
+        <div class="founder-picture">
+
+            <div class="picture-glow"></div>
+
+
+            <img
+                src="photo1.jpg"
+                alt="Dada David - Founder and CEO"
+            >
+
+
+            <div class="founder-badge">
+
+                <strong>
+                    DADA DAVID
+                </strong>
+
+                <span>
+                    Founder & CEO
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         DARK MODE
+    ====================================================== -->
+
+    <button id="darkModeBtn">
+        🌙
+    </button>
+
+
+
+    <!-- =====================================================
+         WELCOME SECTION
+    ====================================================== -->
+
+    <section
+        id="welcome"
+        class="hero"
+    >
+
         <h1>
             Welcome to Dada's Tech
         </h1>
-<p> I am Dada David, the Founder and Chief Executive Officer of Dada’s Tech, and I am delighted to have you here.
 
-Dada’s Tech was created from a passion for technology, innovation, creativity, and the desire to build solutions that make a real difference.
 
-Our goal is not simply to sell technology products or develop websites; we want to create a technology brand that people can trust.
-
-As you explore our website, you will discover our products, digital solutions, creative designs, and the talented team behind Dada’s Tech.
-
-We are committed to quality, innovation, customer satisfaction, and continuous growth.
-
-Every product we offer and every solution we create represents our vision of making technology more accessible and useful.
-
-Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovation, and endless possibilities.
-
-</p>
         <p>
+
+            I am Dada David, the Founder and Chief
+            Executive Officer of Dada’s Tech, and I am
+            delighted to have you here.Dada’s Tech was created from a passion for
+            technology, innovation, creativity, and the
+            desire to build solutions that make a real
+            difference.Our goal is not simply to sell technology
+            products or develop websites; we want to
+            create a technology brand that people can
+            trust. As you explore our website, you will discover
+            our products, digital solutions, creative
+            designs, and the talented team behind
+            Dada’s Tech. We are committed to quality, innovation,
+            customer satisfaction, and continuous growth.Every product we offer and every solution
+            we create represents our vision of making
+            technology more accessible and useful.Thank you for visiting Dada’s Tech. Welcome to our world of technology,
+            innovation, and endless possibilities.
+
+        </p>
+
+
+        <p>
+
             <b>
-               Dada's Tech-------- Innovating Technology, Building the Future
+                Dada's Tech —
+                Innovating Technology,
+                Building the Future
             </b>
+
         </p>
 
     </section>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          ABOUT
-    ========================== -->
+    ====================================================== -->
 
     <section
         id="about"
@@ -203,13 +404,21 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
             About Us
         </h2>
 
+
         <p>
+
             <b>
-                Dada's Tech is a modern technology brand dedicated and  focused on tech's development,
-                 to providing innovative digital solutions,quality electronics devices,
-                 computer products, and technology services
+
+                Dada's Tech is a modern technology brand
+                dedicated and focused on tech's development,
+                to providing innovative digital solutions,
+                quality electronics devices,
+                computer products, and technology services.
+
             </b>
+
         </p>
+
 
         <img
             src="vision.jpg"
@@ -219,9 +428,10 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
     </section>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          CREW
-    ========================== -->
+    ====================================================== -->
 
     <section
         id="crew"
@@ -232,23 +442,30 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
             Our Crew
         </h2>
 
+
         <p>
 
             <b>
+
                 Our team is made up of talented and
                 passionate individuals committed to
                 driving innovation and excellence in
                 every project.
 
-                <br>
+                <br><br>
 
                 We are dedicated to delivering exceptional
                 results and working collaboratively to
-                achieve success.Each members brings unique skills
-                and expertise to the table,making us stronger together.
+                achieve success.
+
+                Each member brings unique skills
+                and expertise to the table, making us
+                stronger together.
+
             </b>
 
         </p>
+
 
 
         <div class="crew-container">
@@ -275,6 +492,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
             </div>
 
 
+
             <!-- CREW MEMBER 2 -->
 
             <div class="crew-card">
@@ -294,6 +512,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 </p>
 
             </div>
+
 
 
             <!-- CREW MEMBER 3 -->
@@ -316,6 +535,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
             </div>
 
 
+
             <!-- CREW MEMBER 4 -->
 
             <div class="crew-card">
@@ -330,15 +550,20 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 </h3>
 
                 <p>
-                     HUMAN RESOURCE MANAGER(HR) 
+                    HUMAN RESOURCE MANAGER (HR)
                 </p>
 
             </div>
- <div class="crew-card">
+
+
+
+            <!-- CREW MEMBER 5 -->
+
+            <div class="crew-card">
 
                 <img
                     src="photo8.jpg"
-                    alt=" MARIAM ABBAS"
+                    alt="Mariam Abbas"
                 >
 
                 <h3>
@@ -350,11 +575,16 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 </p>
 
             </div>
-             <div class="crew-card">
+
+
+
+            <!-- CREW MEMBER 6 -->
+
+            <div class="crew-card">
 
                 <img
                     src="photo6.jpg"
-                    alt="JUDE UDOJI AONDOWASE"
+                    alt="Jude Udoji Aondowase"
                 >
 
                 <h3>
@@ -363,16 +593,20 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
 
                 <p>
                     CHIEF FINANCIAL OFFICER
-                      (CFO)
+                    (CFO)
                 </p>
 
             </div>
 
-             <div class="crew-card">
+
+
+            <!-- CREW MEMBER 7 -->
+
+            <div class="crew-card">
 
                 <img
                     src="photo7.jpg"
-                    alt=" EJEMBI JOHN OCHE"
+                    alt="Ejembi John Oche"
                 >
 
                 <h3>
@@ -380,15 +614,21 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 </h3>
 
                 <p>
-                   CHIEF OPERATING OFFICER(COO)
+                    CHIEF OPERATING OFFICER
+                    (COO)
                 </p>
 
             </div>
-             <div class="crew-card">
+
+
+
+            <!-- CREW MEMBER 8 -->
+
+            <div class="crew-card">
 
                 <img
                     src="photo5.jpg"
-                    alt=" ELVIS AGADA"
+                    alt="Elvis Agada"
                 >
 
                 <h3>
@@ -396,18 +636,20 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 </h3>
 
                 <p>
-                    IT SUPPORT/ TECHNICAL SUPPORT
+                    IT SUPPORT/TECHNICAL SUPPORT
                 </p>
 
             </div>
+
         </div>
 
     </section>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          VISION & MISSION
-    ========================== -->
+    ====================================================== -->
 
     <div class="vm-container">
 
@@ -420,6 +662,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 VISION
             </h3>
 
+
             <p>
 
                 To become a leading technology brand
@@ -427,7 +670,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 developers, and delivers impactful digital
                 solutions.
 
-                <br>
+                <br><br>
 
                 We aim to build a legacy of excellence,
                 sustainability, and collaboration,
@@ -445,6 +688,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
         </div>
 
 
+
         <!-- MISSION -->
 
         <div class="vm-box">
@@ -453,6 +697,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 MISSION
             </h3>
 
+
             <p>
 
                 To build modern, user-friendly technology
@@ -460,7 +705,7 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
                 continuously learn, create, and solve
                 real-world problems.
 
-                <br>
+                <br><br>
 
                 We are committed to delivering excellence,
                 fostering sustainable growth, and empowering
@@ -474,9 +719,31 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
     </div>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
+         CONTACT ANCHOR
+    ====================================================== -->
+
+    <section
+        id="contact"
+        class="contact-section"
+    >
+
+        <h2>
+            Contact Us
+        </h2>
+
+        <p>
+            Get in touch with Dada's Tech.
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
          FOOTER
-    ========================== -->
+    ====================================================== -->
 
     <footer>
 
@@ -498,47 +765,159 @@ Thank you for visiting Dada’s Tech.Welcome to our world of technology, innovat
     </footer>
 
 
-    <!-- =========================
-         DARK MODE SCRIPT
-    ========================== -->
+
+    <!-- =====================================================
+         SIDEBAR + DARK MODE JAVASCRIPT
+    ====================================================== -->
 
     <script>
 
+        /* =========================================
+           SIDEBAR
+        ========================================= */
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const menuBtn =
+            document.getElementById("menuBtn");
+
+        const closeSidebar =
+            document.getElementById("closeSidebar");
+
+        const sidebarOverlay =
+            document.getElementById("sidebarOverlay");
+
+
+        // Open sidebar
+
+        menuBtn.addEventListener("click", () => {
+
+            sidebar.classList.add("active");
+
+            sidebarOverlay.classList.add("active");
+
+        });
+
+
+        // Close sidebar
+
+        closeSidebar.addEventListener("click", () => {
+
+            sidebar.classList.remove("active");
+
+            sidebarOverlay.classList.remove("active");
+
+        });
+
+
+        // Close when clicking outside
+
+        sidebarOverlay.addEventListener("click", () => {
+
+            sidebar.classList.remove("active");
+
+            sidebarOverlay.classList.remove("active");
+
+        });
+
+
+
+        /* =========================================
+           CLOSE SIDEBAR AFTER CLICKING A LINK
+        ========================================= */
+
+        document
+            .querySelectorAll(".sidebar-link")
+            .forEach(link => {
+
+                link.addEventListener("click", () => {
+
+                    sidebar.classList.remove("active");
+
+                    sidebarOverlay.classList.remove("active");
+
+                });
+
+            });
+
+
+        /* =========================================
+           LOGGED-IN USER
+        ========================================= */
+
+        const savedName =
+            localStorage.getItem("dadaTechUser");
+
+
+        if (savedName) {
+
+            document.getElementById(
+                "sidebarUserName"
+            ).textContent = savedName;
+
+        }
+
+
+
+        /* =========================================
+           LOGOUT
+        ========================================= */
+
+        document
+            .getElementById("logoutBtn")
+            .addEventListener("click", () => {
+
+                localStorage.removeItem(
+                    "dadaTechLoggedIn"
+                );
+
+                localStorage.removeItem(
+                    "dadaTechUser"
+                );
+
+                window.location.href =
+                    "login.html";
+
+            });
+
+
+
+        /* =========================================
+           DARK MODE
+        ========================================= */
+
         const darkModeBtn =
             document.getElementById("darkModeBtn");
+
 
         darkModeBtn.onclick = () => {
 
             document.body.classList.toggle("dark");
 
+
+            if (
+                document.body.classList.contains("dark")
+            ) {
+
+                darkModeBtn.textContent = "☀️";
+
+            } else {
+
+                darkModeBtn.textContent = "🌙";
+
+            }
+
         };
 
     </script>
-    <!-- =========================
-         HAMBURGER SCRIPT
-    ========================== -->
-
-    <script>
-
-        const hamburger =
-            document.getElementById("hamburger");
-
-        const navLinks =
-            document.getElementById("navLinks");
 
 
-        hamburger.addEventListener("click", () => {
 
-            navLinks.classList.toggle("active");
-
-        });
-
-    </script>
-
-
-    <!-- MAIN JAVASCRIPT -->
+    <!-- EXISTING MAIN JAVASCRIPT -->
 
     <script src="JS/dada.js"></script>
+
 
 </body>
 

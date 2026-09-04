@@ -1523,3 +1523,452 @@ body {
 
 }
 
+/* =========================================================
+   DADA'S TECH - LEFT SIDEBAR NAVIGATION
+   ========================================================= */
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+
+    background: #041426;
+    color: white;
+
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-y: auto;
+
+    border-right: 1px solid rgba(0, 212, 255, 0.25);
+
+    box-shadow:
+        5px 0 30px rgba(0, 0, 0, 0.35);
+
+    /* CLOSED BY DEFAULT */
+    transform: translateX(-100%);
+
+    transition: transform 0.3s ease;
+}
+
+
+/* =========================================================
+   SIDEBAR OPEN
+   ========================================================= */
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+
+/* =========================================================
+   SIDEBAR HEADER
+   ========================================================= */
+
+.sidebar-header {
+    min-height: 90px;
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background:
+        linear-gradient(
+            135deg,
+            #06152e,
+            #0b3b73,
+            #0077b6
+        );
+
+    border-bottom:
+        1px solid rgba(0, 212, 255, 0.25);
+}
+
+.sidebar-header h2 {
+    margin: 0;
+
+    font-size: 23px;
+
+    color: white;
+
+    letter-spacing: 0.5px;
+}
+
+.sidebar-header p {
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #bdefff;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+.close-sidebar {
+    width: 35px;
+    height: 35px;
+
+    border: none;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: white;
+
+    border-radius: 8px;
+
+    font-size: 25px;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: 0.3s;
+}
+
+.close-sidebar:hover {
+    background: rgba(0, 212, 255, 0.2);
+
+    color: #00d4ff;
+
+    transform: rotate(90deg);
+}
+
+
+/* =========================================================
+   USER INFORMATION
+   ========================================================= */
+
+.sidebar-user {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 22px 18px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077b6,
+            #00d4ff
+        );
+
+    font-size: 22px;
+
+    box-shadow:
+        0 0 15px rgba(0, 212, 255, 0.25);
+}
+
+.sidebar-user h3 {
+    margin: 0;
+
+    font-size: 15px;
+
+    color: white;
+}
+
+.sidebar-user p {
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    color: #8eabbc;
+}
+
+
+/* =========================================================
+   MENU SECTION
+   ========================================================= */
+
+.menu-section {
+    padding: 20px 14px 5px;
+}
+
+.menu-section h4 {
+    margin: 0 0 10px 12px;
+
+    font-size: 11px;
+
+    letter-spacing: 1.5px;
+
+    color: #68899d;
+}
+
+
+/* =========================================================
+   SIDEBAR LINKS
+   ========================================================= */
+
+.sidebar-link {
+    width: 100%;
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 12px 15px;
+
+    margin-bottom: 5px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #c5d8e5;
+
+    text-decoration: none;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.25s ease;
+}
+
+
+/* =========================================================
+   ICON SIZE
+   ========================================================= */
+
+.sidebar-link::first-letter {
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.sidebar-link:hover {
+    background:
+        rgba(0, 212, 255, 0.09);
+
+    color: #00d4ff;
+
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   ACTIVE LINK
+   ========================================================= */
+
+.sidebar-link.active {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0, 119, 182, 0.35),
+            rgba(0, 212, 255, 0.08)
+        );
+
+    color: #00d4ff;
+
+    font-weight: bold;
+
+    border-left: 3px solid #00d4ff;
+}
+
+
+/* =========================================================
+   LOGOUT AREA
+   ========================================================= */
+
+.sidebar-bottom {
+    margin-top: auto;
+
+    padding: 15px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   LOGOUT BUTTON
+   ========================================================= */
+
+.logout-btn {
+    color: #ff9d9d;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 70, 70, 0.1);
+
+    color: #ff6b6b;
+
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   MENU BUTTON - RIGHT HAND SIDE
+   ========================================================= */
+
+.menu-btn {
+    position: fixed;
+
+    top: 18px;
+
+    /* MOVED FROM LEFT TO RIGHT */
+    right: 18px;
+    left: auto;
+
+    width: 48px;
+    height: 48px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077b6,
+            #00a8e8
+        );
+
+    color: white;
+
+    font-size: 25px;
+
+    cursor: pointer;
+
+    z-index: 10000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    box-shadow:
+        0 5px 20px rgba(0, 119, 182, 0.4);
+
+    transition: 0.3s;
+}
+
+.menu-btn:hover {
+    transform: scale(1.05);
+
+    box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.45);
+}
+
+
+/* =========================================================
+   SIDEBAR OVERLAY
+   ========================================================= */
+
+.sidebar-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.65);
+
+    z-index: 9990;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+
+/* =========================================================
+   OVERLAY ACTIVE
+   ========================================================= */
+
+.sidebar-overlay.active {
+    opacity: 1;
+
+    visibility: visible;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 500px) {
+
+    .sidebar {
+        width: 270px;
+    }
+
+    .sidebar-header {
+        min-height: 80px;
+
+        padding: 17px;
+    }
+
+    .sidebar-header h2 {
+        font-size: 20px;
+    }
+
+    .sidebar-user {
+        padding: 18px 15px;
+    }
+
+    .menu-section {
+        padding-top: 16px;
+    }
+
+    /* HAMBURGER ON RIGHT ON MOBILE TOO */
+    .menu-btn {
+        top: 15px;
+        right: 15px;
+        left: auto;
+
+        width: 45px;
+        height: 45px;
+    }
+}

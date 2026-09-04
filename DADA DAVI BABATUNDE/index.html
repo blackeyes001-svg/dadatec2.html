@@ -11,7 +11,6 @@
 
 <body class="auth-page">
 
-    <!-- Background decorative elements -->
     <div class="glow glow-one"></div>
     <div class="glow glow-two"></div>
 
@@ -113,7 +112,7 @@
                 </label>
             </div>
 
-            <!-- Create Account Button -->
+            <!-- Create Account -->
             <button type="submit" class="signup-btn">
                 Create Account
                 <span>→</span>
@@ -124,12 +123,12 @@
         <!-- Login -->
         <p class="account-text">
             Already have an account?
-            <a href="home.html">Login</a>
+            <a href="login.html">Login</a>
         </p>
 
         <!-- Back -->
-        <a href="home.html" class="back-home">
-            ← Back to Dada's Tech
+        <a href="login.html" class="back-home">
+            ← Back to Login
         </a>
 
         <!-- Footer -->
@@ -139,9 +138,9 @@
 
     </div>
 
-    <script src="JS/dada.js"></script>
 
     <script>
+        // Show / Hide Password
         function togglePassword(inputId, button) {
 
             const input = document.getElementById(inputId);
@@ -154,6 +153,51 @@
                 button.textContent = "👁";
             }
         }
+
+
+        // Create Account
+        document.getElementById("signupForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            const fullName = document.getElementById("fullName").value.trim();
+            const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+            const password = document.getElementById("signupPassword").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            // Check password
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            // Password length
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters.");
+                return;
+            }
+
+            // Check if account already exists
+            const existingAccount = JSON.parse(localStorage.getItem("dadaTechAccount"));
+
+            if (existingAccount && existingAccount.email === email) {
+                alert("An account with this email already exists. Please login.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Save account
+            const account = {
+                fullName: fullName,
+                email: email,
+                password: password
+            };
+
+            localStorage.setItem("dadaTechAccount", JSON.stringify(account));
+
+            // Send user to login
+            window.location.href = "login.html";
+        });
     </script>
 
 </body>

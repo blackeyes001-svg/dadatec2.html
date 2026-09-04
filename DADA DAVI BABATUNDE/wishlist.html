@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dada's Tech - Wishlist</title>
+
+    <link
+        rel="stylesheet"
+        href="wishlist.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="nav-container">
+
+            <a href="home.html" class="brand">
+
+                <img
+                    src="img.jpg"
+                    alt="Dada's Tech Logo"
+                >
+
+                <span>
+                    Dada's <b>Tech</b>
+                </span>
+
+            </a>
+
+
+            <div class="nav-links">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="products.html">
+                    Products
+                </a>
+
+                <a href="wishlist.html" class="active">
+                    Wishlist
+                </a>
+
+            </div>
+
+
+            <div class="nav-actions">
+
+                <button
+                    id="darkModeBtn"
+                    title="Dark Mode"
+                >
+                    🌙
+                </button>
+
+                <a
+                    href="products.html"
+                    class="cart-link"
+                >
+                    🛒 Cart
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= HERO ================= -->
+
+    <section class="wishlist-hero">
+
+        <div>
+
+            <span class="small-title">
+                DADA'S TECH
+            </span>
+
+            <h1>
+                My Wishlist ❤️
+            </h1>
+
+            <p>
+                Save your favorite technology
+                products and come back to them anytime.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= WISHLIST ================= -->
+
+    <main class="wishlist-container">
+
+        <div class="wishlist-top">
+
+            <div>
+
+                <h2>
+                    Saved Products
+                </h2>
+
+                <p id="wishlistCount">
+                    0 products saved
+                </p>
+
+            </div>
+
+            <a
+                href="products.html"
+                class="continue-shopping"
+            >
+                ← Continue Shopping
+            </a>
+
+        </div>
+
+
+        <div
+            class="wishlist-grid"
+            id="wishlistGrid"
+        >
+        </div>
+
+
+        <!-- EMPTY WISHLIST -->
+
+        <div
+            class="empty-wishlist"
+            id="emptyWishlist"
+        >
+
+            <div class="empty-icon">
+                ♡
+            </div>
+
+            <h2>
+                Your Wishlist is Empty
+            </h2>
+
+            <p>
+                You haven't saved any products yet.
+                Start exploring Dada's Tech and
+                save the products you love.
+            </p>
+
+            <a
+                href="products.html"
+                class="shop-btn"
+            >
+                Explore Products →
+            </a>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <p>
+            © 2026 Dada's Tech.
+            All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <script src="wishlist.js"></script>
+
+</body>
+
+</html>
