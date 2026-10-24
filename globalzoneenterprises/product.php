@@ -334,7 +334,6 @@ $categoryNames = [
     <?php endif; ?>
 
 </section>
-```
 
 </main>
 
@@ -345,10 +344,8 @@ $categoryNames = [
             All rights reserved.
         </p>
 
-```
     <p>Gear Up. Play Hard. Win Big.</p>
 </div>
-```
 
 </footer>
 
