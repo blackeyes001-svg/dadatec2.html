@@ -411,6 +411,20 @@ function escapeHtml($value)
                 grid-template-columns: 1fr;
             }
         }
+        body {
+    background: #071426 !important;
+    color: white !important;
+}
+<style>
+    body {
+        background: #071426 !important;
+        color: white !important;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+    
     </style>
 </head>
 
