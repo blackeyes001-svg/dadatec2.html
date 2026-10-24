@@ -1,355 +1,559 @@
+
 <?php
-require_once __DIR__ . '/includes/db.php';
+// ========================================
+// GLOBAL ZONE SPORT ENTERPRISE
+// PRODUCTS PAGE
+// ========================================
 
-function escapeHtml($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-}
+// Sample products for development.
+// Later, we will load these products from MySQL.
 
-function formatPrice($price) {
-    return '₦' . number_format((float) $price, 2);
-}
+$products = [
+    [
+        "id" => 1,
+        "name" => "Professional Football",
+        "category" => "football",
+        "price" => 25000,
+        "icon" => "⚽",
+        "description" => "Quality football for training and matches.",
+        "badge" => "POPULAR"
+    ],
+    [
+        "id" => 2,
+        "name" => "Football Boots",
+        "category" => "football",
+        "price" => 65000,
+        "icon" => "👟",
+        "description" => "Comfortable boots designed for the pitch.",
+        "badge" => "BEST SELLER"
+    ],
+    [
+        "id" => 3,
+        "name" => "Football Jersey",
+        "category" => "football",
+        "price" => 30000,
+        "icon" => "👕",
+        "description" => "Sporty jersey for training and match days.",
+        "badge" => ""
+    ],
+    [
+        "id" => 4,
+        "name" => "Goalkeeper Gloves",
+        "category" => "football",
+        "price" => 22000,
+        "icon" => "🧤",
+        "description" => "Grip and protection for goalkeepers.",
+        "badge" => ""
+    ],
+    [
+        "id" => 5,
+        "name" => "Basketball",
+        "category" => "basketball",
+        "price" => 28000,
+        "icon" => "🏀",
+        "description" => "Basketball for practice and recreational games.",
+        "badge" => "POPULAR"
+    ],
+    [
+        "id" => 6,
+        "name" => "Basketball Shoes",
+        "category" => "basketball",
+        "price" => 85000,
+        "icon" => "👟",
+        "description" => "Supportive shoes for court movement.",
+        "badge" => ""
+    ],
+    [
+        "id" => 7,
+        "name" => "Training Dumbbells",
+        "category" => "fitness",
+        "price" => 35000,
+        "icon" => "🏋️",
+        "description" => "Weights for strength and fitness training.",
+        "badge" => ""
+    ],
+    [
+        "id" => 8,
+        "name" => "Skipping Rope",
+        "category" => "fitness",
+        "price" => 8000,
+        "icon" => "💪",
+        "description" => "A simple essential for cardio workouts.",
+        "badge" => "BUDGET PICK"
+    ],
+    [
+        "id" => 9,
+        "name" => "Protective Sports Helmet",
+        "category" => "protection",
+        "price" => 40000,
+        "icon" => "⛑️",
+        "description" => "Protective headgear for compatible sports.",
+        "badge" => ""
+    ],
+    [
+        "id" => 10,
+        "name" => "Sports Shin Guards",
+        "category" => "protection",
+        "price" => 12000,
+        "icon" => "🛡️",
+        "description" => "Shin protection for football players.",
+        "badge" => ""
+    ],
+    [
+        "id" => 11,
+        "name" => "Tennis Racket",
+        "category" => "racket-sports",
+        "price" => 45000,
+        "icon" => "🎾",
+        "description" => "A racket for recreational tennis players.",
+        "badge" => ""
+    ],
+    [
+        "id" => 12,
+        "name" => "Sports Tracksuit",
+        "category" => "sportswear",
+        "price" => 55000,
+        "icon" => "🥋",
+        "description" => "Comfortable sportswear for training and travel.",
+        "badge" => "NEW"
+    ],
+    [
+        "id" => 13,
+        "name" => "Sports Water Bottle",
+        "category" => "sportswear",
+        "price" => 10000,
+        "icon" => "🧴",
+        "description" => "A reusable bottle for workouts and matches.",
+        "badge" => ""
+    ],
+    [
+        "id" => 14,
+        "name" => "Volleyball",
+        "category" => "racket-sports",
+        "price" => 24000,
+        "icon" => "🏐",
+        "description" => "A ball for volleyball practice and games.",
+        "badge" => ""
+    ],
+    [
+        "id" => 15,
+        "name" => "Sports Duffel Bag",
+        "category" => "sportswear",
+        "price" => 32000,
+        "icon" => "🎒",
+        "description" => "Carry your equipment to training and matches.",
+        "badge" => ""
+    ]
+];
 
-// Read search, category and sorting options.
-$search = trim($_GET['search'] ?? '');
-$category = trim($_GET['category'] ?? '');
-$sort = $_GET['sort'] ?? 'default';
+// Read search and filter values from the URL.
+$search = trim($_GET["search"] ?? "");
+$category = trim($_GET["category"] ?? "");
+$sort = trim($_GET["sort"] ?? "");
 
 $allowedCategories = [
-    'football',
-    'basketball',
-    'fitness',
-    'protection',
-    'racket-sports',
-    'sportswear',
-    'accessories'
+    "football",
+    "basketball",
+    "fitness",
+    "protection",
+    "racket-sports",
+    "sportswear"
 ];
+
+if (!in_array($category, $allowedCategories, true)) {
+    $category = "";
+}
 
 $allowedSorts = [
-    'default',
-    'price_low',
-    'price_high',
-    'name'
+    "price-low",
+    "price-high",
+    "name"
 ];
-
-// Build the database query safely.
-$sql = "SELECT id, name, category, description, price, image, sizes, colors, stock
-        FROM products
-        WHERE 1 = 1";
-
-$params = [];
-
-if ($search !== '') {
-    $sql .= " AND (name LIKE :search_name OR description LIKE :search_description)";
-    $params['search_name'] = '%' . $search . '%';
-    $params['search_description'] = '%' . $search . '%';
-}
-
-if ($category !== '' && in_array($category, $allowedCategories, true)) {
-    $sql .= " AND category = :category";
-    $params['category'] = $category;
-}
 
 if (!in_array($sort, $allowedSorts, true)) {
-    $sort = 'default';
+    $sort = "";
 }
 
-switch ($sort) {
-    case 'price_low':
-        $sql .= " ORDER BY price ASC";
-        break;
+// Filter the products.
+$filteredProducts = array_filter(
+    $products,
+    function ($product) use ($search, $category) {
+        $matchesSearch = (
+            $search === "" ||
+            stripos($product["name"], $search) !== false ||
+            stripos($product["description"], $search) !== false
+        );
 
-    case 'price_high':
-        $sql .= " ORDER BY price DESC";
-        break;
+        $matchesCategory = (
+            $category === "" ||
+            $product["category"] === $category
+        );
 
-    case 'name':
-        $sql .= " ORDER BY name ASC";
-        break;
+        return $matchesSearch && $matchesCategory;
+    }
+);
 
-    default:
-        $sql .= " ORDER BY id DESC";
-        break;
+// Sort the filtered products.
+if ($sort === "price-low") {
+    usort($filteredProducts, function ($a, $b) {
+        return $a["price"] <=> $b["price"];
+    });
+} elseif ($sort === "price-high") {
+    usort($filteredProducts, function ($a, $b) {
+        return $b["price"] <=> $a["price"];
+    });
+} elseif ($sort === "name") {
+    usort($filteredProducts, function ($a, $b) {
+        return strcasecmp($a["name"], $b["name"]);
+    });
 }
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$products = $stmt->fetchAll();
+// Helper to display prices in naira.
+function formatPrice($price)
+{
+    return "₦" . number_format($price);
+}
 
-$categoryNames = [
-    'football' => 'Football',
-    'basketball' => 'Basketball',
-    'fitness' => 'Fitness',
-    'protection' => 'Protective Gear',
-    'racket-sports' => 'Racket Sports & Volleyball',
-    'sportswear' => 'Sportswear',
-    'accessories' => 'Accessories'
-];
+// Escape text before displaying it in HTML.
+function escapeHtml($value)
+{
+    return htmlspecialchars(
+        (string) $value,
+        ENT_QUOTES,
+        "UTF-8"
+    );
+}
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <meta
+        name="description"
+        content="Explore sports equipment, football boots, jerseys, basketball gear, fitness equipment and sportswear at Global Zone Sport Enterprise."
+    >
 
-<title>Shop Sports Equipment | Global Zone Sport Enterprise</title>
+    <title>Shop Products | Global Zone Sport Enterprise</title>
 
-<link rel="stylesheet" href="css/style.css">
-<script src="js/script.js" defer></script>
-
-
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-<header class="site-header">
-    <a href="index.php" class="logo">
-        <span class="logo-icon">GZ</span>
+    <!-- HEADER -->
+    <header class="site-header">
 
+        <div class="logo">
+            <a href="index.php">
+                <span class="logo-icon">GZ</span>
 
-    <span class="logo-text">
-        GLOBAL ZONE
-        <small>SPORT ENTERPRISE</small>
-    </span>
-</a>
-
-<button class="menu-toggle"
-        type="button"
-        aria-label="Toggle navigation"
-        aria-expanded="false">
-    ☰
-</button>
-
-<nav class="nav-links">
-    <a href="index.php">Home</a>
-    <a href="products.php" class="active">Shop</a>
-    <a href="index.php#about">About Us</a>
-    <a href="index.php#contact">Contact</a>
-    <a href="login.php" class="login-link">Login</a>
-    <a href="register.php" class="register-link">Sign Up</a>
-</nav>
-
-
-</header>
-
-<main>
-
-<section class="shop-banner">
-    <div class="container">
-        <p class="eyebrow">YOUR SPORTS. YOUR PASSION.</p>
-
-        <h1>Explore Our Sports Collection</h1>
-
-        <p>
-            Discover quality sporting equipment designed to help you
-            train harder, play better and perform at your best.
-        </p>
-    </div>
-</section>
-
-<section class="shop-section container">
-
-    <div class="shop-toolbar">
-
-        <form action="products.php" method="GET" class="search-form">
-            <input
-                type="search"
-                name="search"
-                placeholder="Search footballs, boots, fitness gear..."
-                value="<?= escapeHtml($search) ?>"
-                aria-label="Search products"
-            >
-
-            <?php if ($category !== ''): ?>
-                <input
-                    type="hidden"
-                    name="category"
-                    value="<?= escapeHtml($category) ?>"
-                >
-            <?php endif; ?>
-
-            <input type="hidden" name="sort" value="<?= escapeHtml($sort) ?>">
-
-            <button type="submit">Search</button>
-        </form>
-
-        <form action="products.php" method="GET" class="sort-form">
-            <?php if ($search !== ''): ?>
-                <input
-                    type="hidden"
-                    name="search"
-                    value="<?= escapeHtml($search) ?>"
-                >
-            <?php endif; ?>
-
-            <?php if ($category !== ''): ?>
-                <input
-                    type="hidden"
-                    name="category"
-                    value="<?= escapeHtml($category) ?>"
-                >
-            <?php endif; ?>
-
-            <label for="sort">Sort by:</label>
-
-            <select name="sort" id="sort" onchange="this.form.submit()">
-                <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>
-                    Recommended
-                </option>
-
-                <option value="price_low" <?= $sort === 'price_low' ? 'selected' : '' ?>>
-                    Price: Low to High
-                </option>
-
-                <option value="price_high" <?= $sort === 'price_high' ? 'selected' : '' ?>>
-                    Price: High to Low
-                </option>
-
-                <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>
-                    Name: A to Z
-                </option>
-            </select>
-        </form>
-
-    </div>
-
-    <div class="category-filters">
-        <a href="products.php"
-           class="<?= $category === '' ? 'active' : '' ?>">
-            All Products
-        </a>
-
-        <?php foreach ($categoryNames as $key => $label): ?>
-            <a
-                href="products.php?category=<?= urlencode($key) ?>"
-                class="<?= $category === $key ? 'active' : '' ?>"
-            >
-                <?= escapeHtml($label) ?>
+                <span class="logo-text">
+                    GLOBAL <strong>ZONE</strong>
+                    <small>SPORT ENTERPRISE</small>
+                </span>
             </a>
-        <?php endforeach; ?>
-    </div>
+        </div>
 
-    <div class="products-heading">
-        <div>
-            <h2>
-                <?= $category !== '' && isset($categoryNames[$category])
-                    ? escapeHtml($categoryNames[$category])
-                    : 'Our Products' ?>
-            </h2>
+        <button
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Open navigation menu"
+            aria-expanded="false"
+        >
+            ☰
+        </button>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="index.php">Home</a>
+            <a href="products.php" class="active">Shop</a>
+            <a href="index.php#categories">Categories</a>
+            <a href="index.php#about">About Us</a>
+            <a href="index.php#contact">Contact</a>
+            <a href="login.php" class="login-link">Login</a>
+            <a href="register.php" class="register-link">Sign Up</a>
+        </nav>
+
+    </header>
+
+    <!-- PRODUCTS PAGE BANNER -->
+    <section class="shop-banner">
+
+        <div class="shop-banner-content">
+            <p class="section-label">THE GLOBAL ZONE COLLECTION</p>
+
+            <h1>
+                FIND YOUR <span>GAME.</span>
+            </h1>
 
             <p>
-                <?= count($products) ?>
-                product<?= count($products) === 1 ? '' : 's' ?> found
+                Discover the gear you need for every match,
+                workout and sporting adventure.
             </p>
         </div>
-    </div>
 
-    <?php if (empty($products)): ?>
+        <div class="shop-banner-mark">GZ</div>
 
-        <div class="no-products">
-            <h3>No products found</h3>
-            <p>Try another search or select a different category.</p>
-            <a href="products.php" class="btn-primary">View All Products</a>
+    </section>
+
+    <!-- MAIN SHOP -->
+    <main class="shop-section">
+
+        <div class="shop-heading">
+
+            <div>
+                <p class="section-label">OUR COLLECTION</p>
+                <h2>SPORTS <span>EQUIPMENT</span></h2>
+
+                <p class="product-count">
+                    <?php echo count($filteredProducts); ?>
+                    product(s) found
+                </p>
+            </div>
+
         </div>
 
-    <?php else: ?>
+        <!-- SEARCH AND SORT -->
+        <form method="GET" action="products.php" class="shop-toolbar">
 
-        <div class="products-grid">
+            <div class="search-box">
+                <input
+                    type="search"
+                    name="search"
+                    placeholder="Search boots, jerseys, balls..."
+                    value="<?php echo escapeHtml($search); ?>"
+                    aria-label="Search products"
+                >
 
-            <?php foreach ($products as $product): ?>
+                <button type="submit" aria-label="Search">
+                    SEARCH
+                </button>
+            </div>
 
-                <article class="product-card">
+            <input
+                type="hidden"
+                name="category"
+                value="<?php echo escapeHtml($category); ?>"
+            >
 
-                    <a
-                        class="product-image"
-                        href="product.php?id=<?= (int) $product['id'] ?>"
-                        aria-label="View <?= escapeHtml($product['name']) ?>"
+            <label class="sort-control">
+                <span>Sort by:</span>
+
+                <select
+                    name="sort"
+                    onchange="this.form.submit()"
+                    aria-label="Sort products"
+                >
+                    <option
+                        value=""
+                        <?php echo $sort === "" ? "selected" : ""; ?>
                     >
-                        <?php if (!empty($product['image'])): ?>
+                        Recommended
+                    </option>
 
-                            <img
-                                src="images/<?= escapeHtml($product['image']) ?>"
-                                alt="<?= escapeHtml($product['name']) ?>"
-                                loading="lazy"
-                            >
+                    <option
+                        value="price-low"
+                        <?php echo $sort === "price-low" ? "selected" : ""; ?>
+                    >
+                        Price: Low to High
+                    </option>
 
-                        <?php else: ?>
+                    <option
+                        value="price-high"
+                        <?php echo $sort === "price-high" ? "selected" : ""; ?>
+                    >
+                        Price: High to Low
+                    </option>
 
-                            <span class="product-placeholder" aria-hidden="true">
-                                <?= escapeHtml($product['name']) ?>
-                            </span>
+                    <option
+                        value="name"
+                        <?php echo $sort === "name" ? "selected" : ""; ?>
+                    >
+                        Name: A to Z
+                    </option>
+                </select>
+            </label>
 
-                        <?php endif; ?>
-                    </a>
+        </form>
 
-                    <div class="product-info">
+        <!-- CATEGORY FILTERS -->
+        <div class="category-filters">
 
-                        <span class="product-category">
-                            <?= escapeHtml(
-                                $categoryNames[$product['category']]
-                                ?? ucfirst(str_replace('-', ' ', $product['category']))
-                            ) ?>
-                        </span>
+            <a
+                href="products.php"
+                class="filter-link <?php echo $category === "" ? "selected" : ""; ?>"
+            >
+                All Products
+            </a>
 
-                        <h3>
-                            <a href="product.php?id=<?= (int) $product['id'] ?>">
-                                <?= escapeHtml($product['name']) ?>
-                            </a>
-                        </h3>
+            <a
+                href="products.php?category=football"
+                class="filter-link <?php echo $category === "football" ? "selected" : ""; ?>"
+            >
+                Football
+            </a>
 
-                        <p class="product-description">
-                            <?= escapeHtml($product['description']) ?>
-                        </p>
+            <a
+                href="products.php?category=basketball"
+                class="filter-link <?php echo $category === "basketball" ? "selected" : ""; ?>"
+            >
+                Basketball
+            </a>
 
-                        <p class="product-price">
-                            <?= formatPrice($product['price']) ?>
-                        </p>
+            <a
+                href="products.php?category=fitness"
+                class="filter-link <?php echo $category === "fitness" ? "selected" : ""; ?>"
+            >
+                Fitness
+            </a>
 
-                        <p class="stock-status">
-                            <?php if ((int) $product['stock'] > 0): ?>
-                                <span>In stock: <?= (int) $product['stock'] ?></span>
-                            <?php else: ?>
-                                <span>Out of stock</span>
-                            <?php endif; ?>
-                        </p>
+            <a
+                href="products.php?category=protection"
+                class="filter-link <?php echo $category === "protection" ? "selected" : ""; ?>"
+            >
+                Protective Gear
+            </a>
+
+            <a
+                href="products.php?category=racket-sports"
+                class="filter-link <?php echo $category === "racket-sports" ? "selected" : ""; ?>"
+            >
+                Racket Sports
+            </a>
+
+            <a
+                href="products.php?category=sportswear"
+                class="filter-link <?php echo $category === "sportswear" ? "selected" : ""; ?>"
+            >
+                Sportswear
+            </a>
+
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <section class="product-grid" aria-label="Products">
+
+            <?php if (count($filteredProducts) > 0): ?>
+
+                <?php foreach ($filteredProducts as $product): ?>
+
+                    <article class="product-card">
 
                         <a
-                            class="btn-primary product-button"
-                            href="product.php?id=<?= (int) $product['id'] ?>"
+                            class="product-image"
+                            href="product-details.php?id=<?php echo (int) $product["id"]; ?>"
+                            aria-label="View <?php echo escapeHtml($product["name"]); ?>"
                         >
-                            View Product
+
+                            <?php if ($product["badge"] !== ""): ?>
+                                <span class="product-badge">
+                                    <?php echo escapeHtml($product["badge"]); ?>
+                                </span>
+                            <?php endif; ?>
+
+                            <span class="product-emoji">
+                                <?php echo escapeHtml($product["icon"]); ?>
+                            </span>
+
+                            <span class="product-view">
+                                VIEW DETAILS →
+                            </span>
+
                         </a>
 
-                    </div>
+                        <div class="product-info">
 
-                </article>
+                            <p class="product-category">
+                                <?php echo escapeHtml(
+                                    ucwords(str_replace("-", " ", $product["category"]))
+                                ); ?>
+                            </p>
 
-            <?php endforeach; ?>
+                            <h3>
+                                <a href="product-details.php?id=<?php echo (int) $product["id"]; ?>">
+                                    <?php echo escapeHtml($product["name"]); ?>
+                                </a>
+                            </h3>
+
+                            <p class="product-description">
+                                <?php echo escapeHtml($product["description"]); ?>
+                            </p>
+
+                            <div class="product-card-bottom">
+
+                                <span class="product-price">
+                                    <?php echo formatPrice($product["price"]); ?>
+                                </span>
+
+                                <a
+                                    href="product-details.php?id=<?php echo (int) $product["id"]; ?>"
+                                    class="product-action"
+                                    aria-label="View product details"
+                                >
+                                    →
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                <?php endforeach; ?>
+
+            <?php else: ?>
+
+                <div class="no-products">
+                    <span>🔎</span>
+
+                    <h3>No products found</h3>
+
+                    <p>
+                        Try another search term or select a different category.
+                    </p>
+
+                    <a href="products.php" class="btn btn-primary">
+                        VIEW ALL PRODUCTS
+                    </a>
+                </div>
+
+            <?php endif; ?>
+
+        </section>
+
+        <!-- SHOPPING NOTICE -->
+        <div class="shop-notice">
+            <span>GZ</span>
+
+            <p>
+                Your game. Your gear. Your next level.
+                <strong>Gear Up. Play Hard. Win Big.</strong>
+            </p>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+
+        <div class="footer-bottom">
+
+            <p>
+                &copy; <?php echo date("Y"); ?>
+                Global Zone Sport Enterprise.
+                All rights reserved.
+            </p>
+
+            <a href="index.php">Back to Home ↑</a>
 
         </div>
 
-    <?php endif; ?>
+    </footer>
 
-</section>
-```
-
-</main>
-
-<footer class="site-footer">
-    <div class="container">
-        <p>
-            &copy; <?= date('Y') ?> Global Zone Sport Enterprise.
-            All rights reserved.
-        </p>
-
-
-    <p>Gear Up. Play Hard. Win Big.</p>
-</div>
-
-</footer>
+    <script src="js/script.js"></script>
 
 </body>
 </html>
-
