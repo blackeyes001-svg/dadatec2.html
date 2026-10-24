@@ -396,4 +396,3 @@ $stock = (int) $product['stock'];
 
 </body>
 </html>
-```
