@@ -1,4 +1,4 @@
-```php
+
 <?php
 session_start();
 
@@ -537,4 +537,3 @@ function escapeHtml($value)
 
 </body>
 </html>
-```
