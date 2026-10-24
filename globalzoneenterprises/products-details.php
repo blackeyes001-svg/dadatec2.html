@@ -4,20 +4,19 @@ session_start();
 
 require_once __DIR__ . '/includes/db.php';
 
-// Get the product ID from the URL
+// Get the selected product ID from the URL
 $productId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-// Stop if the product ID is missing or invalid
 if (!$productId || $productId < 1) {
     http_response_code(400);
-    exit('Invalid product ID. Please return to the products page.');
+    exit('Invalid product ID. Please return to the shop.');
 }
 
-// Retrieve the selected product
+// Fetch the selected product from the database
 try {
     $stmt = $pdo->prepare(
-        "SELECT id, name, category, description, price, image,
-                sizes, colors, stock
+        "SELECT id, name, category, description, price,
+                image, sizes, colors, stock
          FROM products
          WHERE id = :id
          LIMIT 1"
@@ -29,22 +28,22 @@ try {
 } catch (PDOException $e) {
     error_log('Product details error: ' . $e->getMessage());
     http_response_code(500);
-    exit('Unable to load this product right now. Please try again later.');
+    exit('Unable to load this product. Please try again later.');
 }
 
-// Show a message if the product does not exist
+// Check whether the product exists
 if (!$product) {
     http_response_code(404);
-    exit('Product not found. Please return to the products page.');
+    exit('Product not found. Please return to the shop.');
 }
 
 // Safely display text
-function escapeDetail($value)
+function e($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
-// Prepare size and colour options
+// Convert comma-separated sizes and colours into lists
 $sizes = array_filter(
     array_map('trim', explode(',', (string) ($product['sizes'] ?? '')))
 );
@@ -62,17 +61,14 @@ $stock = (int) $product['stock'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>
-        <?= escapeDetail($product['name']) ?> |
-        Global Zone Sport Enterprise
-    </title>
+    <title><?= e($product['name']) ?> | Global Zone Sport Enterprise</title>
 
     <link rel="stylesheet" href="css/style.css">
 
     <style>
         .details-container {
-            max-width: 1100px;
-            margin: 45px auto;
+            max-width: 1150px;
+            margin: 40px auto;
             padding: 20px;
         }
 
@@ -81,91 +77,77 @@ $stock = (int) $product['stock'];
             margin-bottom: 25px;
             color: #2563EB;
             text-decoration: none;
-            font-weight: 600;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
+            font-weight: bold;
         }
 
         .details-card {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 35px;
+            padding: 30px;
             background: #fff;
             color: #222;
-            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         }
 
         .details-image {
             min-height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
             background: #f3f4f6;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
 
         .details-image img {
-            display: block;
             width: 100%;
             max-height: 450px;
             object-fit: contain;
         }
 
         .image-placeholder {
-            padding: 30px;
+            padding: 25px;
             text-align: center;
             color: #666;
         }
 
-        .details-info {
-            padding: 10px;
-        }
-
-        .details-category {
-            display: inline-block;
-            color: #2563EB;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
         .details-info h1 {
-            font-size: 30px;
             margin: 15px 0;
+            font-size: 30px;
             line-height: 1.3;
         }
 
-        .details-price {
+        .category {
+            color: #2563EB;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .price {
+            margin: 20px 0;
             color: #2563EB;
             font-size: 28px;
             font-weight: bold;
+        }
+
+        .description {
             margin: 20px 0;
-        }
-
-        .details-description {
-            color: #555;
             line-height: 1.8;
-            margin-bottom: 20px;
+            color: #555;
         }
 
-        .detail-option {
-            margin: 18px 0;
-        }
-
-        .detail-option strong {
-            display: block;
-            margin-bottom: 8px;
+        .option-section {
+            margin: 20px 0;
         }
 
         .option-list {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            margin-top: 10px;
         }
 
         .option-item {
@@ -175,72 +157,61 @@ $stock = (int) $product['stock'];
             background: #f9fafb;
         }
 
-        .stock-available {
+        .in-stock {
             color: #15803d;
             font-weight: bold;
         }
 
-        .stock-unavailable {
+        .out-stock {
             color: #dc2626;
             font-weight: bold;
         }
 
-        .quantity-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
         .quantity-input {
+            display: block;
             width: 100px;
+            margin-top: 10px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 16px;
         }
 
-        .details-buttons {
+        .button-row {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-top: 25px;
         }
 
-        .details-button {
+        .btn {
             display: inline-block;
             padding: 13px 20px;
             border: none;
             border-radius: 6px;
             text-decoration: none;
-            text-align: center;
-            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 15px;
         }
 
-        .cart-button {
+        .btn-cart {
             background: #2563EB;
-            color: #fff;
+            color: white;
         }
 
-        .cart-button:hover {
+        .btn-cart:hover {
             background: #1748b5;
         }
 
-        .back-button {
+        .btn-back {
             background: #e5e7eb;
             color: #222;
-        }
-
-        .back-button:hover {
-            background: #d1d5db;
         }
 
         @media (max-width: 750px) {
             .details-card {
                 grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 15px;
+                padding: 18px;
             }
 
             .details-image {
@@ -250,10 +221,6 @@ $stock = (int) $product['stock'];
             .details-info h1 {
                 font-size: 24px;
             }
-
-            .details-price {
-                font-size: 24px;
-            }
         }
     </style>
 </head>
@@ -261,18 +228,15 @@ $stock = (int) $product['stock'];
 <body>
 
 <header style="padding:18px 5%; background:#111; color:white;">
-    <a href="index.php"
-       style="color:white; text-decoration:none; margin-right:20px;">
+    <a href="index.php" style="color:white; margin-right:20px; text-decoration:none;">
         Home
     </a>
 
-    <a href="products.php"
-       style="color:white; text-decoration:none; margin-right:20px;">
+    <a href="products.php" style="color:white; margin-right:20px; text-decoration:none;">
         Shop Products
     </a>
 
-    <a href="cart.php"
-       style="color:white; text-decoration:none;">
+    <a href="cart.php" style="color:white; text-decoration:none;">
         Shopping Cart
     </a>
 </header>
@@ -285,86 +249,87 @@ $stock = (int) $product['stock'];
 
     <section class="details-card">
 
+        <!-- Product Image -->
         <div class="details-image">
 
             <?php if (!empty($product['image'])): ?>
 
                 <img
-                    src="images/<?= escapeDetail(basename($product['image'])) ?>"
-                    alt="<?= escapeDetail($product['name']) ?>"
+                    src="images/<?= e(basename($product['image'])) ?>"
+                    alt="<?= e($product['name']) ?>"
                 >
 
             <?php else: ?>
 
                 <div class="image-placeholder">
                     <h2>Product Image</h2>
-                    <p>We will add the product picture here.</p>
+                    <p>Product picture coming soon.</p>
                 </div>
 
             <?php endif; ?>
 
         </div>
 
+        <!-- Product Information -->
         <div class="details-info">
 
-            <span class="details-category">
-                <?= escapeDetail($product['category']) ?>
+            <span class="category">
+                <?= e($product['category']) ?>
             </span>
 
-            <h1><?= escapeDetail($product['name']) ?></h1>
+            <h1><?= e($product['name']) ?></h1>
 
-            <div class="details-price">
+            <div class="price">
                 ₦<?= number_format((float) $product['price'], 2) ?>
             </div>
 
-            <div class="details-description">
-                <?= nl2br(escapeDetail(
-                    $product['description'] ?: 'Quality sports product from Global Zone Sport Enterprise.'
+            <div class="description">
+                <?= nl2br(e(
+                    $product['description']
+                    ?: 'Discover quality sports equipment from Global Zone Sport Enterprise.'
                 )) ?>
             </div>
 
-            <?php if ($sizes): ?>
-                <div class="detail-option">
+            <!-- Available Sizes -->
+            <?php if (!empty($sizes)): ?>
+                <div class="option-section">
                     <strong>Available Sizes</strong>
 
                     <div class="option-list">
                         <?php foreach ($sizes as $size): ?>
-                            <span class="option-item">
-                                <?= escapeDetail($size) ?>
-                            </span>
+                            <span class="option-item"><?= e($size) ?></span>
                         <?php endforeach; ?>
                     </div>
                 </div>
             <?php endif; ?>
 
-            <?php if ($colors): ?>
-                <div class="detail-option">
+            <!-- Available Colours -->
+            <?php if (!empty($colors)): ?>
+                <div class="option-section">
                     <strong>Available Colours</strong>
 
                     <div class="option-list">
                         <?php foreach ($colors as $color): ?>
-                            <span class="option-item">
-                                <?= escapeDetail($color) ?>
-                            </span>
+                            <span class="option-item"><?= e($color) ?></span>
                         <?php endforeach; ?>
                     </div>
                 </div>
             <?php endif; ?>
 
+            <!-- Stock Availability -->
             <p>
                 <strong>Availability:</strong>
 
                 <?php if ($stock > 0): ?>
-                    <span class="stock-available">
+                    <span class="in-stock">
                         In Stock (<?= $stock ?> available)
                     </span>
                 <?php else: ?>
-                    <span class="stock-unavailable">
-                        Out of Stock
-                    </span>
+                    <span class="out-stock">Out of Stock</span>
                 <?php endif; ?>
             </p>
 
+            <!-- Quantity and Add to Cart -->
             <?php if ($stock > 0): ?>
 
                 <form action="cart.php" method="POST">
@@ -375,8 +340,8 @@ $stock = (int) $product['stock'];
                         value="<?= (int) $product['id'] ?>"
                     >
 
-                    <label for="quantity" class="quantity-label">
-                        Select Quantity
+                    <label for="quantity">
+                        <strong>Quantity</strong>
                     </label>
 
                     <input
@@ -390,21 +355,18 @@ $stock = (int) $product['stock'];
                         required
                     >
 
-                    <div class="details-buttons">
+                    <div class="button-row">
 
                         <button
                             type="submit"
                             name="add_to_cart"
                             value="1"
-                            class="details-button cart-button"
+                            class="btn btn-cart"
                         >
                             Add to Cart
                         </button>
 
-                        <a
-                            href="products.php"
-                            class="details-button back-button"
-                        >
+                        <a href="products.php" class="btn btn-back">
                             Continue Shopping
                         </a>
 
@@ -414,9 +376,12 @@ $stock = (int) $product['stock'];
 
             <?php else: ?>
 
-                <div class="details-buttons">
-                    <a href="products.php"
-                       class="details-button back-button">
+                <p class="out-stock">
+                    This product is currently unavailable.
+                </p>
+
+                <div class="button-row">
+                    <a href="products.php" class="btn btn-back">
                         Continue Shopping
                     </a>
                 </div>
