@@ -4,55 +4,82 @@ session_start();
 
 require_once __DIR__ . '/includes/db.php';
 
-// Get the selected product ID from the URL
-$productId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+// Get search, category, and sorting options
+$search = trim($_GET['search'] ?? '');
+$category = trim($_GET['category'] ?? '');
+$sort = $_GET['sort'] ?? 'latest';
 
-if (!$productId || $productId < 1) {
-    http_response_code(400);
-    exit('Invalid product ID. Please return to the shop.');
+// Build the query safely
+$sql = "SELECT id, name, category, description, price, image, stock
+        FROM products
+        WHERE 1=1";
+
+$params = [];
+
+if ($search !== '') {
+    $sql .= " AND (name LIKE :search_name
+              OR category LIKE :search_category
+              OR description LIKE :search_description)";
+
+    $searchTerm = '%' . $search . '%';
+
+    $params['search_name'] = $searchTerm;
+    $params['search_category'] = $searchTerm;
+    $params['search_description'] = $searchTerm;
 }
 
-// Fetch the selected product from the database
+if ($category !== '') {
+    $sql .= " AND category = :category";
+    $params['category'] = $category;
+}
+
+// Allow only known sorting options
+switch ($sort) {
+    case 'name':
+        $sql .= " ORDER BY name ASC";
+        break;
+
+    case 'price_low':
+        $sql .= " ORDER BY price ASC";
+        break;
+
+    case 'price_high':
+        $sql .= " ORDER BY price DESC";
+        break;
+
+    default:
+        $sql .= " ORDER BY id DESC";
+        break;
+}
+
+// Fetch products
 try {
-    $stmt = $pdo->prepare(
-        "SELECT id, name, category, description, price,
-                image, sizes, colors, stock
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch available categories
+    $categoryStmt = $pdo->query(
+        "SELECT DISTINCT category
          FROM products
-         WHERE id = :id
-         LIMIT 1"
+         WHERE category IS NOT NULL
+           AND category <> ''
+         ORDER BY category ASC"
     );
 
-    $stmt->execute(['id' => $productId]);
-    $product = $stmt->fetch();
+    $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
 
 } catch (PDOException $e) {
-    error_log('Product details error: ' . $e->getMessage());
+    error_log('Products page error: ' . $e->getMessage());
     http_response_code(500);
-    exit('Unable to load this product. Please try again later.');
+    exit('Sorry, we could not load the products. Please check your database connection.');
 }
 
-// Check whether the product exists
-if (!$product) {
-    http_response_code(404);
-    exit('Product not found. Please return to the shop.');
-}
-
-// Safely display text
-function e($value)
+// Escape text before displaying it
+function escapeHtml($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
-
-// Convert comma-separated sizes and colours into lists
-$sizes = array_filter(
-    array_map('trim', explode(',', (string) ($product['sizes'] ?? '')))
-);
-
-$colors = array_filter(
-    array_map('trim', explode(',', (string) ($product['colors'] ?? '')))
-);
-
-$stock = (int) $product['stock'];
 ?>
 
 <!DOCTYPE html>
@@ -61,165 +88,282 @@ $stock = (int) $product['stock'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title><?= e($product['name']) ?> | Global Zone Sport Enterprise</title>
+    <title>Shop Products | Global Zone Sport Enterprise</title>
 
     <link rel="stylesheet" href="css/style.css">
 
     <style>
-        .details-container {
-            max-width: 1150px;
-            margin: 40px auto;
-            padding: 20px;
+        * {
+            box-sizing: border-box;
         }
 
-        .back-link {
-            display: inline-block;
-            margin-bottom: 25px;
-            color: #2563EB;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fa;
+            color: #222;
+        }
+
+        .shop-header {
+            background: #111827;
+            color: #fff;
+            padding: 20px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .shop-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .shop-header h1 span {
+            color: #39FF14;
+        }
+
+        .shop-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .shop-nav a {
+            color: #fff;
             text-decoration: none;
             font-weight: bold;
         }
 
-        .details-card {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 35px;
-            padding: 30px;
-            background: #fff;
-            color: #222;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        .shop-nav a:hover {
+            color: #39FF14;
         }
 
-        .details-image {
-            min-height: 350px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            background: #f3f4f6;
-            border-radius: 10px;
+        .shop-container {
+            max-width: 1250px;
+            margin: 35px auto;
+            padding: 0 20px;
         }
 
-        .details-image img {
-            width: 100%;
-            max-height: 450px;
-            object-fit: contain;
-        }
-
-        .image-placeholder {
-            padding: 25px;
+        .shop-title {
             text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .shop-title h2 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .shop-title p {
             color: #666;
         }
 
-        .details-info h1 {
-            margin: 15px 0;
-            font-size: 30px;
-            line-height: 1.3;
+        .filter-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
         }
 
-        .category {
-            color: #2563EB;
-            font-weight: bold;
-            text-transform: uppercase;
+        .filter-box input,
+        .filter-box select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
         }
 
-        .price {
-            margin: 20px 0;
-            color: #2563EB;
-            font-size: 28px;
+        .filter-button {
+            border: none;
+            border-radius: 6px;
+            background: #2563EB;
+            color: #fff;
+            padding: 12px 22px;
+            cursor: pointer;
             font-weight: bold;
         }
 
-        .description {
-            margin: 20px 0;
-            line-height: 1.8;
+        .filter-button:hover {
+            background: #1d4ed8;
+        }
+
+        .product-count {
+            margin-bottom: 20px;
             color: #555;
         }
 
-        .option-section {
-            margin: 20px 0;
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 22px;
         }
 
-        .option-list {
+        .product-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
+            flex-direction: column;
         }
 
-        .option-item {
-            padding: 7px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f9fafb;
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-image {
+            height: 210px;
+            background: #e8edf5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+        }
+
+        .image-placeholder {
+            font-size: 60px;
+        }
+
+        .product-info {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .product-category {
+            color: #2563EB;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .product-info h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .product-price {
+            font-size: 21px;
+            color: #111827;
+            font-weight: bold;
+            margin-top: auto;
+            margin-bottom: 12px;
+        }
+
+        .stock-label {
+            font-size: 13px;
+            margin-bottom: 14px;
         }
 
         .in-stock {
             color: #15803d;
-            font-weight: bold;
         }
 
         .out-stock {
             color: #dc2626;
-            font-weight: bold;
         }
 
-        .quantity-input {
+        .view-product {
             display: block;
-            width: 100px;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .button-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 13px 20px;
-            border: none;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .btn-cart {
+            text-align: center;
             background: #2563EB;
-            color: white;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
         }
 
-        .btn-cart:hover {
-            background: #1748b5;
+        .view-product:hover {
+            background: #1d4ed8;
         }
 
-        .btn-back {
-            background: #e5e7eb;
-            color: #222;
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: #fff;
+            padding: 40px 20px;
+            border-radius: 10px;
         }
 
-        @media (max-width: 750px) {
-            .details-card {
+        .empty-message a {
+            color: #2563EB;
+        }
+
+        .shop-footer {
+            text-align: center;
+            padding: 25px;
+            margin-top: 50px;
+            background: #111827;
+            color: #fff;
+        }
+
+        @media (max-width: 1000px) {
+            .products-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .filter-box {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .products-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .product-image {
+                height: 160px;
+            }
+
+            .product-info {
+                padding: 12px;
+            }
+
+            .shop-title h2 {
+                font-size: 25px;
+            }
+
+            .filter-box {
                 grid-template-columns: 1fr;
-                padding: 18px;
             }
 
-            .details-image {
-                min-height: 250px;
+            .shop-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
+        }
 
-            .details-info h1 {
-                font-size: 24px;
+        @media (max-width: 380px) {
+            .products-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -227,172 +371,170 @@ $stock = (int) $product['stock'];
 
 <body>
 
-<header style="padding:18px 5%; background:#111; color:white;">
-    <a href="index.php" style="color:white; margin-right:20px; text-decoration:none;">
-        Home
-    </a>
+<header class="shop-header">
+    <h1>GLOBAL ZONE <span>SPORT</span></h1>
 
-    <a href="products.php" style="color:white; margin-right:20px; text-decoration:none;">
-        Shop Products
-    </a>
+    <nav class="shop-nav">
+        <a href="index.php">Home</a>
+        <a href="products.php">Shop</a>
+        <a href="cart.php">Cart</a>
 
-    <a href="cart.php" style="color:white; text-decoration:none;">
-        Shopping Cart
-    </a>
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="orders.php">My Orders</a>
+            <a href="logout.php">Logout</a>
+        <?php else: ?>
+            <a href="login.php">Login</a>
+            <a href="register.php">Register</a>
+        <?php endif; ?>
+    </nav>
 </header>
 
-<main class="details-container">
+<main class="shop-container">
 
-    <a href="products.php" class="back-link">
-        &larr; Back to Products
-    </a>
+    <section class="shop-title">
+        <h2>Our Sports Collection</h2>
+        <p>Gear Up. Play Hard. Win Big.</p>
+    </section>
 
-    <section class="details-card">
+    <form action="products.php" method="GET" class="filter-box">
 
-        <!-- Product Image -->
-        <div class="details-image">
+        <input
+            type="search"
+            name="search"
+            placeholder="Search sportswear, boots, equipment..."
+            value="<?= escapeHtml($search) ?>"
+        >
 
-            <?php if (!empty($product['image'])): ?>
+        <select name="category">
+            <option value="">All Categories</option>
 
-                <img
-                    src="images/<?= e(basename($product['image'])) ?>"
-                    alt="<?= e($product['name']) ?>"
+            <?php foreach ($categories as $cat): ?>
+                <option
+                    value="<?= escapeHtml($cat) ?>"
+                    <?= $category === $cat ? 'selected' : '' ?>
                 >
+                    <?= escapeHtml($cat) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
 
-            <?php else: ?>
+        <select name="sort">
+            <option value="latest" <?= $sort === 'latest' ? 'selected' : '' ?>>
+                Latest
+            </option>
 
-                <div class="image-placeholder">
-                    <h2>Product Image</h2>
-                    <p>Product picture coming soon.</p>
-                </div>
+            <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>
+                Name: A–Z
+            </option>
 
-            <?php endif; ?>
+            <option value="price_low" <?= $sort === 'price_low' ? 'selected' : '' ?>>
+                Price: Low to High
+            </option>
 
-        </div>
+            <option value="price_high" <?= $sort === 'price_high' ? 'selected' : '' ?>>
+                Price: High to Low
+            </option>
+        </select>
 
-        <!-- Product Information -->
-        <div class="details-info">
+        <button type="submit" class="filter-button">Search</button>
 
-            <span class="category">
-                <?= e($product['category']) ?>
-            </span>
+    </form>
 
-            <h1><?= e($product['name']) ?></h1>
+    <p class="product-count">
+        Showing <?= count($products) ?>
+        product<?= count($products) === 1 ? '' : 's' ?>
+    </p>
 
-            <div class="price">
-                ₦<?= number_format((float) $product['price'], 2) ?>
+    <section class="products-grid">
+
+        <?php if (empty($products)): ?>
+
+            <div class="empty-message">
+                <h3>No products found</h3>
+                <p>Try another search or choose a different category.</p>
+                <a href="products.php">Show all products</a>
             </div>
 
-            <div class="description">
-                <?= nl2br(e(
-                    $product['description']
-                    ?: 'Discover quality sports equipment from Global Zone Sport Enterprise.'
-                )) ?>
-            </div>
+        <?php else: ?>
 
-            <!-- Available Sizes -->
-            <?php if (!empty($sizes)): ?>
-                <div class="option-section">
-                    <strong>Available Sizes</strong>
+            <?php foreach ($products as $product): ?>
 
-                    <div class="option-list">
-                        <?php foreach ($sizes as $size): ?>
-                            <span class="option-item"><?= e($size) ?></span>
-                        <?php endforeach; ?>
+                <article class="product-card">
+
+                    <div class="product-image">
+
+                        <?php if (!empty($product['image'])): ?>
+
+                            <img
+                                src="<?= escapeHtml($product['image']) ?>"
+                                alt="<?= escapeHtml($product['name']) ?>"
+                                loading="lazy"
+                            >
+
+                        <?php else: ?>
+
+                            <span class="image-placeholder" aria-hidden="true">
+                                🏅
+                            </span>
+
+                        <?php endif; ?>
+
                     </div>
-                </div>
-            <?php endif; ?>
 
-            <!-- Available Colours -->
-            <?php if (!empty($colors)): ?>
-                <div class="option-section">
-                    <strong>Available Colours</strong>
+                    <div class="product-info">
 
-                    <div class="option-list">
-                        <?php foreach ($colors as $color): ?>
-                            <span class="option-item"><?= e($color) ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
+                        <span class="product-category">
+                            <?= escapeHtml($product['category'] ?? 'Sports') ?>
+                        </span>
 
-            <!-- Stock Availability -->
-            <p>
-                <strong>Availability:</strong>
+                        <h3><?= escapeHtml($product['name']) ?></h3>
 
-                <?php if ($stock > 0): ?>
-                    <span class="in-stock">
-                        In Stock (<?= $stock ?> available)
-                    </span>
-                <?php else: ?>
-                    <span class="out-stock">Out of Stock</span>
-                <?php endif; ?>
-            </p>
+                        <p class="product-description">
+                            <?php
+                            $description = trim((string) ($product['description'] ?? ''));
 
-            <!-- Quantity and Add to Cart -->
-            <?php if ($stock > 0): ?>
+                            if ($description === '') {
+                                $description = 'Discover more details about this product.';
+                            }
 
-                <form action="cart.php" method="POST">
+                            echo escapeHtml(mb_strimwidth($description, 0, 100, '...'));
+                            ?>
+                        </p>
 
-                    <input
-                        type="hidden"
-                        name="product_id"
-                        value="<?= (int) $product['id'] ?>"
-                    >
+                        <p class="product-price">
+                            ₦<?= number_format((float) $product['price'], 2) ?>
+                        </p>
 
-                    <label for="quantity">
-                        <strong>Quantity</strong>
-                    </label>
+                        <?php if ((int) $product['stock'] > 0): ?>
+                            <p class="stock-label in-stock">In stock</p>
+                        <?php else: ?>
+                            <p class="stock-label out-stock">Out of stock</p>
+                        <?php endif; ?>
 
-                    <input
-                        type="number"
-                        id="quantity"
-                        name="quantity"
-                        class="quantity-input"
-                        value="1"
-                        min="1"
-                        max="<?= $stock ?>"
-                        required
-                    >
-
-                    <div class="button-row">
-
-                        <button
-                            type="submit"
-                            name="add_to_cart"
-                            value="1"
-                            class="btn btn-cart"
+                        <a
+                            class="view-product"
+                            href="products-details.php?id=<?= (int) $product['id'] ?>"
                         >
-                            Add to Cart
-                        </button>
-
-                        <a href="products.php" class="btn btn-back">
-                            Continue Shopping
+                            View Product
                         </a>
 
                     </div>
 
-                </form>
+                </article>
 
-            <?php else: ?>
+            <?php endforeach; ?>
 
-                <p class="out-stock">
-                    This product is currently unavailable.
-                </p>
-
-                <div class="button-row">
-                    <a href="products.php" class="btn btn-back">
-                        Continue Shopping
-                    </a>
-                </div>
-
-            <?php endif; ?>
-
-        </div>
+        <?php endif; ?>
 
     </section>
 
 </main>
 
+<footer class="shop-footer">
+    <p>&copy; <?= date('Y') ?> Global Zone Sport Enterprise.</p>
+    <p>Gear Up. Play Hard. Win Big.</p>
+</footer>
+
 </body>
 </html>
+```
