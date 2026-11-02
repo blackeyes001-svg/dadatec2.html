@@ -4,7 +4,7 @@ session_start();
 require_once __DIR__ . '/includes/db.php';
 
 // Redirect an already signed-in customer to the homepage.
-if (!empty($_SESSION['user_id'])) {
+if (!empty($_SESSION['user'])) {
     header('Location: index.php');
     exit;
 }
