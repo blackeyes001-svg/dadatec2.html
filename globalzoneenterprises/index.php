@@ -1,3 +1,8 @@
+<?php
+session_start();
+
+$isLoggedIn = isset($_SESSION['user_id']);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,9 +19,7 @@
 
 <body>
 
-    <!-- =========================
-         HEADER / NAVIGATION
-    ========================== -->
+    <!-- HEADER / NAVIGATION -->
     <header class="site-header">
 
         <div class="logo">
@@ -37,21 +40,32 @@
         </button>
 
         <nav class="nav-links" id="navLinks">
+
             <a href="index.php" class="active">Home</a>
             <a href="products.php">Shop</a>
             <a href="#categories">Categories</a>
             <a href="#about">About Us</a>
             <a href="#contact">Contact</a>
 
-            <a href="login.php" class="login-link">Login</a>
-            <a href="register.php" class="register-link">Sign Up</a>
+            <?php if ($isLoggedIn): ?>
+
+                <a href="cart.php">My Cart</a>
+                <a href="orders.php">My Orders</a>
+                <a href="logout.php" class="login-link">🚪 Logout</a>
+
+            <?php else: ?>
+
+                <a href="login.php" class="login-link">Login</a>
+                <a href="register.php" class="register-link">Sign Up</a>
+
+            <?php endif; ?>
+
         </nav>
 
     </header>
 
-    <!-- =========================
-         HERO SECTION
-    ========================== -->
+
+    <!-- HERO SECTION -->
     <main>
 
         <section class="hero">
@@ -75,6 +89,7 @@
                 </p>
 
                 <div class="hero-buttons">
+
                     <a href="products.php" class="btn btn-primary">
                         SHOP NOW <span>→</span>
                     </a>
@@ -82,9 +97,11 @@
                     <a href="#categories" class="btn btn-secondary">
                         EXPLORE SPORTS
                     </a>
+
                 </div>
 
                 <div class="hero-features">
+
                     <div>
                         <strong>01</strong>
                         <span>Quality Gear</span>
@@ -99,9 +116,11 @@
                         <strong>03</strong>
                         <span>Built to Perform</span>
                     </div>
+
                 </div>
 
             </div>
+
 
             <div class="hero-visual">
 
@@ -121,9 +140,8 @@
 
         </section>
 
-        <!-- =========================
-             CATEGORIES SECTION
-        ========================== -->
+
+        <!-- CATEGORIES SECTION -->
         <section class="categories section" id="categories">
 
             <div class="section-heading">
@@ -138,6 +156,7 @@
                 </a>
 
             </div>
+
 
             <div class="category-grid">
 
@@ -157,6 +176,7 @@
 
                 </a>
 
+
                 <a href="products.php?category=basketball"
                    class="category-card">
 
@@ -172,6 +192,7 @@
                     <span class="category-link">EXPLORE →</span>
 
                 </a>
+
 
                 <a href="products.php?category=fitness"
                    class="category-card">
@@ -189,6 +210,7 @@
 
                 </a>
 
+
                 <a href="products.php?category=protection"
                    class="category-card">
 
@@ -205,6 +227,7 @@
 
                 </a>
 
+
                 <a href="products.php?category=racket-sports"
                    class="category-card">
 
@@ -220,6 +243,7 @@
                     <span class="category-link">EXPLORE →</span>
 
                 </a>
+
 
                 <a href="products.php?category=sportswear"
                    class="category-card">
@@ -241,9 +265,8 @@
 
         </section>
 
-        <!-- =========================
-             ABOUT SECTION
-        ========================== -->
+
+        <!-- ABOUT SECTION -->
         <section class="about-section section" id="about">
 
             <div class="about-mark">
@@ -281,9 +304,8 @@
 
         </section>
 
-        <!-- =========================
-             CALL TO ACTION
-        ========================== -->
+
+        <!-- CALL TO ACTION -->
         <section class="cta-section">
 
             <p class="section-label">THE NEXT LEVEL STARTS HERE</p>
@@ -302,9 +324,8 @@
 
     </main>
 
-    <!-- =========================
-         FOOTER
-    ========================== -->
+
+    <!-- FOOTER -->
     <footer class="site-footer" id="contact">
 
         <div class="footer-main">
@@ -326,6 +347,7 @@
 
             </div>
 
+
             <div class="footer-column">
 
                 <h3>QUICK LINKS</h3>
@@ -337,16 +359,27 @@
 
             </div>
 
+
             <div class="footer-column">
 
                 <h3>YOUR ACCOUNT</h3>
 
-                <a href="login.php">Login</a>
-                <a href="register.php">Create Account</a>
-                <a href="cart.php">Shopping Cart</a>
-                <a href="orders.php">My Orders</a>
+                <?php if ($isLoggedIn): ?>
+
+                    <a href="cart.php">Shopping Cart</a>
+                    <a href="orders.php">My Orders</a>
+                    <a href="logout.php">Logout</a>
+
+                <?php else: ?>
+
+                    <a href="login.php">Login</a>
+                    <a href="register.php">Create Account</a>
+                    <a href="cart.php">Shopping Cart</a>
+
+                <?php endif; ?>
 
             </div>
+
 
             <div class="footer-column">
 
@@ -358,11 +391,10 @@
                     Email Us
                 </a>
 
-                <!-- Replace with your actual business contact details later -->
-
             </div>
 
         </div>
+
 
         <div class="footer-bottom">
 
@@ -377,6 +409,7 @@
         </div>
 
     </footer>
+
 
     <!-- JAVASCRIPT -->
     <script src="js/script.js"></script>
