@@ -2,14 +2,23 @@
 session_start();
 require_once 'includes/db.php';
 
-if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+if (empty($_SESSION['cart'])) {
     header("Location: cart.php");
     exit;
 }
 
+// A customer must be logged in before placing an order.
+if (empty($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
 $cartItems = $_SESSION['cart'];
-$subtotal = 0;
 $products = [];
+$subtotal = 0;
+$deliveryFee = 0;
+$total = 0;
+$message = '';
 
 foreach ($cartItems as $item) {
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
@@ -19,24 +28,23 @@ foreach ($cartItems as $item) {
     if ($product) {
         $quantity = (int)$item['quantity'];
         $lineTotal = (float)$product['price'] * $quantity;
+
         $subtotal += $lineTotal;
 
         $products[] = [
             'product' => $product,
             'quantity' => $quantity,
-            'size' => $item['size'] ?? 'N/A',
-            'color' => $item['color'] ?? 'N/A',
+            'size' => $item['size'] ?? null,
+            'color' => $item['color'] ?? null,
             'total' => $lineTotal
         ];
     }
 }
 
-$deliveryFee = 0;
 $total = $subtotal + $deliveryFee;
 
-$message = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -45,14 +53,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $state = trim($_POST['state'] ?? '');
     $payment = $_POST['payment_method'] ?? '';
 
+    $allowedPayments = [
+        'bank_transfer',
+        'card',
+        'cash_on_delivery'
+    ];
+
     if (
-        $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) ||
-        $phone === '' || $address === '' || $city === '' ||
-        $state === '' || !in_array($payment, ['bank_transfer', 'card', 'delivery'], true)
+        $name === '' ||
+        !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+        $phone === '' ||
+        $address === '' ||
+        $city === '' ||
+        $state === '' ||
+        !in_array($payment, $allowedPayments, true)
     ) {
         $message = "Please complete all required fields correctly.";
+
+    } elseif (empty($products)) {
+        $message = "Your cart does not contain valid products.";
+
     } else {
-        $message = "Your details have been received. Actual order placement and payment processing will be connected next.";
+
+        try {
+            $pdo->beginTransaction();
+
+            $userId = (int)$_SESSION['user_id'];
+
+            $deliveryAddress = $address . ', ' . $city . ', ' . $state;
+
+            // Create the main order.
+            $stmt = $pdo->prepare("
+                INSERT INTO orders
+                (
+                    user_id,
+                    total_amount,
+                    status,
+                    delivery_address,
+                    phone,
+                    payment_method,
+                    payment_status
+                )
+                VALUES (?, ?, 'pending', ?, ?, ?, 'unpaid')
+            ");
+
+            $stmt->execute([
+                $userId,
+                $total,
+                $deliveryAddress,
+                $phone,
+                $payment
+            ]);
+
+            $orderId = $pdo->lastInsertId();
+
+            // Save each product belonging to the order.
+            foreach ($products as $item) {
+
+                $productId = (int)$item['product']['id'];
+                $quantity = (int)$item['quantity'];
+
+                // Check stock and reduce it safely.
+                $stockStmt = $pdo->prepare("
+                    UPDATE products
+                    SET stock = stock - ?
+                    WHERE id = ? AND stock >= ?
+                ");
+
+                $stockStmt->execute([
+                    $quantity,
+                    $productId,
+                    $quantity
+                ]);
+
+                if ($stockStmt->rowCount() !== 1) {
+                    throw new Exception(
+                        "Insufficient stock for " .
+                        $item['product']['name']
+                    );
+                }
+
+                $itemStmt = $pdo->prepare("
+                    INSERT INTO order_items
+                    (
+                        order_id,
+                        product_id,
+                        quantity,
+                        price,
+                        selected_size,
+                        selected_color
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ");
+
+                $itemStmt->execute([
+                    $orderId,
+                    $productId,
+                    $quantity,
+                    $item['product']['price'],
+                    $item['size'],
+                    $item['color']
+                ]);
+            }
+
+            $pdo->commit();
+
+            // Empty the cart after successful order placement.
+            unset($_SESSION['cart']);
+
+            header("Location: orders.php?success=1");
+            exit;
+
+        } catch (Exception $e) {
+
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            $message = "Order could not be placed: " . $e->getMessage();
+        }
     }
 }
 ?>
@@ -62,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Checkout | Global Zone Sport Enterprise</title>
 
 <style>
@@ -124,10 +244,9 @@ h1 {
 label {
     display: block;
     margin: 14px 0 7px;
-    color: #ddd;
 }
 
-input, select, textarea {
+input, textarea {
     width: 100%;
     padding: 13px;
     border: 1px solid #294568;
@@ -135,10 +254,6 @@ input, select, textarea {
     background: #071426;
     color: white;
     outline: none;
-}
-
-input:focus, select:focus, textarea:focus {
-    border-color: #39FF14;
 }
 
 .payment-option {
@@ -165,15 +280,9 @@ input:focus, select:focus, textarea:focus {
     border-bottom: 1px solid #294568;
 }
 
-.order-item h3 {
-    font-size: 16px;
-    margin-bottom: 7px;
-}
-
 .order-item p {
     color: #bbb;
-    font-size: 14px;
-    margin: 5px 0;
+    margin: 6px 0;
 }
 
 .price {
@@ -218,7 +327,6 @@ button:hover {
     padding: 15px;
     border-radius: 7px;
     margin-bottom: 20px;
-    color: #fff;
 }
 
 .back {
@@ -254,9 +362,9 @@ button:hover {
 <p class="subtitle">Complete your delivery and payment information.</p>
 
 <?php if ($message): ?>
-    <div class="message">
-        <?= htmlspecialchars($message) ?>
-    </div>
+<div class="message">
+    <?= htmlspecialchars($message) ?>
+</div>
 <?php endif; ?>
 
 <div class="checkout-layout">
@@ -289,9 +397,6 @@ button:hover {
 
     <label>State</label>
     <input type="text" name="state" required>
-
-    <label>Delivery Instructions (Optional)</label>
-    <textarea name="instructions" rows="2"></textarea>
 </div>
 
 <div class="box">
@@ -304,19 +409,22 @@ button:hover {
     </label>
 
     <label class="payment-option">
-        <input type="radio" name="payment_method" value="card">
+        <input type="radio" name="payment_method"
+               value="card">
         Debit / Credit Card
     </label>
 
     <label class="payment-option">
-        <input type="radio" name="payment_method" value="delivery">
+        <input type="radio" name="payment_method"
+               value="cash_on_delivery">
         Pay on Delivery
     </label>
 
-    <button type="submit">Continue to Place Order</button>
+    <button type="submit">Place Order</button>
 </div>
 
 </form>
+
 </div>
 
 <div>
@@ -325,19 +433,25 @@ button:hover {
     <h2>Your Order</h2>
 
     <?php foreach ($products as $item): ?>
-        <div class="order-item">
-            <h3>
-                <?= htmlspecialchars($item['product']['name']) ?>
-            </h3>
 
-            <p>Size: <?= htmlspecialchars($item['size']) ?></p>
-            <p>Colour: <?= htmlspecialchars($item['color']) ?></p>
-            <p>Quantity: <?= $item['quantity'] ?></p>
+    <div class="order-item">
 
-            <p class="price">
-                ₦<?= number_format($item['total'], 2) ?>
-            </p>
-        </div>
+        <h3>
+            <?= htmlspecialchars($item['product']['name']) ?>
+        </h3>
+
+        <p>Size: <?= htmlspecialchars($item['size'] ?? 'N/A') ?></p>
+
+        <p>Colour: <?= htmlspecialchars($item['color'] ?? 'N/A') ?></p>
+
+        <p>Quantity: <?= $item['quantity'] ?></p>
+
+        <p class="price">
+            ₦<?= number_format($item['total'], 2) ?>
+        </p>
+
+    </div>
+
     <?php endforeach; ?>
 
     <div class="summary-row">
@@ -352,8 +466,11 @@ button:hover {
 
     <div class="summary-row grand-total">
         <span>Total</span>
-        <span class="price">₦<?= number_format($total, 2) ?></span>
+        <span class="price">
+            ₦<?= number_format($total, 2) ?>
+        </span>
     </div>
+
 </div>
 
 </div>
