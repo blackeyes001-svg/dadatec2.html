@@ -1,10 +1,9 @@
-```php
 <?php
 session_start();
 
 require_once __DIR__ . '/includes/db.php';
 
-// Get the selected product ID from the URL
+// Get product ID
 $productId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$productId || $productId < 1) {
@@ -12,7 +11,7 @@ if (!$productId || $productId < 1) {
     exit('Invalid product ID. Please return to the shop.');
 }
 
-// Fetch the selected product from the database
+// Fetch product
 try {
     $stmt = $pdo->prepare(
         "SELECT id, name, category, description, price,
@@ -31,19 +30,17 @@ try {
     exit('Unable to load this product. Please try again later.');
 }
 
-// Check whether the product exists
 if (!$product) {
     http_response_code(404);
     exit('Product not found. Please return to the shop.');
 }
 
-// Safely display text
-function e($value)
-{
+// Escape output
+function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
-// Convert comma-separated sizes and colours into lists
+// Get available sizes and colours
 $sizes = array_filter(
     array_map('trim', explode(',', (string) ($product['sizes'] ?? '')))
 );
@@ -63,11 +60,37 @@ $stock = (int) $product['stock'];
 
     <title><?= e($product['name']) ?> | Global Zone Sport Enterprise</title>
 
-    <link rel="stylesheet" href="css/style.css">
-
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #071426;
+            color: #ffffff;
+        }
+
+        header {
+            background: #10233d;
+            padding: 20px 5%;
+            border-bottom: 2px solid #2563EB;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 25px;
+            font-weight: bold;
+        }
+
+        header a:hover {
+            color: #39FF14;
+        }
+
         .details-container {
-            max-width: 1150px;
+            max-width: 1200px;
             margin: 40px auto;
             padding: 20px;
         }
@@ -75,7 +98,7 @@ $stock = (int) $product['stock'];
         .back-link {
             display: inline-block;
             margin-bottom: 25px;
-            color: #2563EB;
+            color: #39FF14;
             text-decoration: none;
             font-weight: bold;
         }
@@ -85,20 +108,20 @@ $stock = (int) $product['stock'];
             grid-template-columns: 1fr 1fr;
             gap: 35px;
             padding: 30px;
-            background: #fff;
-            color: #222;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            background: #10233d;
+            border: 1px solid #263f60;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .details-image {
-            min-height: 350px;
+            min-height: 380px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            background: #f3f4f6;
-            border-radius: 10px;
+            background: #172e4b;
+            border-radius: 12px;
         }
 
         .details-image img {
@@ -108,72 +131,122 @@ $stock = (int) $product['stock'];
         }
 
         .image-placeholder {
-            padding: 25px;
             text-align: center;
-            color: #666;
+            color: #aabbd0;
         }
 
-        .details-info h1 {
-            margin: 15px 0;
-            font-size: 30px;
-            line-height: 1.3;
+        .image-placeholder h2 {
+            font-size: 35px;
         }
 
         .category {
-            color: #2563EB;
+            color: #39FF14;
             font-weight: bold;
             text-transform: uppercase;
             font-size: 14px;
         }
 
+        .details-info h1 {
+            margin: 15px 0;
+            font-size: 32px;
+        }
+
         .price {
             margin: 20px 0;
-            color: #2563EB;
-            font-size: 28px;
+            color: #39FF14;
+            font-size: 30px;
             font-weight: bold;
         }
 
         .description {
             margin: 20px 0;
             line-height: 1.8;
-            color: #555;
+            color: #c5d2e2;
         }
 
         .option-section {
-            margin: 20px 0;
+            margin: 25px 0;
         }
 
-        .option-list {
+        .option-section strong {
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        /* SIZE DROPDOWN */
+
+        .size-select {
+            width: 100%;
+            max-width: 250px;
+            padding: 13px;
+            background: #071426;
+            color: white;
+            border: 1px solid #456080;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .size-select:focus {
+            outline: 2px solid #39FF14;
+        }
+
+        /* SELECTABLE COLOURS */
+
+        .color-options {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 12px;
         }
 
-        .option-item {
-            padding: 7px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f9fafb;
+        .color-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .color-option span {
+            display: inline-block;
+            padding: 11px 17px;
+            background: #071426;
+            color: white;
+            border: 2px solid #456080;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .color-option input:checked + span {
+            border-color: #39FF14;
+            background: #183d36;
+            color: #39FF14;
+            font-weight: bold;
+        }
+
+        .color-option span:hover {
+            border-color: #2563EB;
         }
 
         .in-stock {
-            color: #15803d;
+            color: #39FF14;
             font-weight: bold;
         }
 
         .out-stock {
-            color: #dc2626;
+            color: #ff5555;
             font-weight: bold;
         }
 
         .quantity-input {
             display: block;
-            width: 100px;
+            width: 110px;
             margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px;
+            background: #071426;
+            color: white;
+            border: 1px solid #456080;
+            border-radius: 7px;
+            font-size: 16px;
         }
 
         .button-row {
@@ -185,9 +258,9 @@ $stock = (int) $product['stock'];
 
         .btn {
             display: inline-block;
-            padding: 13px 20px;
+            padding: 14px 22px;
             border: none;
-            border-radius: 6px;
+            border-radius: 7px;
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
@@ -204,8 +277,12 @@ $stock = (int) $product['stock'];
         }
 
         .btn-back {
-            background: #e5e7eb;
-            color: #222;
+            background: #263f60;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #34577e;
         }
 
         @media (max-width: 750px) {
@@ -219,7 +296,12 @@ $stock = (int) $product['stock'];
             }
 
             .details-info h1 {
-                font-size: 24px;
+                font-size: 25px;
+            }
+
+            header a {
+                display: inline-block;
+                margin: 5px 12px 5px 0;
             }
         }
     </style>
@@ -227,18 +309,10 @@ $stock = (int) $product['stock'];
 
 <body>
 
-<header style="padding:18px 5%; background:#111; color:white;">
-    <a href="index.php" style="color:white; margin-right:20px; text-decoration:none;">
-        Home
-    </a>
-
-    <a href="products.php" style="color:white; margin-right:20px; text-decoration:none;">
-        Shop Products
-    </a>
-
-    <a href="cart.php" style="color:white; text-decoration:none;">
-        Shopping Cart
-    </a>
+<header>
+    <a href="index.php">Home</a>
+    <a href="products.php">Shop Products</a>
+    <a href="cart.php">Shopping Cart</a>
 </header>
 
 <main class="details-container">
@@ -249,7 +323,7 @@ $stock = (int) $product['stock'];
 
     <section class="details-card">
 
-        <!-- Product Image -->
+        <!-- PRODUCT IMAGE -->
         <div class="details-image">
 
             <?php if (!empty($product['image'])): ?>
@@ -270,7 +344,7 @@ $stock = (int) $product['stock'];
 
         </div>
 
-        <!-- Product Information -->
+        <!-- PRODUCT INFORMATION -->
         <div class="details-info">
 
             <span class="category">
@@ -290,46 +364,6 @@ $stock = (int) $product['stock'];
                 )) ?>
             </div>
 
-            <!-- Available Sizes -->
-            <?php if (!empty($sizes)): ?>
-                <div class="option-section">
-                    <strong>Available Sizes</strong>
-
-                    <div class="option-list">
-                        <?php foreach ($sizes as $size): ?>
-                            <span class="option-item"><?= e($size) ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Available Colours -->
-            <?php if (!empty($colors)): ?>
-                <div class="option-section">
-                    <strong>Available Colours</strong>
-
-                    <div class="option-list">
-                        <?php foreach ($colors as $color): ?>
-                            <span class="option-item"><?= e($color) ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Stock Availability -->
-            <p>
-                <strong>Availability:</strong>
-
-                <?php if ($stock > 0): ?>
-                    <span class="in-stock">
-                        In Stock (<?= $stock ?> available)
-                    </span>
-                <?php else: ?>
-                    <span class="out-stock">Out of Stock</span>
-                <?php endif; ?>
-            </p>
-
-            <!-- Quantity and Add to Cart -->
             <?php if ($stock > 0): ?>
 
                 <form action="cart.php" method="POST">
@@ -340,21 +374,91 @@ $stock = (int) $product['stock'];
                         value="<?= (int) $product['id'] ?>"
                     >
 
-                    <label for="quantity">
-                        <strong>Quantity</strong>
-                    </label>
+                    <!-- SIZE SELECTION -->
+                    <?php if (!empty($sizes)): ?>
 
-                    <input
-                        type="number"
-                        id="quantity"
-                        name="quantity"
-                        class="quantity-input"
-                        value="1"
-                        min="1"
-                        max="<?= $stock ?>"
-                        required
-                    >
+                        <div class="option-section">
+                            <strong>Choose Your Size</strong>
 
+                            <select
+                                name="size"
+                                class="size-select"
+                                required
+                            >
+                                <option value="">Select a size</option>
+
+                                <?php foreach ($sizes as $size): ?>
+                                    <option value="<?= e($size) ?>">
+                                        <?= e($size) ?>
+                                    </option>
+                                <?php endforeach; ?>
+
+                            </select>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <!-- COLOUR SELECTION -->
+                    <?php if (!empty($colors)): ?>
+
+                        <div class="option-section">
+                            <strong>Choose Your Colour</strong>
+
+                            <div class="color-options">
+
+                                <?php foreach ($colors as $index => $color): ?>
+
+                                    <label class="color-option">
+
+                                        <input
+                                            type="radio"
+                                            name="color"
+                                            value="<?= e($color) ?>"
+                                            <?= $index === 0 ? 'checked' : '' ?>
+                                            required
+                                        >
+
+                                        <span><?= e($color) ?></span>
+
+                                    </label>
+
+                                <?php endforeach; ?>
+
+                            </div>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <!-- STOCK -->
+                    <p>
+                        <strong>Availability:</strong>
+
+                        <span class="in-stock">
+                            In Stock (<?= $stock ?> available)
+                        </span>
+                    </p>
+
+                    <!-- QUANTITY -->
+                    <div class="option-section">
+
+                        <label for="quantity">
+                            <strong>Quantity</strong>
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            class="quantity-input"
+                            value="1"
+                            min="1"
+                            max="<?= $stock ?>"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- BUTTONS -->
                     <div class="button-row">
 
                         <button
@@ -380,11 +484,9 @@ $stock = (int) $product['stock'];
                     This product is currently unavailable.
                 </p>
 
-                <div class="button-row">
-                    <a href="products.php" class="btn btn-back">
-                        Continue Shopping
-                    </a>
-                </div>
+                <a href="products.php" class="btn btn-back">
+                    Continue Shopping
+                </a>
 
             <?php endif; ?>
 
@@ -396,4 +498,3 @@ $stock = (int) $product['stock'];
 
 </body>
 </html>
-```
