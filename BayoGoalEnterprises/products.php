@@ -1,4 +1,6 @@
+
 <?php
+
 session_start();
 
 require_once __DIR__ . '/includes/db.php';
@@ -57,6 +59,7 @@ switch ($sort) {
 try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
+
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $categoryStmt = $pdo->query(
@@ -70,8 +73,10 @@ try {
     $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
 
 } catch (PDOException $e) {
-    error_log('Products page error: ' . $e->getMessage());
+    error_log('Bayogoal products page error: ' . $e->getMessage());
+
     http_response_code(500);
+
     exit('Unable to load products. Please check your database connection.');
 }
 
@@ -80,13 +85,17 @@ function escapeHtml($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Explore quality sports equipment, football kits, sportswear and fitness accessories at Bayogoal Enterprises.">
 
     <title>Our Products | Bayogoal Enterprises</title>
 
@@ -104,45 +113,8 @@ function escapeHtml($value)
             color: #ffffff;
         }
 
-        /* HEADER */
-        .shop-header {
-            background: #030b18;
-            color: #ffffff;
-            padding: 20px 5%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            border-bottom: 2px solid #2563EB;
-        }
-
-        .shop-header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .shop-header h1 span {
-            color: #39FF14;
-        }
-
-        .shop-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-        }
-
-        .shop-nav a {
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .shop-nav a:hover {
-            color: #39FF14;
-        }
-
         /* MAIN CONTAINER */
+
         .shop-container {
             max-width: 1250px;
             margin: 35px auto;
@@ -170,6 +142,7 @@ function escapeHtml($value)
         }
 
         /* SEARCH AND FILTERS */
+
         .filter-box {
             background: #10233d;
             padding: 20px;
@@ -184,6 +157,7 @@ function escapeHtml($value)
         .filter-box input,
         .filter-box select {
             width: 100%;
+            min-width: 0;
             padding: 12px;
             border: 1px solid #365477;
             border-radius: 6px;
@@ -222,6 +196,7 @@ function escapeHtml($value)
         }
 
         /* PRODUCT GRID */
+
         .products-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -237,6 +212,7 @@ function escapeHtml($value)
             transition: transform 0.2s, border-color 0.2s;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .product-card:hover {
@@ -246,6 +222,7 @@ function escapeHtml($value)
         }
 
         /* PRODUCT IMAGE */
+
         .product-image {
             height: 210px;
             background: #0a192c;
@@ -267,6 +244,7 @@ function escapeHtml($value)
         }
 
         /* PRODUCT INFORMATION */
+
         .product-info {
             padding: 18px;
             display: flex;
@@ -317,6 +295,7 @@ function escapeHtml($value)
         }
 
         /* VIEW PRODUCT BUTTON */
+
         .view-product {
             display: block;
             text-align: center;
@@ -335,6 +314,7 @@ function escapeHtml($value)
         }
 
         /* NO PRODUCTS FOUND */
+
         .empty-message {
             grid-column: 1 / -1;
             text-align: center;
@@ -351,21 +331,8 @@ function escapeHtml($value)
             font-weight: bold;
         }
 
-        /* FOOTER */
-        .shop-footer {
-            text-align: center;
-            padding: 25px;
-            margin-top: 50px;
-            background: #030b18;
-            color: #cbd5e1;
-            border-top: 2px solid #2563EB;
-        }
-
-        .shop-footer span {
-            color: #39FF14;
-        }
-
         /* TABLETS */
+
         @media (max-width: 1000px) {
             .products-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -377,6 +344,7 @@ function escapeHtml($value)
         }
 
         /* MOBILE PHONES */
+
         @media (max-width: 650px) {
             .products-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -391,17 +359,20 @@ function escapeHtml($value)
                 padding: 12px;
             }
 
+            .product-info h3 {
+                font-size: 15px;
+            }
+
+            .product-price {
+                font-size: 17px;
+            }
+
             .shop-title h2 {
                 font-size: 25px;
             }
 
             .filter-box {
                 grid-template-columns: 1fr;
-            }
-
-            .shop-header {
-                flex-direction: column;
-                align-items: flex-start;
             }
         }
 
@@ -411,180 +382,222 @@ function escapeHtml($value)
             }
         }
     </style>
+
 </head>
 
 <body>
 
-<header class="shop-header">
+    <!-- SHARED HEADER -->
+    <?php include 'includes/header.php'; ?>
 
-    <h1>BAYO<span>GOAL</span> ENTERPRISES</h1>
+    <main class="shop-container">
 
-    <nav class="shop-nav">
-        <a href="index.php">Home</a>
-        <a href="products.php">Shop</a>
-        <a href="cart.php">Cart</a>
+        <section class="shop-title">
 
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="orders.php">My Orders</a>
-            <a href="logout.php">Logout</a>
-        <?php else: ?>
-            <a href="login.php">Login</a>
-            <a href="register.php">Register</a>
-        <?php endif; ?>
-    </nav>
+            <h2>Our Sports Collection</h2>
 
-</header>
+            <p class="tagline">
+                Gear Up. Play Hard. Win Big.
+            </p>
 
-<main class="shop-container">
+            <p>
+                Discover sportswear, footwear and sporting equipment for your game.
+            </p>
 
-    <section class="shop-title">
-        <h2>Our Sports Collection</h2>
-        <p class="tagline">Gear Up. Play Hard. Win Big.</p>
-        <p>Discover sportswear, footwear and sporting equipment for your game.</p>
-    </section>
+        </section>
 
-    <form action="products.php" method="GET" class="filter-box">
 
-        <input
-            type="search"
-            name="search"
-            placeholder="Search products..."
-            value="<?= escapeHtml($search) ?>"
-        >
+        <!-- SEARCH AND FILTERS -->
 
-        <select name="category">
-            <option value="">All Categories</option>
+        <form action="products.php" method="GET" class="filter-box">
 
-            <?php foreach ($categories as $cat): ?>
-                <option
-                    value="<?= escapeHtml($cat) ?>"
-                    <?= $category === $cat ? 'selected' : '' ?>
-                >
-                    <?= escapeHtml($cat) ?>
+            <input
+                type="search"
+                name="search"
+                placeholder="Search products..."
+                value="<?= escapeHtml($search) ?>"
+            >
+
+            <select name="category">
+
+                <option value="">All Categories</option>
+
+                <?php foreach ($categories as $cat): ?>
+
+                    <option
+                        value="<?= escapeHtml($cat) ?>"
+                        <?= $category === $cat ? 'selected' : '' ?>
+                    >
+                        <?= escapeHtml($cat) ?>
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+
+            <select name="sort">
+
+                <option value="latest" <?= $sort === 'latest' ? 'selected' : '' ?>>
+                    Latest
                 </option>
-            <?php endforeach; ?>
-        </select>
 
-        <select name="sort">
-            <option value="latest" <?= $sort === 'latest' ? 'selected' : '' ?>>
-                Latest
-            </option>
+                <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>
+                    Name: A–Z
+                </option>
 
-            <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>
-                Name: A–Z
-            </option>
+                <option value="price_low" <?= $sort === 'price_low' ? 'selected' : '' ?>>
+                    Price: Low to High
+                </option>
 
-            <option value="price_low" <?= $sort === 'price_low' ? 'selected' : '' ?>>
-                Price: Low to High
-            </option>
+                <option value="price_high" <?= $sort === 'price_high' ? 'selected' : '' ?>>
+                    Price: High to Low
+                </option>
 
-            <option value="price_high" <?= $sort === 'price_high' ? 'selected' : '' ?>>
-                Price: High to Low
-            </option>
-        </select>
+            </select>
 
-        <button type="submit" class="filter-button">Search</button>
+            <button type="submit" class="filter-button">
+                Search
+            </button>
 
-    </form>
+        </form>
 
-    <p class="product-count">
-        Showing <span><?= count($products) ?></span>
-        product<?= count($products) === 1 ? '' : 's' ?>
-    </p>
 
-    <section class="products-grid">
+        <!-- PRODUCT COUNT -->
 
-        <?php if (empty($products)): ?>
+        <p class="product-count">
 
-            <div class="empty-message">
-                <h3>No products found</h3>
-                <p>Try another search or select a different category.</p>
-                <a href="products.php">Show all products</a>
-            </div>
+            Showing <span><?= count($products) ?></span>
 
-        <?php else: ?>
+            product<?= count($products) === 1 ? '' : 's' ?>
 
-            <?php foreach ($products as $product): ?>
+        </p>
 
-                <article class="product-card">
 
-                    <div class="product-image">
+        <!-- PRODUCTS GRID -->
 
-                        <?php if (!empty($product['image'])): ?>
+        <section class="products-grid">
 
-                            <img
-                                src="<?= escapeHtml($product['image']) ?>"
-                                alt="<?= escapeHtml($product['name']) ?>"
-                                loading="lazy"
-                            >
+            <?php if (empty($products)): ?>
 
-                        <?php else: ?>
+                <div class="empty-message">
 
-                            <span class="image-placeholder" aria-hidden="true">
-                                🏆
+                    <h3>No products found</h3>
+
+                    <p>
+                        Try another search or select a different category.
+                    </p>
+
+                    <a href="products.php">
+                        Show all products
+                    </a>
+
+                </div>
+
+            <?php else: ?>
+
+                <?php foreach ($products as $product): ?>
+
+                    <article class="product-card">
+
+                        <div class="product-image">
+
+                            <?php if (!empty($product['image'])): ?>
+
+                                <img
+                                    src="<?= escapeHtml($product['image']) ?>"
+                                    alt="<?= escapeHtml($product['name']) ?>"
+                                    loading="lazy"
+                                >
+
+                            <?php else: ?>
+
+                                <span class="image-placeholder" aria-hidden="true">
+                                    🏆
+                                </span>
+
+                            <?php endif; ?>
+
+                        </div>
+
+
+                        <div class="product-info">
+
+                            <span class="product-category">
+                                <?= escapeHtml($product['category'] ?? 'Sports') ?>
                             </span>
 
-                        <?php endif; ?>
+                            <h3>
+                                <?= escapeHtml($product['name']) ?>
+                            </h3>
 
-                    </div>
 
-                    <div class="product-info">
+                            <p class="product-description">
 
-                        <span class="product-category">
-                            <?= escapeHtml($product['category'] ?? 'Sports') ?>
-                        </span>
+                                <?php
 
-                        <h3><?= escapeHtml($product['name']) ?></h3>
+                                $description = trim(
+                                    (string) ($product['description'] ?? '')
+                                );
 
-                        <p class="product-description">
-                            <?php
-                            $description = trim(
-                                (string) ($product['description'] ?? '')
-                            );
+                                if ($description === '') {
+                                    $description = 'Discover more details about this product.';
+                                }
 
-                            if ($description === '') {
-                                $description = 'Discover more details about this product.';
-                            }
+                                echo escapeHtml(
+                                    mb_strimwidth($description, 0, 100, '...')
+                                );
 
-                            echo escapeHtml(
-                                mb_strimwidth($description, 0, 100, '...')
-                            );
-                            ?>
-                        </p>
+                                ?>
 
-                        <p class="product-price">
-                            ₦<?= number_format((float) $product['price'], 2) ?>
-                        </p>
+                            </p>
 
-                        <?php if ((int) $product['stock'] > 0): ?>
-                            <p class="stock-label in-stock">● In stock</p>
-                        <?php else: ?>
-                            <p class="stock-label out-stock">● Out of stock</p>
-                        <?php endif; ?>
 
-                        <a
-                            class="view-product"
-                            href="products-details.php?id=<?= (int) $product['id'] ?>"
-                        >
-                            View Product
-                        </a>
+                            <p class="product-price">
+                                ₦<?= number_format((float) $product['price'], 2) ?>
+                            </p>
 
-                    </div>
 
-                </article>
+                            <?php if ((int) $product['stock'] > 0): ?>
 
-            <?php endforeach; ?>
+                                <p class="stock-label in-stock">
+                                    ● In stock
+                                </p>
 
-        <?php endif; ?>
+                            <?php else: ?>
 
-    </section>
+                                <p class="stock-label out-stock">
+                                    ● Out of stock
+                                </p>
 
-</main>
+                            <?php endif; ?>
 
-<footer class="shop-footer">
-    <p>&copy; <?= date('Y') ?> Bayogoal Enterprises.</p>
-    <p><span>Gear Up. Play Hard. Win Big.</span></p>
-</footer>
+
+                            <a
+                                class="view-product"
+                                href="products-details.php?id=<?= (int) $product['id'] ?>"
+                            >
+                                View Product
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                <?php endforeach; ?>
+
+            <?php endif; ?>
+
+        </section>
+
+    </main>
+
+
+    <!-- SHARED FOOTER -->
+    <?php include 'includes/footer.php'; ?>
+
+
+    <script src="js/script.js"></script>
 
 </body>
 </html>

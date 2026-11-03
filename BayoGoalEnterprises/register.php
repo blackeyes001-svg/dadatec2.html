@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -6,76 +5,120 @@ require_once __DIR__ . '/includes/db.php';
 
 $error = '';
 $success = '';
+
 $full_name = '';
 $email = '';
 
+// Generate CSRF token.
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $full_name = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
+    $token = $_POST['csrf_token'] ?? '';
 
     if (
-        $full_name === '' ||
-        $email === '' ||
-        $password === '' ||
-        $confirm_password === ''
+        !is_string($token) ||
+        !hash_equals($_SESSION['csrf_token'], $token)
     ) {
-        $error = 'Please fill in all fields.';
-
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Please enter a valid email address.';
-
-    } elseif (strlen($password) < 8) {
-        $error = 'Your password must contain at least 8 characters.';
-
-    } elseif ($password !== $confirm_password) {
-        $error = 'Your passwords do not match.';
+        $error = 'Your session has expired. Refresh the page and try again.';
 
     } else {
-        try {
-            // Check whether the email is already registered.
-            $check = $pdo->prepare(
-                'SELECT id FROM users WHERE email = ? LIMIT 1'
-            );
 
-            $check->execute([$email]);
+        $full_name = trim($_POST['full_name'] ?? '');
+        $email = strtolower(trim($_POST['email'] ?? ''));
+        $password = $_POST['password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
 
-            if ($check->fetch()) {
-                $error = 'This email is already registered. Please log in.';
+        if (
+            $full_name === '' ||
+            $email === '' ||
+            $password === '' ||
+            $confirm_password === ''
+        ) {
+            $error = 'Please fill in all fields.';
 
-            } else {
-                // Securely hash the password.
-                $hashed_password = password_hash(
-                    $password,
-                    PASSWORD_DEFAULT
+        } elseif (strlen($full_name) > 150) {
+            $error = 'Your name is too long.';
+
+        } elseif (
+            !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+            strlen($email) > 150
+        ) {
+            $error = 'Please enter a valid email address.';
+
+        } elseif (!is_string($password) || strlen($password) < 8) {
+            $error = 'Your password must contain at least 8 characters.';
+
+        } elseif (strlen($password) > 4096) {
+            $error = 'Your password is too long.';
+
+        } elseif ($password !== $confirm_password) {
+            $error = 'Your passwords do not match.';
+
+        } else {
+
+            try {
+
+                // Check whether email already exists.
+                $check = $pdo->prepare(
+                    'SELECT id FROM users WHERE email = ? LIMIT 1'
                 );
 
-                // Create the customer account.
-                $insert = $pdo->prepare(
-                    'INSERT INTO users (full_name, email, password, role)
-                     VALUES (?, ?, ?, ?)'
-                );
+                $check->execute([$email]);
 
-                $insert->execute([
-                    $full_name,
-                    $email,
-                    $hashed_password,
-                    'customer'
-                ]);
+                if ($check->fetch()) {
 
-                $success = 'Account created successfully! You can now log in.';
+                    $error = 'This email is already registered. Please log in.';
 
-                $full_name = '';
-                $email = '';
+                } else {
+
+                    // Securely hash password.
+                    $hashed_password = password_hash(
+                        $password,
+                        PASSWORD_DEFAULT
+                    );
+
+                    // Create customer account.
+                    $insert = $pdo->prepare(
+                        'INSERT INTO users (full_name, email, password, role)
+                         VALUES (?, ?, ?, ?)'
+                    );
+
+                    $insert->execute([
+                        $full_name,
+                        $email,
+                        $hashed_password,
+                        'customer'
+                    ]);
+
+                    $success = 'Account created successfully! You can now log in.';
+
+                    $full_name = '';
+                    $email = '';
+
+                    // Generate a fresh CSRF token.
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                }
+
+            } catch (PDOException $e) {
+
+                error_log('Bayogoal registration error: ' . $e->getMessage());
+
+                $error = 'Registration failed. Please try again.';
             }
-
-        } catch (PDOException $e) {
-            error_log('Registration error: ' . $e->getMessage());
-            $error = 'Registration failed. Please check your database setup.';
         }
     }
+}
+
+// Escape output.
+function e($value) {
+    return htmlspecialchars(
+        (string) $value,
+        ENT_QUOTES,
+        'UTF-8'
+    );
 }
 ?>
 
@@ -83,15 +126,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Create Account | Global Zone Sport Enterprise</title>
+    <title>Create Account | Bayogoal Enterprises</title>
+
+    <meta name="description" content="Create your Bayogoal Enterprises customer account.">
 
     <style>
-        /* =========================
-           GENERAL STYLES
-        ========================= */
+
+        :root {
+            --blue: #2563EB;
+            --green: #39FF14;
+            --dark: #071426;
+            --panel: #10233d;
+            --white: #ffffff;
+            --muted: #aabbd0;
+            --border: #294568;
+        }
 
         * {
             margin: 0;
@@ -101,32 +154,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: #080d18;
-            color: #ffffff;
+            background: var(--dark);
+            color: var(--white);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 25px 15px;
+            padding: 30px 15px;
         }
 
-        /* =========================
-           REGISTRATION CONTAINER
-        ========================= */
+        /* REGISTRATION CONTAINER */
 
         .register-container {
             width: 100%;
-            max-width: 460px;
-            background: #111827;
-            border: 1px solid #263449;
-            border-radius: 18px;
+            max-width: 470px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 35px;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
         }
 
-        /* =========================
-           BRAND
-        ========================= */
+        /* BRAND */
 
         .brand {
             text-align: center;
@@ -138,8 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             height: 65px;
             margin: 0 auto 15px;
             border-radius: 15px;
-            background: #2563eb;
-            color: #39ff14;
+            background: var(--dark);
+            border: 1px solid var(--green);
+            color: var(--green);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -148,79 +198,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .brand h1 {
-            font-size: 22px;
+            font-size: 23px;
             margin-bottom: 8px;
         }
 
+        .brand h1 span {
+            color: var(--green);
+        }
+
         .brand p {
-            color: #a8b3c7;
+            color: var(--muted);
             font-size: 13px;
         }
 
-        /* =========================
-           FORM HEADING
-        ========================= */
+        /* FORM HEADING */
 
         .form-heading {
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
         .form-heading h2 {
-            font-size: 23px;
+            font-size: 24px;
             margin-bottom: 8px;
         }
 
         .form-heading p {
             font-size: 14px;
-            color: #a8b3c7;
-            line-height: 1.5;
+            color: var(--muted);
+            line-height: 1.6;
         }
 
-        /* =========================
-           FORM FIELDS
-        ========================= */
+        /* FORM FIELDS */
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 19px;
         }
 
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
             font-weight: bold;
         }
 
-        input {
+        .form-group input {
             width: 100%;
-            padding: 13px 14px;
-            border: 1px solid #35445b;
-            border-radius: 9px;
-            background: #0b1220;
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--dark);
+            color: var(--white);
+            font-size: 15px;
         }
 
-        input:focus {
-            border-color: #39ff14;
-            box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.1);
+        .form-group input:focus {
+            outline: 2px solid var(--green);
+            border-color: var(--green);
         }
 
-        input::placeholder {
-            color: #7f8ba0;
+        .form-group input::placeholder {
+            color: #8190a6;
         }
 
-        /* =========================
-           PASSWORD VISIBILITY
-        ========================= */
+        /* PASSWORD VISIBILITY */
 
         .password-wrapper {
             position: relative;
         }
 
         .password-wrapper input {
-            padding-right: 70px;
+            padding-right: 75px;
         }
 
         .show-password {
@@ -230,71 +277,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateY(-50%);
             border: none;
             background: transparent;
-            color: #39ff14;
+            color: var(--green);
             cursor: pointer;
             font-size: 12px;
             font-weight: bold;
+            padding: 8px;
         }
 
-        /* =========================
-           SUBMIT BUTTON
-        ========================= */
+        /* REGISTER BUTTON */
 
         .register-button {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             margin-top: 5px;
             border: none;
-            border-radius: 9px;
-            background: #2563eb;
-            color: #ffffff;
-            font-size: 15px;
+            border-radius: 8px;
+            background: var(--blue);
+            color: var(--white);
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: 0.3s;
         }
 
         .register-button:hover {
-            background: #1d4ed8;
+            background: var(--green);
+            color: var(--dark);
         }
 
-        /* =========================
-           SUCCESS AND ERROR MESSAGES
-        ========================= */
+        /* MESSAGES */
 
         .message {
-            padding: 12px;
+            padding: 13px;
             border-radius: 8px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .error {
-            background: #451a1a;
+            background: #451b25;
             color: #fecaca;
-            border: 1px solid #7f1d1d;
+            border: 1px solid #ef4444;
         }
 
         .success {
-            background: #12351b;
-            color: #b7ffb0;
-            border: 1px solid #226b30;
+            background: #183b2b;
+            color: #bbf7d0;
+            border: 1px solid var(--green);
         }
 
-        /* =========================
-           PAGE LINKS
-        ========================= */
+        .success a {
+            color: var(--green);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* LOGIN LINK */
 
         .login-link {
             text-align: center;
-            margin-top: 23px;
-            color: #a8b3c7;
+            margin-top: 24px;
+            color: var(--muted);
             font-size: 14px;
         }
 
         .login-link a {
-            color: #39ff14;
+            color: var(--green);
             text-decoration: none;
             font-weight: bold;
         }
@@ -303,179 +352,271 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-decoration: underline;
         }
 
+        /* HOME LINK */
+
         .home-link {
             display: block;
             text-align: center;
             margin-top: 20px;
-            color: #a8b3c7;
+            color: var(--muted);
             font-size: 13px;
             text-decoration: none;
         }
 
         .home-link:hover {
-            color: #ffffff;
+            color: var(--green);
         }
 
-        /* =========================
-           MOBILE RESPONSIVENESS
-        ========================= */
+        /* MOBILE */
 
         @media (max-width: 480px) {
+
             .register-container {
-                padding: 25px 20px;
+                padding: 27px 20px;
             }
 
             .brand h1 {
-                font-size: 19px;
+                font-size: 20px;
             }
+
+            .form-heading h2 {
+                font-size: 22px;
+            }
+
         }
+
     </style>
+
 </head>
 
 <body>
 
-    <main class="register-container">
+<main class="register-container">
 
-        <div class="brand">
-            <div class="brand-icon">GZ</div>
+    <!-- BRAND -->
 
-            <h1>GLOBAL ZONE SPORT</h1>
+    <div class="brand">
 
-            <p>Gear Up. Play Hard. Win Big.</p>
+        <div class="brand-icon">
+            BG
         </div>
 
-        <div class="form-heading">
-            <h2>Create Your Account</h2>
+        <h1>
+            BAYO<span>GOAL</span> ENTERPRISES
+        </h1>
 
-            <p>
-                Join Global Zone Sport Enterprise and get ready for the game.
-            </p>
-        </div>
-
-        <?php if ($error !== ''): ?>
-            <div class="message error">
-                <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($success !== ''): ?>
-            <div class="message success">
-                <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
-                <br><br>
-                <a href="login.php" style="color: #39ff14;">
-                    Continue to Login
-                </a>
-            </div>
-        <?php endif; ?>
-
-        <form action="register.php" method="POST">
-
-            <div class="form-group">
-                <label for="full_name">Full Name</label>
-
-                <input
-                    type="text"
-                    id="full_name"
-                    name="full_name"
-                    placeholder="Enter your full name"
-                    value="<?= htmlspecialchars($full_name, ENT_QUOTES, 'UTF-8') ?>"
-                    autocomplete="name"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="email">Email Address</label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email address"
-                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
-                    autocomplete="email"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-
-                <div class="password-wrapper">
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="At least 8 characters"
-                        minlength="8"
-                        autocomplete="new-password"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="show-password"
-                        onclick="togglePassword('password', this)"
-                    >
-                        Show
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password</label>
-
-                <div class="password-wrapper">
-                    <input
-                        type="password"
-                        id="confirm_password"
-                        name="confirm_password"
-                        placeholder="Enter your password again"
-                        autocomplete="new-password"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="show-password"
-                        onclick="togglePassword('confirm_password', this)"
-                    >
-                        Show
-                    </button>
-                </div>
-            </div>
-
-            <button type="submit" class="register-button">
-                Create Account
-            </button>
-
-        </form>
-
-        <p class="login-link">
-            Already have an account?
-            <a href="login.php">Log In</a>
+        <p>
+            Gear Up. Play Hard. Win Big.
         </p>
 
-        <a href="index.php" class="home-link">
-            &larr; Back to Home Page
+    </div>
+
+    <!-- FORM HEADING -->
+
+    <div class="form-heading">
+
+        <h2>Create Your Account</h2>
+
+        <p>
+            Join Bayogoal Enterprises and get ready
+            for your favourite sports activities.
+        </p>
+
+    </div>
+
+    <!-- ERROR MESSAGE -->
+
+    <?php if ($error !== ''): ?>
+
+        <div class="message error" role="alert">
+            <?= e($error) ?>
+        </div>
+
+    <?php endif; ?>
+
+    <!-- SUCCESS MESSAGE -->
+
+    <?php if ($success !== ''): ?>
+
+        <div class="message success" role="status">
+
+            <?= e($success) ?>
+
+            <br><br>
+
+            <a href="login.php?registered=1">
+                Continue to Login &rarr;
+            </a>
+
+        </div>
+
+    <?php endif; ?>
+
+    <!-- REGISTRATION FORM -->
+
+    <form action="register.php" method="POST">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="<?= e($_SESSION['csrf_token']) ?>"
+        >
+
+        <div class="form-group">
+
+            <label for="full_name">
+                Full Name
+            </label>
+
+            <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                placeholder="Enter your full name"
+                value="<?= e($full_name) ?>"
+                maxlength="150"
+                autocomplete="name"
+                required
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="email">
+                Email Address
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email address"
+                value="<?= e($email) ?>"
+                maxlength="150"
+                autocomplete="email"
+                required
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <div class="password-wrapper">
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="At least 8 characters"
+                    minlength="8"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    class="show-password"
+                    data-target="password"
+                    aria-label="Show password"
+                >
+                    SHOW
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="confirm_password">
+                Confirm Password
+            </label>
+
+            <div class="password-wrapper">
+
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    placeholder="Enter your password again"
+                    minlength="8"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    class="show-password"
+                    data-target="confirm_password"
+                    aria-label="Show confirm password"
+                >
+                    SHOW
+                </button>
+
+            </div>
+
+        </div>
+
+        <button type="submit" class="register-button">
+            Create Account
+        </button>
+
+    </form>
+
+    <!-- LOGIN LINK -->
+
+    <p class="login-link">
+
+        Already have an account?
+
+        <a href="login.php">
+            Log In
         </a>
 
-    </main>
+    </p>
 
-    <script>
-        function togglePassword(inputId, button) {
-            const input = document.getElementById(inputId);
+    <!-- HOME LINK -->
 
-            if (input.type === 'password') {
-                input.type = 'text';
-                button.textContent = 'Hide';
-            } else {
-                input.type = 'password';
-                button.textContent = 'Show';
-            }
+    <a href="index.php" class="home-link">
+        &larr; Back to Home Page
+    </a>
+
+</main>
+
+<script>
+
+document.querySelectorAll('.show-password').forEach(function(button) {
+
+    button.addEventListener('click', function() {
+
+        const input = document.getElementById(
+            button.dataset.target
+        );
+
+        if (input.type === 'password') {
+
+            input.type = 'text';
+            button.textContent = 'HIDE';
+            button.setAttribute('aria-label', 'Hide password');
+
+        } else {
+
+            input.type = 'password';
+            button.textContent = 'SHOW';
+            button.setAttribute('aria-label', 'Show password');
+
         }
-    </script>
+
+    });
+
+});
+
+</script>
 
 </body>
 </html>
-```

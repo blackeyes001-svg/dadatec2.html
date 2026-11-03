@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -19,55 +20,11 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
 <body>
 
-    <!-- HEADER / NAVIGATION -->
-    <header class="site-header">
+    <?php include 'includes/header.php'; ?>
 
-        <div class="logo">
-            <a href="index.php">
-                <span class="logo-icon">BG</span>
-                <span class="logo-text">
-                    BAYO<strong>GOAL</strong>
-                    <small>ENTERPRISES</small>
-                </span>
-            </a>
-        </div>
-
-        <button class="menu-toggle"
-                id="menuToggle"
-                aria-label="Open navigation menu"
-                aria-expanded="false">
-            ☰
-        </button>
-
-        <nav class="nav-links" id="navLinks">
-
-            <a href="index.php" class="active">Home</a>
-            <a href="products.php">Shop</a>
-            <a href="#categories">Categories</a>
-            <a href="#about">About Us</a>
-            <a href="#contact">Contact</a>
-
-            <?php if ($isLoggedIn): ?>
-
-                <a href="cart.php">My Cart</a>
-                <a href="orders.php">My Orders</a>
-                <a href="logout.php" class="login-link">🚪 Logout</a>
-
-            <?php else: ?>
-
-                <a href="login.php" class="login-link">Login</a>
-                <a href="register.php" class="register-link">Sign Up</a>
-
-            <?php endif; ?>
-
-        </nav>
-
-    </header>
-
-
-    <!-- HERO SECTION -->
     <main>
 
+        <!-- HERO SECTION -->
         <section class="hero">
 
             <div class="hero-content">
@@ -121,7 +78,6 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
             </div>
 
-
             <div class="hero-visual">
 
                 <div class="hero-badge">
@@ -156,7 +112,6 @@ $isLoggedIn = isset($_SESSION['user_id']);
                 </a>
 
             </div>
-
 
             <div class="category-grid">
 
@@ -325,90 +280,8 @@ $isLoggedIn = isset($_SESSION['user_id']);
     </main>
 
 
-    <!-- FOOTER -->
-    <footer class="site-footer" id="contact">
-
-        <div class="footer-main">
-
-            <div class="footer-brand">
-
-                <a href="index.php" class="footer-logo">
-                    BG <span>BAYOGOAL</span>
-                </a>
-
-                <p>
-                    Gear Up. Play Hard. Win Big.
-                </p>
-
-                <p>
-                    Your destination for sporting goods,
-                    sportswear and training equipment.
-                </p>
-
-            </div>
-
-
-            <div class="footer-column">
-
-                <h3>QUICK LINKS</h3>
-
-                <a href="index.php">Home</a>
-                <a href="products.php">Shop Products</a>
-                <a href="#categories">Categories</a>
-                <a href="#about">About Us</a>
-
-            </div>
-
-
-            <div class="footer-column">
-
-                <h3>YOUR ACCOUNT</h3>
-
-                <?php if ($isLoggedIn): ?>
-
-                    <a href="cart.php">Shopping Cart</a>
-                    <a href="orders.php">My Orders</a>
-                    <a href="logout.php">Logout</a>
-
-                <?php else: ?>
-
-                    <a href="login.php">Login</a>
-                    <a href="register.php">Create Account</a>
-                    <a href="cart.php">Shopping Cart</a>
-
-                <?php endif; ?>
-
-            </div>
-
-
-            <div class="footer-column">
-
-                <h3>CONTACT</h3>
-
-                <p>Questions about our products?</p>
-
-                <a href="mailto:info@bayogoal.com">
-                    Email Us
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <div class="footer-bottom">
-
-            <p>
-                &copy; <?php echo date("Y"); ?>
-                Bayogoal Enterprises.
-                All rights reserved.
-            </p>
-
-            <p>GEAR UP. PLAY HARD. WIN BIG.</p>
-
-        </div>
-
-    </footer>
+    <!-- SHARED FOOTER -->
+    <?php include 'includes/footer.php'; ?>
 
 
     <!-- JAVASCRIPT -->

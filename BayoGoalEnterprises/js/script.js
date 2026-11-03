@@ -1,47 +1,55 @@
 /* =========================================================
-   GLOBAL ZONE SPORT ENTERPRISE
+   BAYOGOAL ENTERPRISES
    JavaScript - Main Website Functions
    Tagline: Gear Up. Play Hard. Win Big.
    ========================================================= */
 
-
-/* =========================================================
-   1. MOBILE NAVIGATION MENU
-   Opens and closes the menu on smaller screens.
-   ========================================================= */
-
 document.addEventListener("DOMContentLoaded", function () {
+
+    /* =====================================================
+       1. MOBILE NAVIGATION MENU
+       ===================================================== */
+
     const menuToggle = document.querySelector(".menu-toggle");
     const navLinks = document.querySelector(".nav-links");
 
     if (menuToggle && navLinks) {
+
         menuToggle.addEventListener("click", function () {
+
             const isOpen = navLinks.classList.toggle("show");
 
-            menuToggle.setAttribute("aria-expanded", isOpen);
+            menuToggle.setAttribute("aria-expanded", String(isOpen));
             menuToggle.textContent = isOpen ? "✕" : "☰";
+
         });
 
-        // Close the menu after clicking a navigation link.
         navLinks.querySelectorAll("a").forEach(function (link) {
+
             link.addEventListener("click", function () {
+
                 navLinks.classList.remove("show");
+
                 menuToggle.setAttribute("aria-expanded", "false");
                 menuToggle.textContent = "☰";
+
             });
+
         });
+
     }
 
 
     /* =====================================================
        2. SEARCH FORM
-       Allows customers to submit product searches easily.
        ===================================================== */
 
     const searchForm = document.querySelector(".search-box");
 
     if (searchForm) {
-        searchForm.addEventListener("submit", function (event) {
+
+        searchForm.addEventListener("submit", function () {
+
             const searchInput = searchForm.querySelector(
                 'input[name="search"]'
             );
@@ -49,14 +57,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (searchInput) {
                 searchInput.value = searchInput.value.trim();
             }
+
         });
+
     }
 
 
     /* =====================================================
        3. PRODUCT SORTING
-       Automatically submits the form when a sort option
-       is selected.
        ===================================================== */
 
     const sortSelect = document.querySelector(
@@ -64,24 +72,28 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     if (sortSelect) {
+
         sortSelect.addEventListener("change", function () {
+
             const sortForm = sortSelect.closest("form");
 
             if (sortForm) {
                 sortForm.submit();
             }
+
         });
+
     }
 
 
     /* =====================================================
        4. PRODUCT CARD INTERACTIONS
-       Adds a small visual response when a product is clicked.
        ===================================================== */
 
     const productCards = document.querySelectorAll(".product-card");
 
     productCards.forEach(function (card) {
+
         card.addEventListener("mouseenter", function () {
             card.classList.add("product-card-hover");
         });
@@ -89,15 +101,16 @@ document.addEventListener("DOMContentLoaded", function () {
         card.addEventListener("mouseleave", function () {
             card.classList.remove("product-card-hover");
         });
+
     });
 
 
     /* =====================================================
        5. CURRENT YEAR
-       Updates footer elements that use the current-year class.
        ===================================================== */
 
     const yearElements = document.querySelectorAll(".current-year");
+
     const currentYear = new Date().getFullYear();
 
     yearElements.forEach(function (element) {
@@ -107,33 +120,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
        6. BACK-TO-TOP BUTTON
-       Works when a button with id="backToTop" is added.
        ===================================================== */
 
     const backToTop = document.getElementById("backToTop");
 
     if (backToTop) {
+
         window.addEventListener("scroll", function () {
+
             if (window.scrollY > 300) {
                 backToTop.classList.add("visible");
             } else {
                 backToTop.classList.remove("visible");
             }
+
         });
 
         backToTop.addEventListener("click", function () {
+
             window.scrollTo({
                 top: 0,
                 behavior: "smooth"
             });
+
         });
+
     }
 
 
     /* =====================================================
        7. FORM INPUT FEEDBACK
-       Highlights form fields when customers interact with
-       them. This does not replace server-side validation.
        ===================================================== */
 
     const formInputs = document.querySelectorAll(
@@ -141,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     formInputs.forEach(function (input) {
+
         input.addEventListener("focus", function () {
             input.classList.add("input-focused");
         });
@@ -148,13 +165,12 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener("blur", function () {
             input.classList.remove("input-focused");
         });
+
     });
 
 
     /* =====================================================
        8. PASSWORD VISIBILITY
-       Works with password inputs using the class
-       "password-input" and buttons using "toggle-password".
        ===================================================== */
 
     const passwordButtons = document.querySelectorAll(
@@ -162,7 +178,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     passwordButtons.forEach(function (button) {
+
         button.addEventListener("click", function () {
+
             const passwordInput = button.parentElement.querySelector(
                 ".password-input"
             );
@@ -186,21 +204,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 "aria-label",
                 currentlyHidden ? "Hide password" : "Show password"
             );
+
         });
+
     });
 
 
     /* =====================================================
        9. ADD-TO-CART BUTTON FEEDBACK
-       Provides temporary feedback for buttons using the
-       "add-to-cart" class. Actual cart storage and order
-       processing will be handled separately with PHP.
        ===================================================== */
 
     const cartButtons = document.querySelectorAll(".add-to-cart");
 
     cartButtons.forEach(function (button) {
+
         button.addEventListener("click", function () {
+
             if (button.disabled) {
                 return;
             }
@@ -211,25 +230,27 @@ document.addEventListener("DOMContentLoaded", function () {
             button.classList.add("added");
 
             window.setTimeout(function () {
+
                 button.textContent = originalText;
                 button.classList.remove("added");
+
             }, 1500);
+
         });
+
     });
 
 
     /* =====================================================
        10. NEWSLETTER FORM FEEDBACK
-       Shows a message for a newsletter form if one exists.
-       Real subscriptions will require PHP/backend processing.
        ===================================================== */
 
-    const newsletterForm = document.getElementById(
-        "newsletterForm"
-    );
+    const newsletterForm = document.getElementById("newsletterForm");
 
     if (newsletterForm) {
+
         newsletterForm.addEventListener("submit", function (event) {
+
             event.preventDefault();
 
             const emailInput = newsletterForm.querySelector(
@@ -237,15 +258,25 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             if (!emailInput || !emailInput.value.trim()) {
+
                 alert("Please enter your email address.");
                 return;
+
             }
 
             alert(
-                "The newsletter feature will be connected when the backend is ready."
+                "The newsletter feature is not yet connected. Thank you for your interest!"
             );
+
         });
+
     }
 
-    console.log("Global Zone Sport Enterprise JavaScript loaded.");
+
+    /* =====================================================
+       11. WEBSITE INITIALIZATION
+       ===================================================== */
+
+    console.log("Bayogoal Enterprises JavaScript loaded successfully.");
+
 });

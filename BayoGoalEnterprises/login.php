@@ -3,12 +3,13 @@ session_start();
 
 require_once __DIR__ . '/includes/db.php';
 
-// Redirect an already signed-in customer to the homepage.
-if (!empty($_SESSION['user'])) {
+// Redirect already logged-in users.
+if (!empty($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
 }
 
+// Generate CSRF token.
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -25,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         !hash_equals($_SESSION['csrf_token'], $token)
     ) {
         $error = 'Your session has expired. Refresh the page and try again.';
+
     } else {
 
         $email = strtolower(trim($_POST['email'] ?? ''));
@@ -38,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             strlen($password) > 4096
         ) {
             $error = 'Invalid email or password.';
+
         } else {
 
             $stmt = $pdo->prepare(
@@ -49,11 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt->execute(['email' => $email]);
 
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
 
-                // Replace the session ID to help prevent session fixation.
                 session_regenerate_id(true);
 
                 $_SESSION['user_id'] = (int) $user['id'];
@@ -61,21 +63,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
 
-                // Generate a fresh CSRF token for the authenticated session.
+                // Generate a fresh CSRF token.
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
-                // Upgrade older password hashes when necessary.
-                if (password_needs_rehash(
-                    $user['password'],
-                    PASSWORD_DEFAULT
-                )) {
+                // Upgrade older password hashes.
+                if (
+                    password_needs_rehash(
+                        $user['password'],
+                        PASSWORD_DEFAULT
+                    )
+                ) {
                     $newHash = password_hash(
                         $password,
                         PASSWORD_DEFAULT
                     );
 
                     $update = $pdo->prepare(
-                        'UPDATE users SET password = :password WHERE id = :id'
+                        'UPDATE users
+                         SET password = :password
+                         WHERE id = :id'
                     );
 
                     $update->execute([
@@ -94,26 +100,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Escape output.
 function e($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars(
+        (string) $value,
+        ENT_QUOTES,
+        'UTF-8'
+    );
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Sign In | Global Zone Sport Enterprise</title>
+    <title>Sign In | Bayogoal Enterprises</title>
+
+    <meta name="description" content="Sign in to your Bayogoal Enterprises account.">
 
     <style>
         :root {
             --blue: #2563EB;
             --green: #39FF14;
-            --dark: #080B12;
-            --white: #FFFFFF;
-            --muted: #667085;
-            --background: #F4F7FC;
+            --dark: #071426;
+            --panel: #10233d;
+            --white: #ffffff;
+            --muted: #aabbd0;
+            --border: #294568;
         }
 
         * {
@@ -123,54 +139,90 @@ function e($value) {
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: var(--background);
-            color: #172033;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--dark);
+            color: var(--white);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        header {
-            background: var(--dark);
-            padding: 18px 7%;
+        /* HEADER */
+
+        .login-header {
+            background: var(--panel);
+            padding: 20px 7%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
+            border-bottom: 2px solid var(--blue);
         }
 
         .brand {
             color: var(--white);
             text-decoration: none;
-            font-size: 20px;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: 900;
         }
 
         .brand span {
             color: var(--green);
         }
 
-        header a.back {
-            color: var(--white);
-            text-decoration: none;
+        .brand small {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: var(--muted);
+            text-align: center;
         }
 
-        main {
+        .back {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            color: var(--green);
+        }
+
+        /* MAIN */
+
+        .login-main {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px 16px;
+            padding: 45px 16px;
         }
 
+        /* LOGIN CARD */
+
         .auth-card {
-            background: var(--white);
+            background: var(--panel);
             width: 100%;
-            max-width: 440px;
-            padding: 35px;
+            max-width: 450px;
+            padding: 38px;
             border-radius: 16px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+        }
+
+        .logo-mark {
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            background: var(--dark);
+            border: 1px solid var(--green);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--green);
+            font-size: 25px;
+            font-weight: 900;
+            margin-bottom: 22px;
         }
 
         .auth-card h1 {
@@ -180,87 +232,160 @@ function e($value) {
 
         .intro {
             color: var(--muted);
-            line-height: 1.6;
-            margin-bottom: 25px;
+            line-height: 1.7;
+            margin-bottom: 28px;
         }
+
+        /* FORM */
 
         .field {
-            margin-bottom: 20px;
+            margin-bottom: 21px;
         }
 
-        label {
+        .field label {
             display: block;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-weight: bold;
+            margin-bottom: 9px;
         }
 
-        input {
+        .field input {
             width: 100%;
-            padding: 13px;
-            border: 1px solid #D0D5DD;
+            padding: 14px;
+            border: 1px solid var(--border);
             border-radius: 8px;
+            background: var(--dark);
+            color: var(--white);
             font-size: 15px;
         }
 
-        input:focus {
-            outline: 2px solid var(--blue);
-            border-color: var(--blue);
+        .field input:focus {
+            outline: 2px solid var(--green);
+            border-color: var(--green);
         }
+
+        /* PASSWORD */
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 75px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--green);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 8px;
+        }
+
+        /* BUTTON */
 
         .submit-btn {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background: var(--blue);
             color: var(--white);
             border: none;
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 700;
+            font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
+            margin-top: 8px;
         }
 
         .submit-btn:hover {
-            background: #1D4ED8;
+            background: var(--green);
+            color: var(--dark);
         }
 
+        /* MESSAGES */
+
         .error {
-            background: #FEF2F2;
-            color: #991B1B;
+            background: #451b25;
+            border: 1px solid #ef4444;
+            color: #fecaca;
             padding: 14px;
             border-radius: 8px;
             margin-bottom: 20px;
+            line-height: 1.5;
         }
 
         .success {
-            background: #ECFDF3;
-            color: #166534;
+            background: #183b2b;
+            border: 1px solid var(--green);
+            color: #bbf7d0;
             padding: 14px;
             border-radius: 8px;
             margin-bottom: 20px;
+            line-height: 1.5;
         }
+
+        /* REGISTER LINK */
 
         .switch {
             text-align: center;
-            margin-top: 22px;
-            line-height: 1.7;
+            margin-top: 25px;
+            line-height: 1.8;
+            color: var(--muted);
         }
 
         .switch a {
-            color: var(--blue);
-            font-weight: 700;
+            color: var(--green);
+            font-weight: bold;
+            text-decoration: none;
         }
 
-        footer {
-            background: var(--dark);
-            color: #D1D5DB;
+        .switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* FOOTER */
+
+        .login-footer {
+            background: var(--panel);
+            border-top: 1px solid var(--border);
+            color: var(--muted);
             text-align: center;
-            padding: 18px;
+            padding: 20px;
             font-size: 14px;
         }
 
-        @media (max-width: 480px) {
+        .login-footer span {
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 500px) {
+            .login-header {
+                padding: 17px 5%;
+            }
+
+            .brand {
+                font-size: 19px;
+            }
+
+            .back {
+                font-size: 13px;
+            }
+
+            .login-main {
+                padding: 30px 14px;
+            }
+
             .auth-card {
-                padding: 24px 20px;
+                padding: 27px 21px;
             }
 
             .auth-card h1 {
@@ -272,33 +397,47 @@ function e($value) {
 
 <body>
 
-<header>
+<header class="login-header">
+
     <a class="brand" href="index.php">
-        GLOBAL <span>ZONE</span>
+        BAYO<span>GOAL</span>
+        <small>ENTERPRISES</small>
     </a>
 
-    <a class="back" href="index.php">← Back to Home</a>
+    <a class="back" href="index.php">
+        &larr; Back to Home
+    </a>
+
 </header>
 
-<main>
+<main class="login-main">
+
     <section class="auth-card">
+
+        <div class="logo-mark">BG</div>
 
         <h1>Welcome Back!</h1>
 
         <p class="intro">
-            Sign in to your Global Zone Sport Enterprise account.
+            Sign in to your Bayogoal Enterprises account
+            and continue shopping for your favourite sports equipment.
         </p>
 
         <?php if (isset($_GET['registered'])): ?>
+
             <div class="success" role="status">
-                Account created successfully! You can now sign in.
+                Account created successfully!
+                You can now sign in.
             </div>
+
         <?php endif; ?>
 
         <?php if ($error !== ''): ?>
+
             <div class="error" role="alert">
                 <?= e($error) ?>
             </div>
+
         <?php endif; ?>
 
         <form action="login.php" method="POST">
@@ -310,6 +449,7 @@ function e($value) {
             >
 
             <div class="field">
+
                 <label for="email">Email Address</label>
 
                 <input
@@ -319,20 +459,38 @@ function e($value) {
                     maxlength="150"
                     autocomplete="email"
                     value="<?= e($email) ?>"
+                    placeholder="Enter your email address"
                     required
                 >
+
             </div>
 
             <div class="field">
+
                 <label for="password">Password</label>
 
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autocomplete="current-password"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        id="togglePassword"
+                        aria-label="Show password"
+                    >
+                        SHOW
+                    </button>
+
+                </div>
+
             </div>
 
             <button class="submit-btn" type="submit">
@@ -347,12 +505,41 @@ function e($value) {
         </p>
 
     </section>
+
 </main>
 
-<footer>
-    &copy; <?= date('Y') ?> Global Zone Sport Enterprise.
+<footer class="login-footer">
+
+    &copy; <?= date('Y') ?>
+
+    <span>Bayogoal Enterprises</span>.
+
     Gear Up. Play Hard. Win Big.
+
 </footer>
+
+<script>
+const passwordInput = document.getElementById('password');
+const togglePassword = document.getElementById('togglePassword');
+
+togglePassword.addEventListener('click', function () {
+
+    if (passwordInput.type === 'password') {
+
+        passwordInput.type = 'text';
+        togglePassword.textContent = 'HIDE';
+        togglePassword.setAttribute('aria-label', 'Hide password');
+
+    } else {
+
+        passwordInput.type = 'password';
+        togglePassword.textContent = 'SHOW';
+        togglePassword.setAttribute('aria-label', 'Show password');
+
+    }
+
+});
+</script>
 
 </body>
 </html>

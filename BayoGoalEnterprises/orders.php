@@ -1,14 +1,24 @@
 <?php
 session_start();
-require_once 'includes/db.php';
+
+require_once __DIR__ . '/includes/db.php';
 
 // Customers must be logged in.
 if (empty($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header('Location: login.php');
     exit;
 }
 
 $userId = (int) $_SESSION['user_id'];
+
+// Safely display database values.
+function e($value) {
+    return htmlspecialchars(
+        (string) ($value ?? ''),
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
 
 // Fetch this customer's orders.
 $stmt = $pdo->prepare("
@@ -19,11 +29,12 @@ $stmt = $pdo->prepare("
 ");
 
 $stmt->execute([$userId]);
+
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch products belonging to each order.
 $itemStmt = $pdo->prepare("
-    SELECT 
+    SELECT
         order_items.*,
         products.name AS product_name
     FROM order_items
@@ -31,296 +42,432 @@ $itemStmt = $pdo->prepare("
         ON order_items.product_id = products.id
     WHERE order_items.order_id = ?
 ");
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>My Orders | Global Zone Sport Enterprise</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    <title>My Orders | Bayogoal Enterprises</title>
 
-body {
-    font-family: Arial, sans-serif;
-    background: #071426;
-    color: white;
-}
+    <meta name="description" content="View your Bayogoal Enterprises orders, purchases and payment information.">
 
-header {
-    background: #10233d;
-    padding: 22px 7%;
-    border-bottom: 2px solid #2563EB;
-}
+    <link rel="stylesheet" href="css/style.css">
 
-header h2 {
-    color: #39FF14;
-}
+    <style>
 
-.container {
-    width: 90%;
-    max-width: 1100px;
-    margin: 40px auto;
-}
+        /* ORDERS PAGE */
 
-h1 {
-    margin-bottom: 10px;
-}
+        .orders-page {
+            background: #071426;
+            color: #ffffff;
+            min-height: 70vh;
+            padding: 45px 5%;
+        }
 
-.subtitle {
-    color: #aaa;
-    margin-bottom: 30px;
-}
+        .orders-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+        }
 
-.success {
-    background: #183b2b;
-    border: 1px solid #39FF14;
-    padding: 15px;
-    border-radius: 7px;
-    margin-bottom: 25px;
-}
+        .orders-heading {
+            margin-bottom: 30px;
+        }
 
-.order-card {
-    background: #10233d;
-    border: 1px solid #294568;
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-}
+        .orders-heading h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
 
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
-    border-bottom: 1px solid #294568;
-    padding-bottom: 18px;
-    margin-bottom: 18px;
-}
+        .orders-heading p {
+            color: #aabbd0;
+            line-height: 1.7;
+        }
 
-.order-header h3 {
-    color: #39FF14;
-    margin-bottom: 8px;
-}
+        /* SUCCESS MESSAGE */
 
-.order-header p {
-    color: #aaa;
-    margin-top: 5px;
-}
+        .order-success {
+            background: #183b2b;
+            border: 1px solid #39FF14;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #ffffff;
+            line-height: 1.6;
+        }
 
-.status {
-    background: #2563EB;
-    padding: 8px 13px;
-    border-radius: 20px;
-    height: fit-content;
-    text-transform: capitalize;
-}
+        /* ORDER CARD */
 
-.product {
-    padding: 13px 0;
-    border-bottom: 1px solid #294568;
-}
+        .order-card {
+            background: #10233d;
+            border: 1px solid #294568;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
 
-.product h4 {
-    margin-bottom: 8px;
-}
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #294568;
+            padding-bottom: 20px;
+            margin-bottom: 22px;
+        }
 
-.product p {
-    color: #bbb;
-    margin: 5px 0;
-    font-size: 14px;
-}
+        .order-header h3 {
+            color: #39FF14;
+            margin-bottom: 9px;
+            font-size: 20px;
+        }
 
-.total {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    font-size: 19px;
-    font-weight: bold;
-}
+        .order-header p {
+            color: #aabbd0;
+            font-size: 13px;
+            margin-top: 5px;
+        }
 
-.total span:last-child {
-    color: #39FF14;
-}
+        /* ORDER STATUS */
 
-.payment {
-    margin-top: 15px;
-    color: #bbb;
-}
+        .order-status {
+            background: #2563EB;
+            color: #ffffff;
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            text-transform: capitalize;
+        }
 
-.empty {
-    background: #10233d;
-    padding: 35px;
-    border-radius: 12px;
-    text-align: center;
-}
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
 
-.empty p {
-    color: #aaa;
-    margin: 15px 0;
-}
+        /* PRODUCTS */
 
-button {
-    background: #2563EB;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    margin-top: 15px;
-}
+        .order-product {
+            padding: 17px 0;
+            border-bottom: 1px solid #294568;
+        }
 
-button:hover {
-    background: #39FF14;
-    color: #071426;
-}
+        .order-product:last-child {
+            border-bottom: none;
+        }
 
-a {
-    text-decoration: none;
-}
+        .order-product h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
 
-@media(max-width: 600px) {
-    .container {
-        width: 94%;
-    }
+        .order-product p {
+            color: #aabbd0;
+            margin: 7px 0;
+            font-size: 14px;
+        }
 
-    .order-card {
-        padding: 18px;
-    }
-}
-</style>
+        .order-product .product-price {
+            color: #39FF14;
+            font-weight: bold;
+        }
+
+        /* TOTAL */
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            border-top: 1px solid #294568;
+            padding-top: 20px;
+            margin-top: 15px;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        .order-total span:last-child {
+            color: #39FF14;
+        }
+
+        /* PAYMENT DETAILS */
+
+        .payment-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: #071426;
+            border-radius: 8px;
+        }
+
+        .payment-details p {
+            color: #aabbd0;
+            font-size: 14px;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .payment-details strong {
+            color: #ffffff;
+        }
+
+        /* EMPTY ORDERS */
+
+        .empty-orders {
+            background: #10233d;
+            border: 1px solid #294568;
+            padding: 45px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .empty-orders h2 {
+            color: #39FF14;
+            margin-bottom: 12px;
+        }
+
+        .empty-orders p {
+            color: #aabbd0;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .orders-shop-btn {
+            display: inline-block;
+            background: #2563EB;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 13px 22px;
+            border-radius: 7px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .orders-shop-btn:hover {
+            background: #39FF14;
+            color: #071426;
+        }
+
+        /* MOBILE RESPONSIVENESS */
+
+        @media (max-width: 650px) {
+
+            .orders-page {
+                padding: 30px 4%;
+            }
+
+            .orders-heading h1 {
+                font-size: 26px;
+            }
+
+            .order-card {
+                padding: 18px;
+            }
+
+            .order-total {
+                font-size: 16px;
+            }
+
+        }
+
+        @media (max-width: 380px) {
+
+            .order-total {
+                font-size: 14px;
+            }
+
+            .order-status {
+                font-size: 12px;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<header>
-    <h2>GLOBAL ZONE SPORT ENTERPRISE</h2>
-</header>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
-<div class="container">
+<main class="orders-page">
 
-<h1>My Orders</h1>
+    <div class="orders-container">
 
-<p class="subtitle">
-    View and track your purchases.
-</p>
+        <div class="orders-heading">
 
-<?php if (isset($_GET['success'])): ?>
-    <div class="success">
-        Your order has been placed successfully!
-    </div>
-<?php endif; ?>
+            <h1>My Orders</h1>
 
-<?php if (empty($orders)): ?>
+            <p>
+                View your purchases, order details and payment information.
+            </p>
 
-    <div class="empty">
-        <h2>No Orders Yet</h2>
-        <p>You haven't placed any orders yet.</p>
+        </div>
 
-        <a href="products.php">
-            <button>Start Shopping</button>
-        </a>
-    </div>
+        <?php if (isset($_GET['success'])): ?>
 
-<?php else: ?>
+            <div class="order-success" role="status">
 
-    <?php foreach ($orders as $order): ?>
-
-        <div class="order-card">
-
-            <div class="order-header">
-
-                <div>
-                    <h3>
-                        Order #<?= (int)$order['id'] ?>
-                    </h3>
-
-                    <p>
-                        Date:
-                        <?= htmlspecialchars($order['created_at']) ?>
-                    </p>
-                </div>
-
-                <span class="status">
-                    <?= htmlspecialchars($order['status']) ?>
-                </span>
+                Your order has been placed successfully!
+                Thank you for shopping with Bayogoal Enterprises.
 
             </div>
 
-            <h3>Products Ordered</h3>
+        <?php endif; ?>
 
-            <?php
-            $itemStmt->execute([$order['id']]);
-            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
-            ?>
+        <?php if (empty($orders)): ?>
 
-            <?php foreach ($items as $item): ?>
+            <div class="empty-orders">
 
-                <div class="product">
+                <h2>No Orders Yet</h2>
 
-                    <h4>
-                        <?= htmlspecialchars($item['product_name']) ?>
-                    </h4>
+                <p>
+                    You haven't placed any orders yet.
+                    Visit our products page to start shopping.
+                </p>
 
-                    <p>
-                        Quantity:
-                        <?= (int)$item['quantity'] ?>
-                    </p>
+                <a href="products.php" class="orders-shop-btn">
+                    Start Shopping
+                </a>
 
-                    <p>
-                        Size:
-                        <?= htmlspecialchars($item['selected_size'] ?? 'N/A') ?>
-                    </p>
+            </div>
 
-                    <p>
-                        Colour:
-                        <?= htmlspecialchars($item['selected_color'] ?? 'N/A') ?>
-                    </p>
+        <?php else: ?>
 
-                    <p>
-                        Price:
-                        ₦<?= number_format(
-                            (float)$item['price'] * (int)$item['quantity'],
-                            2
-                        ) ?>
-                    </p>
+            <?php foreach ($orders as $order): ?>
+
+                <div class="order-card">
+
+                    <div class="order-header">
+
+                        <div>
+
+                            <h3>
+                                Order #<?= (int) $order['id'] ?>
+                            </h3>
+
+                            <p>
+                                Order Date:
+                                <?= e($order['created_at']) ?>
+                            </p>
+
+                        </div>
+
+                        <span class="order-status">
+                            <?= e($order['status']) ?>
+                        </span>
+
+                    </div>
+
+                    <h3 class="section-title">
+                        Products Ordered
+                    </h3>
+
+                    <?php
+
+                    $itemStmt->execute([$order['id']]);
+
+                    $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    ?>
+
+                    <?php if (empty($items)): ?>
+
+                        <p>
+                            No product details are available for this order.
+                        </p>
+
+                    <?php else: ?>
+
+                        <?php foreach ($items as $item): ?>
+
+                            <div class="order-product">
+
+                                <h4>
+                                    <?= e($item['product_name']) ?>
+                                </h4>
+
+                                <p>
+                                    Quantity:
+                                    <?= (int) $item['quantity'] ?>
+                                </p>
+
+                                <p>
+                                    Size:
+                                    <?= e($item['selected_size'] ?? 'N/A') ?>
+                                </p>
+
+                                <p>
+                                    Colour:
+                                    <?= e($item['selected_color'] ?? 'N/A') ?>
+                                </p>
+
+                                <p class="product-price">
+
+                                    Price: ₦<?= number_format(
+                                        (float) $item['price'] *
+                                        (int) $item['quantity'],
+                                        2
+                                    ) ?>
+
+                                </p>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    <?php endif; ?>
+
+                    <div class="order-total">
+
+                        <span>Total Amount</span>
+
+                        <span>
+                            ₦<?= number_format(
+                                (float) $order['total_amount'],
+                                2
+                            ) ?>
+                        </span>
+
+                    </div>
+
+                    <div class="payment-details">
+
+                        <p>
+                            <strong>Payment Method:</strong>
+
+                            <?= e($order['payment_method']) ?>
+                        </p>
+
+                        <p>
+                            <strong>Payment Status:</strong>
+
+                            <?= e($order['payment_status']) ?>
+                        </p>
+
+                    </div>
 
                 </div>
 
             <?php endforeach; ?>
 
-            <div class="total">
-                <span>Total Amount</span>
+        <?php endif; ?>
 
-                <span>
-                    ₦<?= number_format((float)$order['total_amount'], 2) ?>
-                </span>
-            </div>
+    </div>
 
-            <p class="payment">
-                Payment Method:
-                <?= htmlspecialchars($order['payment_method']) ?>
-            </p>
+</main>
 
-            <p class="payment">
-                Payment Status:
-                <?= htmlspecialchars($order['payment_status']) ?>
-            </p>
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
-        </div>
-
-    <?php endforeach; ?>
-
-<?php endif; ?>
-
-</div>
+<script src="js/script.js"></script>
 
 </body>
 </html>

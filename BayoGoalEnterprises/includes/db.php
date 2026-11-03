@@ -1,8 +1,7 @@
-
 <?php
 /*
 |--------------------------------------------------------------------------
-| GLOBAL ZONE SPORT ENTERPRISE
+| BAYOGOAL ENTERPRISES
 | Database Connection
 |--------------------------------------------------------------------------
 */
@@ -24,10 +23,13 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $username, $password, $options);
+
 } catch (PDOException $e) {
-    error_log("Database connection failed: " . $e->getMessage());
+
+    error_log("Bayogoal database connection failed: " . $e->getMessage());
 
     http_response_code(500);
-    exit("Sorry, the website could not connect to its database. Please try again later.");
+
+    exit("Sorry, Bayogoal Enterprises could not connect to its database. Please try again later.");
 }
 ?>

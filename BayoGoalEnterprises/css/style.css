@@ -1,6 +1,5 @@
-
 /* ==================================================
-   GLOBAL ZONE SPORT ENTERPRISE
+   BAYOGOAL ENTERPRISES
    Main Stylesheet
    Theme: Royal Blue, Electric Green, Gold, Black, White
 ================================================== */
@@ -1721,3 +1720,51 @@ select:focus-visible {
 
 }
 
+
+
+/* ==================================================
+   22. BAYOGOAL CONTACT DETAILS
+================================================== */
+
+.contact-details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 25px;
+}
+
+.contact-details > div {
+    min-width: 0;
+    padding: 18px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow);
+}
+
+.contact-details strong {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--royal-blue);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.contact-details p,
+.contact-details a {
+    color: var(--muted-text);
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.contact-details a:hover {
+    color: var(--royal-blue);
+}
+
+@media (max-width: 760px) {
+    .contact-details {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}

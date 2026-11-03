@@ -1,14 +1,28 @@
 <?php
 session_start();
 
-// Clear administrator session
-unset($_SESSION['admin_id']);
-unset($_SESSION['admin_name']);
+// Clear all administrator session data
+$_SESSION = [];
 
-// Regenerate session ID
-session_regenerate_id(true);
+// Remove the session cookie
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
 
-// Return to admin login
+    setcookie(
+        session_name(),
+        '',
+        time() - 42000,
+        $params["path"],
+        $params["domain"],
+        $params["secure"],
+        $params["httponly"]
+    );
+}
+
+// Destroy the session
+session_destroy();
+
+// Return to administrator login
 header("Location: login.php");
 exit;
-?>s
+?>

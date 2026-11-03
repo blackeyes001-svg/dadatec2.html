@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -25,11 +26,12 @@ try {
     $product = $stmt->fetch();
 
 } catch (PDOException $e) {
-    error_log('Product details error: ' . $e->getMessage());
+    error_log('Bayogoal product details error: ' . $e->getMessage());
     http_response_code(500);
     exit('Unable to load this product. Please try again later.');
 }
 
+// Check product
 if (!$product) {
     http_response_code(404);
     exit('Product not found. Please return to the shop.');
@@ -40,7 +42,7 @@ function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
-// Get available sizes and colours
+// Available sizes and colours
 $sizes = array_filter(
     array_map('trim', explode(',', (string) ($product['sizes'] ?? '')))
 );
@@ -50,48 +52,34 @@ $colors = array_filter(
 );
 
 $stock = (int) $product['stock'];
+
+// Product image
+$image = '';
+
+if (!empty($product['image'])) {
+    $image = 'images/' . basename($product['image']);
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title><?= e($product['name']) ?> | Global Zone Sport Enterprise</title>
+    <title><?= e($product['name']) ?> | Bayogoal Enterprises</title>
+
+    <meta name="description" content="Discover quality sports equipment at Bayogoal Enterprises.">
+
+    <link rel="stylesheet" href="css/style.css">
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #071426;
-            color: #ffffff;
-        }
-
-        header {
-            background: #10233d;
-            padding: 20px 5%;
-            border-bottom: 2px solid #2563EB;
-        }
-
-        header a {
-            color: white;
-            text-decoration: none;
-            margin-right: 25px;
-            font-weight: bold;
-        }
-
-        header a:hover {
-            color: #39FF14;
-        }
+        /* PRODUCT DETAILS PAGE */
 
         .details-container {
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 45px auto;
             padding: 20px;
         }
 
@@ -103,10 +91,16 @@ $stock = (int) $product['stock'];
             font-weight: bold;
         }
 
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* PRODUCT CARD */
+
         .details-card {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 35px;
+            gap: 40px;
             padding: 30px;
             background: #10233d;
             border: 1px solid #263f60;
@@ -114,14 +108,17 @@ $stock = (int) $product['stock'];
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
+        /* PRODUCT IMAGE */
+
         .details-image {
-            min-height: 380px;
+            min-height: 400px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             background: #172e4b;
             border-radius: 12px;
+            padding: 15px;
         }
 
         .details-image img {
@@ -136,7 +133,14 @@ $stock = (int) $product['stock'];
         }
 
         .image-placeholder h2 {
-            font-size: 35px;
+            font-size: 30px;
+            color: #39FF14;
+        }
+
+        /* PRODUCT INFORMATION */
+
+        .details-info {
+            min-width: 0;
         }
 
         .category {
@@ -149,6 +153,8 @@ $stock = (int) $product['stock'];
         .details-info h1 {
             margin: 15px 0;
             font-size: 32px;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
         }
 
         .price {
@@ -164,6 +170,8 @@ $stock = (int) $product['stock'];
             color: #c5d2e2;
         }
 
+        /* OPTIONS */
+
         .option-section {
             margin: 25px 0;
         }
@@ -173,11 +181,9 @@ $stock = (int) $product['stock'];
             margin-bottom: 12px;
         }
 
-        /* SIZE DROPDOWN */
-
         .size-select {
             width: 100%;
-            max-width: 250px;
+            max-width: 280px;
             padding: 13px;
             background: #071426;
             color: white;
@@ -187,11 +193,12 @@ $stock = (int) $product['stock'];
             cursor: pointer;
         }
 
-        .size-select:focus {
+        .size-select:focus,
+        .quantity-input:focus {
             outline: 2px solid #39FF14;
         }
 
-        /* SELECTABLE COLOURS */
+        /* COLOURS */
 
         .color-options {
             display: flex;
@@ -202,7 +209,8 @@ $stock = (int) $product['stock'];
         .color-option input {
             position: absolute;
             opacity: 0;
-            pointer-events: none;
+            width: 1px;
+            height: 1px;
         }
 
         .color-option span {
@@ -223,9 +231,15 @@ $stock = (int) $product['stock'];
             font-weight: bold;
         }
 
+        .color-option input:focus-visible + span {
+            outline: 2px solid #39FF14;
+        }
+
         .color-option span:hover {
             border-color: #2563EB;
         }
+
+        /* STOCK */
 
         .in-stock {
             color: #39FF14;
@@ -236,6 +250,8 @@ $stock = (int) $product['stock'];
             color: #ff5555;
             font-weight: bold;
         }
+
+        /* QUANTITY */
 
         .quantity-input {
             display: block;
@@ -249,6 +265,8 @@ $stock = (int) $product['stock'];
             font-size: 16px;
         }
 
+        /* BUTTONS */
+
         .button-row {
             display: flex;
             flex-wrap: wrap;
@@ -256,7 +274,7 @@ $stock = (int) $product['stock'];
             margin-top: 25px;
         }
 
-        .btn {
+        .details-btn {
             display: inline-block;
             padding: 14px 22px;
             border: none;
@@ -265,6 +283,8 @@ $stock = (int) $product['stock'];
             font-weight: bold;
             cursor: pointer;
             font-size: 15px;
+            text-align: center;
+            transition: 0.3s;
         }
 
         .btn-cart {
@@ -274,6 +294,7 @@ $stock = (int) $product['stock'];
 
         .btn-cart:hover {
             background: #1748b5;
+            transform: translateY(-2px);
         }
 
         .btn-back {
@@ -285,10 +306,19 @@ $stock = (int) $product['stock'];
             background: #34577e;
         }
 
+        /* MOBILE RESPONSIVENESS */
+
         @media (max-width: 750px) {
+
+            .details-container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
             .details-card {
                 grid-template-columns: 1fr;
                 padding: 18px;
+                gap: 25px;
             }
 
             .details-image {
@@ -299,9 +329,16 @@ $stock = (int) $product['stock'];
                 font-size: 25px;
             }
 
-            header a {
-                display: inline-block;
-                margin: 5px 12px 5px 0;
+            .price {
+                font-size: 26px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .details-btn {
+                width: 100%;
             }
         }
     </style>
@@ -309,192 +346,228 @@ $stock = (int) $product['stock'];
 
 <body>
 
-<header>
-    <a href="index.php">Home</a>
-    <a href="products.php">Shop Products</a>
-    <a href="cart.php">Shopping Cart</a>
-</header>
+    <!-- SHARED HEADER -->
+    <?php include 'includes/header.php'; ?>
 
-<main class="details-container">
 
-    <a href="products.php" class="back-link">
-        &larr; Back to Products
-    </a>
+    <main class="details-container">
 
-    <section class="details-card">
+        <a href="products.php" class="back-link">
+            &larr; Back to Products
+        </a>
 
-        <!-- PRODUCT IMAGE -->
-        <div class="details-image">
+        <section class="details-card">
 
-            <?php if (!empty($product['image'])): ?>
+            <!-- PRODUCT IMAGE -->
 
-                <img
-                    src="images/<?= e(basename($product['image'])) ?>"
-                    alt="<?= e($product['name']) ?>"
-                >
+            <div class="details-image">
 
-            <?php else: ?>
+                <?php if ($image): ?>
 
-                <div class="image-placeholder">
-                    <h2>Product Image</h2>
-                    <p>Product picture coming soon.</p>
-                </div>
-
-            <?php endif; ?>
-
-        </div>
-
-        <!-- PRODUCT INFORMATION -->
-        <div class="details-info">
-
-            <span class="category">
-                <?= e($product['category']) ?>
-            </span>
-
-            <h1><?= e($product['name']) ?></h1>
-
-            <div class="price">
-                ₦<?= number_format((float) $product['price'], 2) ?>
-            </div>
-
-            <div class="description">
-                <?= nl2br(e(
-                    $product['description']
-                    ?: 'Discover quality sports equipment from Global Zone Sport Enterprise.'
-                )) ?>
-            </div>
-
-            <?php if ($stock > 0): ?>
-
-                <form action="cart.php" method="POST">
-
-                    <input
-                        type="hidden"
-                        name="product_id"
-                        value="<?= (int) $product['id'] ?>"
+                    <img
+                        src="<?= e($image) ?>"
+                        alt="<?= e($product['name']) ?>"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
                     >
 
-                    <!-- SIZE SELECTION -->
-                    <?php if (!empty($sizes)): ?>
+                    <div class="image-placeholder" style="display:none;">
+                        <h2>Bayogoal</h2>
+                        <p>Product image unavailable.</p>
+                    </div>
 
-                        <div class="option-section">
-                            <strong>Choose Your Size</strong>
+                <?php else: ?>
 
-                            <select
-                                name="size"
-                                class="size-select"
-                                required
-                            >
-                                <option value="">Select a size</option>
+                    <div class="image-placeholder">
+                        <h2>Bayogoal</h2>
+                        <p>Product picture coming soon.</p>
+                    </div>
 
-                                <?php foreach ($sizes as $size): ?>
-                                    <option value="<?= e($size) ?>">
-                                        <?= e($size) ?>
-                                    </option>
-                                <?php endforeach; ?>
+                <?php endif; ?>
 
-                            </select>
-                        </div>
+            </div>
 
-                    <?php endif; ?>
 
-                    <!-- COLOUR SELECTION -->
-                    <?php if (!empty($colors)): ?>
+            <!-- PRODUCT INFORMATION -->
 
-                        <div class="option-section">
-                            <strong>Choose Your Colour</strong>
+            <div class="details-info">
 
-                            <div class="color-options">
+                <span class="category">
+                    <?= e($product['category']) ?>
+                </span>
 
-                                <?php foreach ($colors as $index => $color): ?>
+                <h1><?= e($product['name']) ?></h1>
 
-                                    <label class="color-option">
+                <div class="price">
+                    ₦<?= number_format((float) $product['price'], 2) ?>
+                </div>
 
-                                        <input
-                                            type="radio"
-                                            name="color"
-                                            value="<?= e($color) ?>"
-                                            <?= $index === 0 ? 'checked' : '' ?>
-                                            required
-                                        >
+                <div class="description">
+                    <?= nl2br(e(
+                        $product['description']
+                        ?: 'Discover quality sports equipment from Bayogoal Enterprises.'
+                    )) ?>
+                </div>
 
-                                        <span><?= e($color) ?></span>
 
-                                    </label>
+                <?php if ($stock > 0): ?>
 
-                                <?php endforeach; ?>
-
-                            </div>
-                        </div>
-
-                    <?php endif; ?>
-
-                    <!-- STOCK -->
-                    <p>
-                        <strong>Availability:</strong>
-
-                        <span class="in-stock">
-                            In Stock (<?= $stock ?> available)
-                        </span>
-                    </p>
-
-                    <!-- QUANTITY -->
-                    <div class="option-section">
-
-                        <label for="quantity">
-                            <strong>Quantity</strong>
-                        </label>
+                    <form action="cart.php" method="POST">
 
                         <input
-                            type="number"
-                            id="quantity"
-                            name="quantity"
-                            class="quantity-input"
-                            value="1"
-                            min="1"
-                            max="<?= $stock ?>"
-                            required
+                            type="hidden"
+                            name="product_id"
+                            value="<?= (int) $product['id'] ?>"
                         >
 
-                    </div>
 
-                    <!-- BUTTONS -->
-                    <div class="button-row">
+                        <!-- SIZE SELECTION -->
 
-                        <button
-                            type="submit"
-                            name="add_to_cart"
-                            value="1"
-                            class="btn btn-cart"
-                        >
-                            Add to Cart
-                        </button>
+                        <?php if (!empty($sizes)): ?>
 
-                        <a href="products.php" class="btn btn-back">
-                            Continue Shopping
-                        </a>
+                            <div class="option-section">
 
-                    </div>
+                                <strong>Choose Your Size</strong>
 
-                </form>
+                                <select
+                                    name="size"
+                                    class="size-select"
+                                    required
+                                >
 
-            <?php else: ?>
+                                    <option value="">Select a size</option>
 
-                <p class="out-stock">
-                    This product is currently unavailable.
-                </p>
+                                    <?php foreach ($sizes as $size): ?>
 
-                <a href="products.php" class="btn btn-back">
-                    Continue Shopping
-                </a>
+                                        <option value="<?= e($size) ?>">
+                                            <?= e($size) ?>
+                                        </option>
 
-            <?php endif; ?>
+                                    <?php endforeach; ?>
 
-        </div>
+                                </select>
 
-    </section>
+                            </div>
 
-</main>
+                        <?php endif; ?>
+
+
+                        <!-- COLOUR SELECTION -->
+
+                        <?php if (!empty($colors)): ?>
+
+                            <div class="option-section">
+
+                                <strong>Choose Your Colour</strong>
+
+                                <div class="color-options">
+
+                                    <?php foreach ($colors as $index => $color): ?>
+
+                                        <label class="color-option">
+
+                                            <input
+                                                type="radio"
+                                                name="color"
+                                                value="<?= e($color) ?>"
+                                                <?= $index === 0 ? 'checked' : '' ?>
+                                                required
+                                            >
+
+                                            <span><?= e($color) ?></span>
+
+                                        </label>
+
+                                    <?php endforeach; ?>
+
+                                </div>
+
+                            </div>
+
+                        <?php endif; ?>
+
+
+                        <!-- STOCK AVAILABILITY -->
+
+                        <p>
+                            <strong>Availability:</strong>
+
+                            <span class="in-stock">
+                                In Stock (<?= $stock ?> available)
+                            </span>
+                        </p>
+
+
+                        <!-- QUANTITY -->
+
+                        <div class="option-section">
+
+                            <label for="quantity">
+                                <strong>Quantity</strong>
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantity"
+                                name="quantity"
+                                class="quantity-input"
+                                value="1"
+                                min="1"
+                                max="<?= $stock ?>"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+
+                        <div class="button-row">
+
+                            <button
+                                type="submit"
+                                name="add_to_cart"
+                                value="1"
+                                class="details-btn btn-cart"
+                            >
+                                Add to Cart
+                            </button>
+
+                            <a
+                                href="products.php"
+                                class="details-btn btn-back"
+                            >
+                                Continue Shopping
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                <?php else: ?>
+
+                    <p class="out-stock">
+                        This product is currently unavailable.
+                    </p>
+
+                    <a href="products.php" class="details-btn btn-back">
+                        Continue Shopping
+                    </a>
+
+                <?php endif; ?>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- SHARED FOOTER -->
+    <?php include 'includes/footer.php'; ?>
+
+
+    <script src="js/script.js"></script>
 
 </body>
 </html>
+
