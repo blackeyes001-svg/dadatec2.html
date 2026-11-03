@@ -10,9 +10,9 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description" content="Shop quality football boots, jerseys, sports equipment, fitness gear and accessories at Global Zone Sport Enterprise.">
+    <meta name="description" content="Shop quality football boots, jerseys, sports equipment, fitness gear and accessories at Bayogoal Enterprises.">
 
-    <title>Global Zone Sport Enterprise | Gear Up. Play Hard. Win Big.</title>
+    <title>Bayogoal Enterprises | Gear Up. Play Hard. Win Big.</title>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -24,10 +24,10 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
         <div class="logo">
             <a href="index.php">
-                <span class="logo-icon">GZ</span>
+                <span class="logo-icon">BG</span>
                 <span class="logo-text">
-                    GLOBAL <strong>ZONE</strong>
-                    <small>SPORT ENTERPRISE</small>
+                    BAYO<strong>GOAL</strong>
+                    <small>ENTERPRISES</small>
                 </span>
             </a>
         </div>
@@ -125,7 +125,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
             <div class="hero-visual">
 
                 <div class="hero-badge">
-                    <span>GZ</span>
+                    <span>BG</span>
                     <small>SPORTS COLLECTION</small>
                 </div>
 
@@ -270,8 +270,8 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <section class="about-section section" id="about">
 
             <div class="about-mark">
-                <span>GZ</span>
-                <small>GLOBAL ZONE</small>
+                <span>BG</span>
+                <small>BAYOGOAL</small>
             </div>
 
             <div class="about-content">
@@ -284,7 +284,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                 </h2>
 
                 <p>
-                    Global Zone Sport Enterprise is being built as a
+                    Bayogoal Enterprises is being built as a
                     destination for sports enthusiasts seeking
                     equipment, apparel and accessories for their
                     favourite activities.
@@ -333,7 +333,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
             <div class="footer-brand">
 
                 <a href="index.php" class="footer-logo">
-                    GZ <span>GLOBAL ZONE</span>
+                    BG <span>BAYOGOAL</span>
                 </a>
 
                 <p>
@@ -387,7 +387,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
                 <p>Questions about our products?</p>
 
-                <a href="mailto:info@globalzonesport.com">
+                <a href="mailto:info@bayogoal.com">
                     Email Us
                 </a>
 
@@ -400,7 +400,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
             <p>
                 &copy; <?php echo date("Y"); ?>
-                Global Zone Sport Enterprise.
+                Bayogoal Enterprises.
                 All rights reserved.
             </p>
 
