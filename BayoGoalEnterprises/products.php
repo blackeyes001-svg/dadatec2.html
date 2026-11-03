@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -89,7 +88,7 @@ function escapeHtml($value)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Our Products | Global Zone Sport Enterprise</title>
+    <title>Our Products | Bayogoal Enterprises</title>
 
     <link rel="stylesheet" href="css/style.css">
 
@@ -411,20 +410,6 @@ function escapeHtml($value)
                 grid-template-columns: 1fr;
             }
         }
-        body {
-    background: #071426 !important;
-    color: white !important;
-}
-<style>
-    body {
-        background: #071426 !important;
-        color: white !important;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-    
     </style>
 </head>
 
@@ -432,7 +417,7 @@ function escapeHtml($value)
 
 <header class="shop-header">
 
-    <h1>GLOBAL ZONE <span>SPORT</span></h1>
+    <h1>BAYO<span>GOAL</span> ENTERPRISES</h1>
 
     <nav class="shop-nav">
         <a href="index.php">Home</a>
@@ -597,10 +582,9 @@ function escapeHtml($value)
 </main>
 
 <footer class="shop-footer">
-    <p>&copy; <?= date('Y') ?> Global Zone Sport Enterprise.</p>
+    <p>&copy; <?= date('Y') ?> Bayogoal Enterprises.</p>
     <p><span>Gear Up. Play Hard. Win Big.</span></p>
 </footer>
 
 </body>
 </html>
-
