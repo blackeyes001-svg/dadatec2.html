@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -203,6 +202,7 @@ function e($value) {
             padding: 20px;
         }
 
+        /* Page heading sits on the LIGHT page background, so it uses dark text */
         .page-heading {
             margin-bottom: 25px;
         }
@@ -210,10 +210,12 @@ function e($value) {
         .page-heading h1 {
             font-size: 30px;
             margin-bottom: 8px;
+            color: #0b1b33; /* FIX: clear dark title on light background */
+            font-weight: 800;
         }
 
         .page-heading p {
-            color: #aabbd0;
+            color: #475569; /* FIX: was too light on the light background */
         }
 
         /* MESSAGE */
@@ -279,11 +281,21 @@ function e($value) {
         .cart-info {
             flex: 1;
             min-width: 0;
+            color: #ffffff; /* FIX: light text on the dark card */
         }
 
         .cart-info h3 {
             font-size: 19px;
             margin-bottom: 8px;
+            color: #ffffff;   /* FIX: white product name */
+            font-weight: 800;
+        }
+
+        /* FIX: labels (Quantity, Subtotal) clearly visible */
+        .cart-info label,
+        .subtotal {
+            color: #ffffff;
+            font-weight: 600;
         }
 
         .price {
@@ -292,7 +304,7 @@ function e($value) {
         }
 
         .product-details {
-            color: #c5d2e2;
+            color: #dbe5f1; /* slightly brighter for easier reading */
             font-size: 14px;
             margin: 5px 0;
         }
@@ -342,10 +354,13 @@ function e($value) {
 
             padding: 28px;
             margin-top: 30px;
+            color: #ffffff; /* FIX: light text on the dark summary card */
         }
 
         .summary h2 {
             margin-bottom: 18px;
+            color: #ffffff; /* FIX: white heading */
+            font-weight: 800;
         }
 
         .summary-row {
@@ -353,7 +368,12 @@ function e($value) {
             justify-content: space-between;
             gap: 15px;
             margin: 12px 0;
-            color: #c5d2e2;
+            color: #dbe5f1;
+        }
+
+        .summary-row strong {
+            color: #ffffff; /* FIX: bold white labels and numbers */
+            font-weight: 700;
         }
 
         .total {
@@ -422,14 +442,17 @@ function e($value) {
             padding: 50px 20px;
             text-align: center;
             border-radius: 12px;
+            color: #ffffff; /* FIX */
         }
 
         .empty-cart h2 {
             margin-bottom: 10px;
+            color: #ffffff; /* FIX: white heading */
+            font-weight: 800;
         }
 
         .empty-cart p {
-            color: #aabbd0;
+            color: #c5d2e2;
             margin-bottom: 15px;
         }
 
@@ -672,7 +695,7 @@ function e($value) {
 
                 </div>
 
-                <p style="color:#aabbd0; font-size:13px; margin-top:10px;">
+                <p style="color:#c5d2e2; font-size:13px; margin-top:10px;">
                     Delivery charges, if applicable, will be shown during checkout.
                 </p>
 
@@ -704,4 +727,3 @@ function e($value) {
 </body>
 
 </html>
-
