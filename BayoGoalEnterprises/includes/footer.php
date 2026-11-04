@@ -1,4 +1,4 @@
-```php
+
 <footer class="site-footer" id="contact">
 
     <div class="footer-container">
@@ -172,4 +172,3 @@
     }
 }
 </style>
-```
