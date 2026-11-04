@@ -5,12 +5,12 @@ session_start();
 
 require_once __DIR__ . '/includes/db.php';
 
-// Get search, category, and sorting options
+// Get search, category and sorting options
 $search = trim($_GET['search'] ?? '');
 $category = trim($_GET['category'] ?? '');
 $sort = $_GET['sort'] ?? 'latest';
 
-// Build the products query
+// Build products query
 $sql = "SELECT id, name, category, description, price, image, stock
         FROM products
         WHERE 1=1";
@@ -55,11 +55,10 @@ switch ($sort) {
         break;
 }
 
-// Get products and categories
+// Fetch products and categories
 try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
-
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $categoryStmt = $pdo->query(
@@ -74,16 +73,43 @@ try {
 
 } catch (PDOException $e) {
     error_log('Bayogoal products page error: ' . $e->getMessage());
-
     http_response_code(500);
-
     exit('Unable to load products. Please check your database connection.');
 }
 
-// Escape text before displaying it
+// Escape HTML
 function escapeHtml($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
+// Prepare product image path
+function getProductImage($image)
+{
+    $image = trim((string) ($image ?? ''));
+
+    if ($image === '') {
+        return '';
+    }
+
+    // Keep valid online image URLs
+    if (
+        filter_var($image, FILTER_VALIDATE_URL) &&
+        in_array(strtolower((string) parse_url($image, PHP_URL_SCHEME)), ['http', 'https'], true)
+    ) {
+        return $image;
+    }
+
+    // Remove leading slash
+    $image = ltrim($image, '/');
+
+    // Keep paths that already start with images/
+    if (strpos($image, 'images/') === 0) {
+        return $image;
+    }
+
+    // Add images/ to category-based local paths
+    return 'images/' . $image;
 }
 
 ?>
@@ -112,8 +138,6 @@ function escapeHtml($value)
             background: #071426;
             color: #ffffff;
         }
-
-        /* MAIN CONTAINER */
 
         .shop-container {
             max-width: 1250px;
@@ -230,6 +254,7 @@ function escapeHtml($value)
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
         .product-image img {
@@ -240,6 +265,11 @@ function escapeHtml($value)
         }
 
         .image-placeholder {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
             font-size: 60px;
         }
 
@@ -382,7 +412,6 @@ function escapeHtml($value)
             }
         }
     </style>
-
 </head>
 
 <body>
@@ -393,7 +422,6 @@ function escapeHtml($value)
     <main class="shop-container">
 
         <section class="shop-title">
-
             <h2>Our Sports Collection</h2>
 
             <p class="tagline">
@@ -403,9 +431,7 @@ function escapeHtml($value)
             <p>
                 Discover sportswear, footwear and sporting equipment for your game.
             </p>
-
         </section>
-
 
         <!-- SEARCH AND FILTERS -->
 
@@ -435,7 +461,6 @@ function escapeHtml($value)
 
             </select>
 
-
             <select name="sort">
 
                 <option value="latest" <?= $sort === 'latest' ? 'selected' : '' ?>>
@@ -462,17 +487,12 @@ function escapeHtml($value)
 
         </form>
 
-
         <!-- PRODUCT COUNT -->
 
         <p class="product-count">
-
             Showing <span><?= count($products) ?></span>
-
             product<?= count($products) === 1 ? '' : 's' ?>
-
         </p>
-
 
         <!-- PRODUCTS GRID -->
 
@@ -498,28 +518,34 @@ function escapeHtml($value)
 
                 <?php foreach ($products as $product): ?>
 
+                    <?php
+                    $imagePath = getProductImage($product['image'] ?? '');
+                    ?>
+
                     <article class="product-card">
 
                         <div class="product-image">
 
-                            <?php if (!empty($product['image'])): ?>
+                            <?php if ($imagePath !== ''): ?>
 
                                 <img
-                                    src="<?= escapeHtml($product['image']) ?>"
+                                    src="<?= escapeHtml($imagePath) ?>"
                                     alt="<?= escapeHtml($product['name']) ?>"
                                     loading="lazy"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                 >
-
-                            <?php else: ?>
-
-                                <span class="image-placeholder" aria-hidden="true">
-                                    🏆
-                                </span>
 
                             <?php endif; ?>
 
-                        </div>
+                            <span
+                                class="image-placeholder"
+                                aria-hidden="true"
+                                style="<?= $imagePath === '' ? 'display:flex;' : '' ?>"
+                            >
+                                🏆
+                            </span>
 
+                        </div>
 
                         <div class="product-info">
 
@@ -530,7 +556,6 @@ function escapeHtml($value)
                             <h3>
                                 <?= escapeHtml($product['name']) ?>
                             </h3>
-
 
                             <p class="product-description">
 
@@ -545,18 +570,18 @@ function escapeHtml($value)
                                 }
 
                                 echo escapeHtml(
-                                    mb_strimwidth($description, 0, 100, '...')
+                                    function_exists('mb_strimwidth')
+                                        ? mb_strimwidth($description, 0, 100, '...')
+                                        : substr($description, 0, 100)
                                 );
 
                                 ?>
 
                             </p>
 
-
                             <p class="product-price">
                                 ₦<?= number_format((float) $product['price'], 2) ?>
                             </p>
-
 
                             <?php if ((int) $product['stock'] > 0): ?>
 
@@ -571,7 +596,6 @@ function escapeHtml($value)
                                 </p>
 
                             <?php endif; ?>
-
 
                             <a
                                 class="view-product"
@@ -592,12 +616,11 @@ function escapeHtml($value)
 
     </main>
 
-
     <!-- SHARED FOOTER -->
     <?php include 'includes/footer.php'; ?>
-
 
     <script src="js/script.js"></script>
 
 </body>
 </html>
+

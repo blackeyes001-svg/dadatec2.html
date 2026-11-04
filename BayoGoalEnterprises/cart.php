@@ -10,11 +10,43 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
 
 $message = '';
 
+
+// IMAGE PATH HANDLER
+function getProductImage($image)
+{
+    $image = trim((string)($image ?? ''));
+
+    if ($image === '') {
+        return '';
+    }
+
+    // Support online image URLs
+    $scheme = strtolower((string)parse_url($image, PHP_URL_SCHEME));
+
+    if (
+        in_array($scheme, ['http', 'https'], true) &&
+        filter_var($image, FILTER_VALIDATE_URL)
+    ) {
+        return $image;
+    }
+
+    // Support local category image paths
+    $image = ltrim($image, '/');
+
+    if (strpos($image, 'images/') !== 0) {
+        $image = 'images/' . $image;
+    }
+
+    return $image;
+}
+
+
 // ADD PRODUCT TO CART
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
 
     $productId = filter_input(INPUT_POST, 'product_id', FILTER_VALIDATE_INT);
     $quantity = filter_input(INPUT_POST, 'quantity', FILTER_VALIDATE_INT);
+
     $size = trim($_POST['size'] ?? '');
     $color = trim($_POST['color'] ?? '');
 
@@ -71,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
     }
 }
 
+
 // UPDATE QUANTITY
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
 
@@ -108,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     $message = 'Shopping cart updated.';
 }
 
+
 // REMOVE ITEM
 if (isset($_GET['remove'])) {
 
@@ -120,6 +154,7 @@ if (isset($_GET['remove'])) {
     header('Location: cart.php');
     exit;
 }
+
 
 // FETCH CART PRODUCTS
 $cartItems = [];
@@ -135,7 +170,7 @@ foreach ($_SESSION['cart'] as $key => $item) {
          LIMIT 1"
     );
 
-    $stmt->execute([$item['product_id']]);
+    $stmt->execute([(int)$item['product_id']]);
 
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -152,7 +187,6 @@ foreach ($_SESSION['cart'] as $key => $item) {
         continue;
     }
 
-    // Prevent checkout quantities exceeding current stock
     if ($quantity > $stock) {
         $quantity = $stock;
         $_SESSION['cart'][$key]['quantity'] = $quantity;
@@ -166,16 +200,22 @@ foreach ($_SESSION['cart'] as $key => $item) {
     $product['key'] = $key;
     $product['subtotal'] = $subtotal;
 
+    // Correct image path
+    $product['image'] = getProductImage($product['image']);
+
     $cartItems[] = $product;
 
     $grandTotal += $subtotal;
     $totalQuantity += $quantity;
 }
 
-// Escape output
-function e($value) {
+
+// ESCAPE OUTPUT
+function e($value)
+{
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -194,15 +234,12 @@ function e($value) {
 
     <style>
 
-        /* CART PAGE */
-
         .container {
             max-width: 1100px;
             margin: 40px auto;
             padding: 20px;
         }
 
-        /* Page heading sits on the LIGHT page background, so it uses dark text */
         .page-heading {
             margin-bottom: 25px;
         }
@@ -210,15 +247,13 @@ function e($value) {
         .page-heading h1 {
             font-size: 30px;
             margin-bottom: 8px;
-            color: #0b1b33; /* FIX: clear dark title on light background */
+            color: #0b1b33;
             font-weight: 800;
         }
 
         .page-heading p {
-            color: #475569; /* FIX: was too light on the light background */
+            color: #475569;
         }
-
-        /* MESSAGE */
 
         .message {
             background: #183d36;
@@ -229,20 +264,15 @@ function e($value) {
             margin-bottom: 20px;
         }
 
-        /* CART CARD */
-
         .cart-card {
             display: flex;
             align-items: center;
             gap: 22px;
-
             background: #10233d;
             border: 1px solid #263f60;
             border-radius: 12px;
-
             padding: 22px;
             margin-bottom: 18px;
-
             transition: 0.3s;
         }
 
@@ -256,14 +286,11 @@ function e($value) {
             width: 125px;
             height: 125px;
             flex-shrink: 0;
-
             background: #172e4b;
             border-radius: 8px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             overflow: hidden;
             color: #aabbd0;
             text-align: center;
@@ -276,22 +303,27 @@ function e($value) {
             object-fit: contain;
         }
 
+        .cart-image-placeholder {
+            color: #aabbd0;
+            font-size: 13px;
+            text-align: center;
+        }
+
         /* PRODUCT INFORMATION */
 
         .cart-info {
             flex: 1;
             min-width: 0;
-            color: #ffffff; /* FIX: light text on the dark card */
+            color: #ffffff;
         }
 
         .cart-info h3 {
             font-size: 19px;
             margin-bottom: 8px;
-            color: #ffffff;   /* FIX: white product name */
+            color: #ffffff;
             font-weight: 800;
         }
 
-        /* FIX: labels (Quantity, Subtotal) clearly visible */
         .cart-info label,
         .subtotal {
             color: #ffffff;
@@ -304,7 +336,7 @@ function e($value) {
         }
 
         .product-details {
-            color: #dbe5f1; /* slightly brighter for easier reading */
+            color: #dbe5f1;
             font-size: 14px;
             margin: 5px 0;
         }
@@ -312,13 +344,10 @@ function e($value) {
         .quantity-input {
             width: 85px;
             padding: 10px;
-
             background: #071426;
             color: white;
-
             border: 1px solid #456080;
             border-radius: 5px;
-
             font-size: 16px;
             margin-left: 5px;
         }
@@ -351,15 +380,14 @@ function e($value) {
             background: #10233d;
             border: 1px solid #263f60;
             border-radius: 12px;
-
             padding: 28px;
             margin-top: 30px;
-            color: #ffffff; /* FIX: light text on the dark summary card */
+            color: #ffffff;
         }
 
         .summary h2 {
             margin-bottom: 18px;
-            color: #ffffff; /* FIX: white heading */
+            color: #ffffff;
             font-weight: 800;
         }
 
@@ -372,7 +400,7 @@ function e($value) {
         }
 
         .summary-row strong {
-            color: #ffffff; /* FIX: bold white labels and numbers */
+            color: #ffffff;
             font-weight: 700;
         }
 
@@ -393,14 +421,11 @@ function e($value) {
         .cart-btn {
             display: inline-block;
             padding: 13px 20px;
-
             border: none;
             border-radius: 7px;
-
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
-
             margin: 8px 5px 0 0;
             font-size: 15px;
             transition: 0.3s;
@@ -442,12 +467,12 @@ function e($value) {
             padding: 50px 20px;
             text-align: center;
             border-radius: 12px;
-            color: #ffffff; /* FIX */
+            color: #ffffff;
         }
 
         .empty-cart h2 {
             margin-bottom: 10px;
-            color: #ffffff; /* FIX: white heading */
+            color: #ffffff;
             font-weight: 800;
         }
 
@@ -504,6 +529,7 @@ function e($value) {
             .cart-btn {
                 text-align: center;
             }
+
         }
 
     </style>
@@ -512,7 +538,6 @@ function e($value) {
 
 <body>
 
-    <!-- SHARED HEADER -->
     <?php include 'includes/header.php'; ?>
 
 
@@ -537,8 +562,6 @@ function e($value) {
 
 
         <?php if (empty($cartItems)): ?>
-
-            <!-- EMPTY CART -->
 
             <div class="empty-cart">
 
@@ -565,25 +588,33 @@ function e($value) {
 
                     <div class="cart-card">
 
-                        <!-- IMAGE -->
+                        <!-- PRODUCT IMAGE -->
 
                         <div class="cart-image">
 
                             <?php if (!empty($item['image'])): ?>
 
                                 <img
-                                    src="images/<?= e(basename($item['image'])) ?>"
+                                    src="<?= e($item['image']) ?>"
                                     alt="<?= e($item['name']) ?>"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                    onerror="
+                                        this.style.display='none';
+                                        this.nextElementSibling.style.display='block';
+                                    "
                                 >
 
-                                <span style="display:none;">
+                                <span
+                                    class="cart-image-placeholder"
+                                    style="display:none;"
+                                >
                                     Image unavailable
                                 </span>
 
                             <?php else: ?>
 
-                                Product Image
+                                <span class="cart-image-placeholder">
+                                    Product image coming soon
+                                </span>
 
                             <?php endif; ?>
 
@@ -594,9 +625,7 @@ function e($value) {
 
                         <div class="cart-info">
 
-                            <h3>
-                                <?= e($item['name']) ?>
-                            </h3>
+                            <h3><?= e($item['name']) ?></h3>
 
                             <p class="price">
                                 ₦<?= number_format((float)$item['price'], 2) ?>
@@ -677,9 +706,7 @@ function e($value) {
 
                     <span>Total Items:</span>
 
-                    <strong>
-                        <?= $totalQuantity ?>
-                    </strong>
+                    <strong><?= $totalQuantity ?></strong>
 
                 </div>
 
@@ -696,7 +723,9 @@ function e($value) {
                 </div>
 
                 <p style="color:#c5d2e2; font-size:13px; margin-top:10px;">
+
                     Delivery charges, if applicable, will be shown during checkout.
+
                 </p>
 
                 <div style="margin-top:20px;">
@@ -718,9 +747,7 @@ function e($value) {
     </main>
 
 
-    <!-- SHARED FOOTER -->
     <?php include 'includes/footer.php'; ?>
-
 
     <script src="js/script.js"></script>
 

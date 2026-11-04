@@ -52,19 +52,38 @@ $colors = array_filter(
 
 $stock = (int) $product['stock'];
 
-// Product image
-$image = '';
+// PRODUCT IMAGE HANDLING
+// Supports online URLs and local category image paths.
 
-if (!empty($product['image'])) {
-    $image = 'images/' . basename($product['image']);
+$image = trim((string) ($product['image'] ?? ''));
+
+if ($image !== '') {
+
+    // Allow only HTTP and HTTPS external image URLs.
+    $scheme = strtolower((string) parse_url($image, PHP_URL_SCHEME));
+
+    if ($scheme === 'http' || $scheme === 'https') {
+
+        // Keep online image URL unchanged.
+
+    } else {
+
+        // Keep existing images/ paths.
+        if (strpos($image, 'images/') !== 0) {
+            $image = 'images/' . ltrim($image, '/');
+        }
+    }
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title><?= e($product['name']) ?> | Bayogoal Enterprises</title>
@@ -74,6 +93,7 @@ if (!empty($product['image'])) {
     <link rel="stylesheet" href="css/style.css">
 
     <style>
+
         /* PRODUCT DETAILS PAGE */
 
         .details-container {
@@ -124,6 +144,7 @@ if (!empty($product['image'])) {
             width: 100%;
             max-height: 450px;
             object-fit: contain;
+            border-radius: 8px;
         }
 
         .image-placeholder {
@@ -140,7 +161,7 @@ if (!empty($product['image'])) {
 
         .details-info {
             min-width: 0;
-            color: #ffffff; /* FIX: light text so everything inside is readable on the dark card */
+            color: #ffffff;
         }
 
         .category {
@@ -155,8 +176,8 @@ if (!empty($product['image'])) {
             font-size: 32px;
             line-height: 1.3;
             overflow-wrap: anywhere;
-            color: #ffffff;   /* FIX: white title */
-            font-weight: 800; /* FIX: bolder title */
+            color: #ffffff;
+            font-weight: 800;
         }
 
         .price {
@@ -183,7 +204,6 @@ if (!empty($product['image'])) {
             margin-bottom: 12px;
         }
 
-        /* FIX: make all labels (size, colour, availability, quantity) white and bold */
         .option-section strong,
         .details-info p strong,
         .details-info label {
@@ -350,13 +370,17 @@ if (!empty($product['image'])) {
             .details-btn {
                 width: 100%;
             }
+
         }
+
     </style>
+
 </head>
 
 <body>
 
     <!-- SHARED HEADER -->
+
     <?php include 'includes/header.php'; ?>
 
 
@@ -366,30 +390,41 @@ if (!empty($product['image'])) {
             &larr; Back to Products
         </a>
 
+
         <section class="details-card">
+
 
             <!-- PRODUCT IMAGE -->
 
             <div class="details-image">
 
-                <?php if ($image): ?>
+                <?php if ($image !== ''): ?>
 
                     <img
                         src="<?= e($image) ?>"
                         alt="<?= e($product['name']) ?>"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                        onerror="
+                            this.style.display='none';
+                            this.nextElementSibling.style.display='block';
+                        "
                     >
 
                     <div class="image-placeholder" style="display:none;">
+
                         <h2>Bayogoal</h2>
+
                         <p>Product image unavailable.</p>
+
                     </div>
 
                 <?php else: ?>
 
                     <div class="image-placeholder">
+
                         <h2>Bayogoal</h2>
+
                         <p>Product picture coming soon.</p>
+
                     </div>
 
                 <?php endif; ?>
@@ -405,17 +440,24 @@ if (!empty($product['image'])) {
                     <?= e($product['category']) ?>
                 </span>
 
+
                 <h1><?= e($product['name']) ?></h1>
 
+
                 <div class="price">
+
                     ₦<?= number_format((float) $product['price'], 2) ?>
+
                 </div>
 
+
                 <div class="description">
+
                     <?= nl2br(e(
                         $product['description']
                         ?: 'Discover quality sports equipment from Bayogoal Enterprises.'
                     )) ?>
+
                 </div>
 
 
@@ -449,7 +491,9 @@ if (!empty($product['image'])) {
                                     <?php foreach ($sizes as $size): ?>
 
                                         <option value="<?= e($size) ?>">
+
                                             <?= e($size) ?>
+
                                         </option>
 
                                     <?php endforeach; ?>
@@ -499,11 +543,15 @@ if (!empty($product['image'])) {
                         <!-- STOCK AVAILABILITY -->
 
                         <p>
+
                             <strong>Availability:</strong>
 
                             <span class="in-stock">
+
                                 In Stock (<?= $stock ?> available)
+
                             </span>
+
                         </p>
 
 
@@ -512,7 +560,9 @@ if (!empty($product['image'])) {
                         <div class="option-section">
 
                             <label for="quantity">
+
                                 <strong>Quantity</strong>
+
                             </label>
 
                             <input
@@ -539,14 +589,19 @@ if (!empty($product['image'])) {
                                 value="1"
                                 class="details-btn btn-cart"
                             >
+
                                 Add to Cart
+
                             </button>
+
 
                             <a
                                 href="products.php"
                                 class="details-btn btn-back"
                             >
+
                                 Continue Shopping
+
                             </a>
 
                         </div>
@@ -556,11 +611,15 @@ if (!empty($product['image'])) {
                 <?php else: ?>
 
                     <p class="out-stock">
+
                         This product is currently unavailable.
+
                     </p>
 
                     <a href="products.php" class="details-btn btn-back">
+
                         Continue Shopping
+
                     </a>
 
                 <?php endif; ?>
@@ -573,10 +632,12 @@ if (!empty($product['image'])) {
 
 
     <!-- SHARED FOOTER -->
+
     <?php include 'includes/footer.php'; ?>
 
 
     <script src="js/script.js"></script>
 
 </body>
+
 </html>
