@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -141,6 +140,7 @@ if (!empty($product['image'])) {
 
         .details-info {
             min-width: 0;
+            color: #ffffff; /* FIX: light text so everything inside is readable on the dark card */
         }
 
         .category {
@@ -155,6 +155,8 @@ if (!empty($product['image'])) {
             font-size: 32px;
             line-height: 1.3;
             overflow-wrap: anywhere;
+            color: #ffffff;   /* FIX: white title */
+            font-weight: 800; /* FIX: bolder title */
         }
 
         .price {
@@ -179,6 +181,14 @@ if (!empty($product['image'])) {
         .option-section strong {
             display: block;
             margin-bottom: 12px;
+        }
+
+        /* FIX: make all labels (size, colour, availability, quantity) white and bold */
+        .option-section strong,
+        .details-info p strong,
+        .details-info label {
+            color: #ffffff;
+            font-weight: 700;
         }
 
         .size-select {
@@ -570,4 +580,3 @@ if (!empty($product['image'])) {
 
 </body>
 </html>
-
