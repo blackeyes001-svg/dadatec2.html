@@ -1,15 +1,32 @@
 <?php
+// Secure session configuration
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
+
+$isSecure = (
+    isset($_SERVER['HTTPS']) &&
+    $_SERVER['HTTPS'] !== 'off'
+);
+
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'secure' => $isSecure,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
 session_start();
 
 require_once __DIR__ . '/includes/db.php';
 
-// Redirect already logged-in users.
+// Redirect already logged-in users
 if (!empty($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
 }
 
-// Generate CSRF token.
+// Generate CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -25,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         !is_string($token) ||
         !hash_equals($_SESSION['csrf_token'], $token)
     ) {
+
         $error = 'Your session has expired. Refresh the page and try again.';
 
     } else {
@@ -39,71 +57,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $password === '' ||
             strlen($password) > 4096
         ) {
+
             $error = 'Invalid email or password.';
 
         } else {
 
-            $stmt = $pdo->prepare(
-                'SELECT id, full_name, email, password, role
-                 FROM users
-                 WHERE email = :email
-                 LIMIT 1'
-            );
+            try {
 
-            $stmt->execute(['email' => $email]);
+                $stmt = $pdo->prepare(
+                    'SELECT id, full_name, email, password, role
+                     FROM users
+                     WHERE email = :email
+                     LIMIT 1'
+                );
 
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                $stmt->execute(['email' => $email]);
 
-            if ($user && password_verify($password, $user['password'])) {
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                session_regenerate_id(true);
-
-                $_SESSION['user_id'] = (int) $user['id'];
-                $_SESSION['user_name'] = $user['full_name'];
-                $_SESSION['user_email'] = $user['email'];
-                $_SESSION['user_role'] = $user['role'];
-
-                // Generate a fresh CSRF token.
-                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-
-                // Upgrade older password hashes.
                 if (
-                    password_needs_rehash(
-                        $user['password'],
-                        PASSWORD_DEFAULT
-                    )
+                    $user &&
+                    password_verify($password, $user['password'])
                 ) {
-                    $newHash = password_hash(
-                        $password,
-                        PASSWORD_DEFAULT
-                    );
 
-                    $update = $pdo->prepare(
-                        'UPDATE users
-                         SET password = :password
-                         WHERE id = :id'
-                    );
+                    // Regenerate session ID
+                    session_regenerate_id(true);
 
-                    $update->execute([
-                        'password' => $newHash,
-                        'id' => $user['id']
-                    ]);
+                    // Store user information
+                    $_SESSION['user_id'] = (int)$user['id'];
+                    $_SESSION['user_name'] = $user['full_name'];
+                    $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_role'] = $user['role'];
+
+                    // Generate fresh CSRF token
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+                    // Upgrade old password hashes
+                    if (
+                        password_needs_rehash(
+                            $user['password'],
+                            PASSWORD_DEFAULT
+                        )
+                    ) {
+
+                        $newHash = password_hash(
+                            $password,
+                            PASSWORD_DEFAULT
+                        );
+
+                        $update = $pdo->prepare(
+                            'UPDATE users
+                             SET password = :password
+                             WHERE id = :id'
+                        );
+
+                        $update->execute([
+                            'password' => $newHash,
+                            'id' => $user['id']
+                        ]);
+                    }
+
+                    header('Location: index.php');
+                    exit;
+
+                } else {
+
+                    $error = 'Invalid email or password.';
+
                 }
 
-                header('Location: index.php');
-                exit;
+            } catch (PDOException $e) {
 
-            } else {
-                $error = 'Invalid email or password.';
+                error_log('Login error: ' . $e->getMessage());
+
+                $error = 'Unable to sign in right now. Please try again later.';
+
             }
         }
     }
 }
 
-// Escape output.
+// Escape output
 function e($value) {
     return htmlspecialchars(
-        (string) $value,
+        (string)$value,
         ENT_QUOTES,
         'UTF-8'
     );
@@ -114,285 +151,291 @@ function e($value) {
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Sign In | Bayogoal Enterprises</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description" content="Sign in to your Bayogoal Enterprises account.">
+<title>Sign In | Bayogoal Enterprises</title>
 
-    <style>
-        :root {
-            --blue: #2563EB;
-            --green: #39FF14;
-            --dark: #071426;
-            --panel: #10233d;
-            --white: #ffffff;
-            --muted: #aabbd0;
-            --border: #294568;
-        }
+<meta name="description" content="Sign in to your Bayogoal Enterprises account.">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<style>
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: var(--dark);
-            color: var(--white);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+:root {
+    --blue: #2563EB;
+    --green: #39FF14;
+    --dark: #071426;
+    --panel: #10233d;
+    --white: #ffffff;
+    --muted: #aabbd0;
+    --border: #294568;
+}
 
-        /* HEADER */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        .login-header {
-            background: var(--panel);
-            padding: 20px 7%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            border-bottom: 2px solid var(--blue);
-        }
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-        .brand {
-            color: var(--white);
-            text-decoration: none;
-            font-size: 24px;
-            font-weight: 900;
-        }
+/* HEADER */
 
-        .brand span {
-            color: var(--green);
-        }
+.login-header {
+    background: var(--panel);
+    padding: 20px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 2px solid var(--blue);
+}
 
-        .brand small {
-            display: block;
-            font-size: 10px;
-            letter-spacing: 4px;
-            color: var(--muted);
-            text-align: center;
-        }
+.brand {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 900;
+}
 
-        .back {
-            color: var(--white);
-            text-decoration: none;
-            font-weight: bold;
-        }
+.brand span {
+    color: var(--green);
+}
 
-        .back:hover {
-            color: var(--green);
-        }
+.brand small {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-align: center;
+}
 
-        /* MAIN */
+.back {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: bold;
+}
 
-        .login-main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 45px 16px;
-        }
+.back:hover {
+    color: var(--green);
+}
 
-        /* LOGIN CARD */
+/* MAIN */
 
-        .auth-card {
-            background: var(--panel);
-            width: 100%;
-            max-width: 450px;
-            padding: 38px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
-        }
+.login-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 45px 16px;
+}
 
-        .logo-mark {
-            width: 65px;
-            height: 65px;
-            border-radius: 15px;
-            background: var(--dark);
-            border: 1px solid var(--green);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--green);
-            font-size: 25px;
-            font-weight: 900;
-            margin-bottom: 22px;
-        }
+/* LOGIN CARD */
 
-        .auth-card h1 {
-            font-size: 29px;
-            margin-bottom: 10px;
-        }
+.auth-card {
+    background: var(--panel);
+    width: 100%;
+    max-width: 450px;
+    padding: 38px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+}
 
-        .intro {
-            color: var(--muted);
-            line-height: 1.7;
-            margin-bottom: 28px;
-        }
+.logo-mark {
+    width: 65px;
+    height: 65px;
+    border-radius: 15px;
+    background: var(--dark);
+    border: 1px solid var(--green);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--green);
+    font-size: 25px;
+    font-weight: 900;
+    margin-bottom: 22px;
+}
 
-        /* FORM */
+.auth-card h1 {
+    font-size: 29px;
+    margin-bottom: 10px;
+}
 
-        .field {
-            margin-bottom: 21px;
-        }
+.intro {
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
 
-        .field label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 9px;
-        }
+/* FORM */
 
-        .field input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--dark);
-            color: var(--white);
-            font-size: 15px;
-        }
+.field {
+    margin-bottom: 21px;
+}
 
-        .field input:focus {
-            outline: 2px solid var(--green);
-            border-color: var(--green);
-        }
+.field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 9px;
+}
 
-        /* PASSWORD */
+.field input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--dark);
+    color: var(--white);
+    font-size: 15px;
+}
 
-        .password-wrapper {
-            position: relative;
-        }
+.field input:focus {
+    outline: 2px solid var(--green);
+    border-color: var(--green);
+}
 
-        .password-wrapper input {
-            padding-right: 75px;
-        }
+/* PASSWORD */
 
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            color: var(--green);
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            padding: 8px;
-        }
+.password-wrapper {
+    position: relative;
+}
 
-        /* BUTTON */
+.password-wrapper input {
+    padding-right: 75px;
+}
 
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--blue);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 8px;
-        }
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--green);
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 8px;
+}
 
-        .submit-btn:hover {
-            background: var(--green);
-            color: var(--dark);
-        }
+/* BUTTON */
 
-        /* MESSAGES */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 8px;
+}
 
-        .error {
-            background: #451b25;
-            border: 1px solid #ef4444;
-            color: #fecaca;
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
+.submit-btn:hover {
+    background: var(--green);
+    color: var(--dark);
+}
 
-        .success {
-            background: #183b2b;
-            border: 1px solid var(--green);
-            color: #bbf7d0;
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
+/* MESSAGES */
 
-        /* REGISTER LINK */
+.error {
+    background: #451b25;
+    border: 1px solid #ef4444;
+    color: #fecaca;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
 
-        .switch {
-            text-align: center;
-            margin-top: 25px;
-            line-height: 1.8;
-            color: var(--muted);
-        }
+.success {
+    background: #183b2b;
+    border: 1px solid var(--green);
+    color: #bbf7d0;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
 
-        .switch a {
-            color: var(--green);
-            font-weight: bold;
-            text-decoration: none;
-        }
+/* REGISTER LINK */
 
-        .switch a:hover {
-            text-decoration: underline;
-        }
+.switch {
+    text-align: center;
+    margin-top: 25px;
+    line-height: 1.8;
+    color: var(--muted);
+}
 
-        /* FOOTER */
+.switch a {
+    color: var(--green);
+    font-weight: bold;
+    text-decoration: none;
+}
 
-        .login-footer {
-            background: var(--panel);
-            border-top: 1px solid var(--border);
-            color: var(--muted);
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-        }
+.switch a:hover {
+    text-decoration: underline;
+}
 
-        .login-footer span {
-            color: var(--green);
-            font-weight: bold;
-        }
+/* FOOTER */
 
-        /* MOBILE */
+.login-footer {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+}
 
-        @media (max-width: 500px) {
-            .login-header {
-                padding: 17px 5%;
-            }
+.login-footer span {
+    color: var(--green);
+    font-weight: bold;
+}
 
-            .brand {
-                font-size: 19px;
-            }
+/* MOBILE */
 
-            .back {
-                font-size: 13px;
-            }
+@media (max-width: 500px) {
 
-            .login-main {
-                padding: 30px 14px;
-            }
+    .login-header {
+        padding: 17px 5%;
+    }
 
-            .auth-card {
-                padding: 27px 21px;
-            }
+    .brand {
+        font-size: 19px;
+    }
 
-            .auth-card h1 {
-                font-size: 25px;
-            }
-        }
-    </style>
+    .back {
+        font-size: 13px;
+    }
+
+    .login-main {
+        padding: 30px 14px;
+    }
+
+    .auth-card {
+        padding: 27px 21px;
+    }
+
+    .auth-card h1 {
+        font-size: 25px;
+    }
+
+}
+
+</style>
+
 </head>
 
 <body>
@@ -519,7 +562,9 @@ function e($value) {
 </footer>
 
 <script>
+
 const passwordInput = document.getElementById('password');
+
 const togglePassword = document.getElementById('togglePassword');
 
 togglePassword.addEventListener('click', function () {
@@ -527,18 +572,23 @@ togglePassword.addEventListener('click', function () {
     if (passwordInput.type === 'password') {
 
         passwordInput.type = 'text';
+
         togglePassword.textContent = 'HIDE';
+
         togglePassword.setAttribute('aria-label', 'Hide password');
 
     } else {
 
         passwordInput.type = 'password';
+
         togglePassword.textContent = 'SHOW';
+
         togglePassword.setAttribute('aria-label', 'Show password');
 
     }
 
 });
+
 </script>
 
 </body>
