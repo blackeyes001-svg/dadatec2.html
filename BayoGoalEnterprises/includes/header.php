@@ -116,45 +116,38 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 /* HEADER */
 
-.site-header {
-    background: #071426;
-    border-bottom: 1px solid #203b5c;
-    width: 100%;
-    position: relative;
-    z-index: 1000;
-}
-
 .header-container {
     max-width: 1250px;
     margin: auto;
     padding: 16px 25px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+    justify-content: center;
+    position: relative;
 }
 
 .site-logo {
-    color: white;
-    text-decoration: none;
-    font-size: 25px;
-    font-weight: 800;
-    letter-spacing: 1px;
+    text-align: center;
 }
 
-.site-logo span,
-.sidebar-logo span {
+.menu-toggle {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
     color: #39FF14;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
 }
 
-.site-logo small {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: #aab8ca;
-    margin-top: 3px;
+@media (max-width: 850px) {
+    .menu-toggle {
+        display: block;
+    }
 }
-
 /* MENU BUTTON */
 
 .menu-toggle {
