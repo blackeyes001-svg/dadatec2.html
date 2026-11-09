@@ -2,7 +2,7 @@
 
 // Start the session if one is not already active.
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+   require_once __DIR__ . '/includes/session.php';
 }
 
 // Clear all session variables.
