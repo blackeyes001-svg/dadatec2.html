@@ -1,4 +1,4 @@
-?variant="standard" id="82519" title="Upgraded Bayogoal Admin Dashboard"}
+
 
 <?php
 session_start();
