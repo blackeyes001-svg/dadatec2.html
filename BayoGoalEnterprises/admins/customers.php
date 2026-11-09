@@ -34,8 +34,10 @@ $sql = "
 $params = [];
 
 if ($search !== '') {
-    $sql .= " AND (u.full_name LIKE :search OR u.email LIKE :search)";
-    $params['search'] = "%$search%";
+    $sql .= " AND (u.full_name LIKE :search_name OR u.email LIKE :search_email)";
+    
+    $params['search_name'] = "%$search%";
+    $params['search_email'] = "%$search%";
 }
 
 $sql .= " ORDER BY u.created_at DESC";
