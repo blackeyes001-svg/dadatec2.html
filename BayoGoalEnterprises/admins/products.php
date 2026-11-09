@@ -14,7 +14,6 @@ if (empty($_SESSION['admin_products_token'])) {
 }
 
 $csrfToken = $_SESSION['admin_products_token'];
-
 $message = "";
 $error = "";
 $editProduct = null;
@@ -59,15 +58,76 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['save_product'])) {
         $description = trim($_POST['description'] ?? '');
         $price = (float)($_POST['price'] ?? 0);
         $image = trim($_POST['image'] ?? '');
+
         $sizes = trim($_POST['sizes'] ?? '');
         $colors = trim($_POST['colors'] ?? '');
         $stock = (int)($_POST['stock'] ?? 0);
 
-        if ($name === '' || $category === '' || $price <= 0 || $stock < 0) {
+        // Handle image upload
+        if (isset($_FILES['product_image']) &&
+            $_FILES['product_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+
+            $file = $_FILES['product_image'];
+
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                $error = "Image upload failed. Please try again.";
+
+            } elseif ($file['size'] > 5 * 1024 * 1024) {
+                $error = "Image is too large. Maximum size is 5MB.";
+
+            } else {
+
+                $imageInfo = @getimagesize($file['tmp_name']);
+
+                $allowedTypes = [
+                    'image/jpeg' => 'jpg',
+                    'image/png'  => 'png',
+                    'image/webp' => 'webp'
+                ];
+
+                $mime = $imageInfo['mime'] ?? '';
+
+                if (!$imageInfo || !isset($allowedTypes[$mime])) {
+                    $error = "Please upload a valid JPG, PNG or WEBP image.";
+
+                } else {
+
+                    $uploadDirectory = __DIR__ . '/../images/uploads/';
+
+                    if (!is_dir($uploadDirectory) &&
+                        !mkdir($uploadDirectory, 0755, true)) {
+
+                        $error = "Could not create the image upload folder.";
+
+                    } else {
+
+                        $fileName = 'product_' .
+                            bin2hex(random_bytes(8)) .
+                            '.' . $allowedTypes[$mime];
+
+                        if (move_uploaded_file(
+                            $file['tmp_name'],
+                            $uploadDirectory . $fileName
+                        )) {
+                            $image = 'images/uploads/' . $fileName;
+
+                        } else {
+                            $error = "Could not save the uploaded image.";
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($error === '' &&
+            ($name === '' || $category === '' || $price <= 0 || $stock < 0)) {
+
             $error = "Please enter a valid name, category, price and stock quantity.";
-        } else {
+
+        } elseif ($error === '') {
 
             try {
+
                 if ($id > 0) {
 
                     $stmt = $pdo->prepare(
@@ -128,13 +188,16 @@ if (isset($_GET['edit'])) {
     $id = (int)$_GET['edit'];
 
     if ($id > 0) {
+
         $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
         $stmt->execute([$id]);
+
         $editProduct = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$editProduct) {
             $error = "Product not found.";
         }
+
     } else {
         $error = "Invalid product selected.";
     }
@@ -148,7 +211,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 function h($value) {
     return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -161,6 +223,7 @@ function h($value) {
     <title>Manage Products | Bayogoal Enterprises</title>
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -420,6 +483,7 @@ function h($value) {
         }
 
         @media (max-width: 700px) {
+
             .sidebar {
                 position: relative;
                 width: 100%;
@@ -466,6 +530,7 @@ function h($value) {
         }
 
         @media (max-width: 400px) {
+
             .actions {
                 flex-direction: column;
                 align-items: flex-start;
@@ -476,6 +541,7 @@ function h($value) {
                 padding: 15px;
             }
         }
+
     </style>
 
 </head>
@@ -524,7 +590,7 @@ function h($value) {
             <?= $editProduct ? "Edit Product" : "Add New Product" ?>
         </h2>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
 
             <input type="hidden"
                    name="csrf_token"
@@ -597,7 +663,22 @@ function h($value) {
                 </div>
 
                 <div class="form-group full">
-                    <label>Product Image Path or URL</label>
+                    <label>Upload Product Image (JPG, PNG or WEBP — maximum 5MB)</label>
+
+                    <input
+                        type="file"
+                        name="product_image"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+
+                    <?php if (!empty($editProduct['image'])): ?>
+                        <small style="display:block; margin-top:8px; color:#9ca3af;">
+                            Current image: <?= h($editProduct['image']) ?>
+                        </small>
+                    <?php endif; ?>
+                </div>
+
+                <div class="form-group full">
+                    <label>Or enter an existing Product Image Path / URL</label>
                     <input
                         type="text"
                         name="image"
