@@ -63,7 +63,14 @@
                 </a>
             </p>
         </div>
+   <a href="https://www.google.com/maps/search/?api=1&query=YOUR+BUSINESS+ADDRESS"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="location-link">
 
+    📍 Your Business Address
+
+</a>
     </div>
 
     <div class="footer-bottom">
@@ -170,5 +177,15 @@
         padding: 35px 20px;
         gap: 30px;
     }
+}
+.location-link {
+    color: #ffffff;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.location-link:hover {
+    color: #39FF14;
+    text-decoration: underline;
 }
 </style>
