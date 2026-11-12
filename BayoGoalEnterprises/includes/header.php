@@ -1,3 +1,4 @@
+
 <?php
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -10,7 +11,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <header class="site-header">
-
     <div class="header-container">
 
         <a href="index.php" class="site-logo">
@@ -18,18 +18,41 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <small>ENTERPRISES</small>
         </a>
 
+        <!-- Desktop Navigation -->
+        <nav class="desktop-nav">
+
+            <a href="index.php" class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">Home</a>
+
+            <a href="products.php" class="<?= $currentPage === 'products.php' ? 'active' : '' ?>">Shop</a>
+
+            <a href="index.php#categories">Categories</a>
+
+            <a href="index.php#about">About</a>
+
+            <a href="index.php#contact">Contact</a>
+
+            <?php if ($isLoggedIn): ?>
+                <a href="cart.php">Cart</a>
+                <a href="orders.php">My Orders</a>
+                <a href="logout.php" class="nav-button">Logout</a>
+            <?php else: ?>
+                <a href="login.php">Login</a>
+                <a href="register.php" class="nav-button">Sign Up</a>
+            <?php endif; ?>
+
+        </nav>
+
+        <!-- Mobile Menu Button -->
         <button
             class="menu-toggle"
             id="menuToggle"
             type="button"
             aria-label="Open navigation"
-            aria-expanded="false"
-        >
+            aria-expanded="false">
             ☰
         </button>
 
     </div>
-
 </header>
 
 <!-- Sidebar Overlay -->
@@ -45,60 +68,34 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <small>ENTERPRISES</small>
         </a>
 
-        <button
-            class="sidebar-close"
-            id="sidebarClose"
-            aria-label="Close navigation"
-            type="button"
-        >
-            &times;
-        </button>
+        <button class="sidebar-close" id="sidebarClose" type="button">&times;</button>
 
     </div>
 
     <nav class="sidebar-links">
 
-        <a href="index.php"
-           class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">
-            🏠 Home
-        </a>
+        <a href="index.php" class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">🏠 Home</a>
 
-        <a href="products.php"
-           class="<?= $currentPage === 'products.php' ? 'active' : '' ?>">
-            🛍️ Shop
-        </a>
+        <a href="products.php" class="<?= $currentPage === 'products.php' ? 'active' : '' ?>">🛍️ Shop</a>
 
-        <a href="index.php#categories">
-            📦 Categories
-        </a>
+        <a href="index.php#categories">📦 Categories</a>
 
-        <a href="index.php#about">
-            ℹ️ About Us
-        </a>
+        <a href="index.php#about">ℹ️ About Us</a>
 
-        <a href="index.php#contact">
-            📞 Contact
-        </a>
+        <a href="index.php#contact">📞 Contact</a>
 
         <div class="sidebar-divider"></div>
 
         <?php if ($isLoggedIn): ?>
 
             <a href="cart.php">🛒 My Cart</a>
-
             <a href="orders.php">📋 My Orders</a>
-
-            <a href="logout.php" class="sidebar-button">
-                Logout
-            </a>
+            <a href="logout.php" class="sidebar-button">Logout</a>
 
         <?php else: ?>
 
             <a href="login.php">🔐 Login</a>
-
-            <a href="register.php" class="sidebar-button">
-                Create Account
-            </a>
+            <a href="register.php" class="sidebar-button">Create Account</a>
 
         <?php endif; ?>
 
@@ -111,10 +108,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 </aside>
 
-
 <style>
-
-/* HEADER */
 
 .site-header {
     background: #071426;
@@ -140,6 +134,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     font-size: 25px;
     font-weight: 800;
     letter-spacing: 1px;
+    white-space: nowrap;
 }
 
 .site-logo span,
@@ -147,7 +142,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     color: #39FF14;
 }
 
-.site-logo small {
+.site-logo small,
+.sidebar-logo small {
     display: block;
     font-size: 9px;
     letter-spacing: 4px;
@@ -155,29 +151,50 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     margin-top: 3px;
 }
 
-/* MENU BUTTON */
+/* DESKTOP NAVIGATION */
+
+.desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.desktop-nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a.active {
+    color: #39FF14;
+}
+
+.desktop-nav .nav-button {
+    background: #2563EB;
+    padding: 11px 17px;
+    border-radius: 6px;
+}
+
+.desktop-nav .nav-button:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+/* MOBILE BUTTON */
 
 .menu-toggle {
     display: none;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     background: transparent;
     color: #39FF14;
     border: none;
     font-size: 30px;
     cursor: pointer;
-}
-
-/* DESKTOP NAVIGATION IS HIDDEN ON MOBILE */
-
-@media (min-width: 851px) {
-
-    .header-container {
-        justify-content: space-between;
-    }
-
-    .menu-toggle {
-        display: none;
-    }
-
 }
 
 /* SIDEBAR */
@@ -192,21 +209,16 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     height: 100dvh;
     background: #071426;
     z-index: 2002;
-
     transform: translateX(-105%);
     transition: transform 0.35s ease;
-
     display: flex;
     flex-direction: column;
-
     box-shadow: 5px 0 25px rgba(0,0,0,0.4);
 }
 
 .mobile-sidebar.open {
     transform: translateX(0);
 }
-
-/* SIDEBAR HEADER */
 
 .sidebar-header {
     display: flex;
@@ -223,13 +235,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     font-weight: 800;
 }
 
-.sidebar-logo small {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: #aab8ca;
-}
-
 .sidebar-close {
     background: transparent;
     border: none;
@@ -237,8 +242,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     font-size: 35px;
     cursor: pointer;
 }
-
-/* SIDEBAR LINKS */
 
 .sidebar-links {
     display: flex;
@@ -274,13 +277,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     margin-top: 12px;
 }
 
-.sidebar-links .sidebar-button:hover {
-    background: #1d4ed8;
-    color: white;
-}
-
-/* SIDEBAR FOOTER */
-
 .sidebar-footer {
     margin-top: auto;
     padding: 20px;
@@ -294,18 +290,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     font-size: 13px;
 }
 
-.sidebar-footer small {
-    font-size: 11px;
-}
-
-/* DARK OVERLAY */
-
 .sidebar-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.65);
     z-index: 2001;
-
     opacity: 0;
     visibility: hidden;
     transition: 0.3s;
@@ -316,18 +305,26 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     visibility: visible;
 }
 
-/* PREVENT BACKGROUND SCROLL */
-
 body.sidebar-open {
     overflow: hidden;
 }
 
-/* MOBILE SETTINGS */
+/* MOBILE RESPONSIVE */
 
 @media (max-width: 850px) {
 
     .header-container {
+        justify-content: center;
         padding: 15px 18px;
+        position: relative;
+    }
+
+    .site-logo {
+        text-align: center;
+    }
+
+    .desktop-nav {
+        display: none;
     }
 
     .menu-toggle {
@@ -337,7 +334,6 @@ body.sidebar-open {
 }
 
 </style>
-
 
 <script>
 
@@ -349,43 +345,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const closeButton = document.getElementById('sidebarClose');
 
     function openSidebar() {
-
         sidebar.classList.add('open');
         overlay.classList.add('show');
         document.body.classList.add('sidebar-open');
-
         menuToggle.setAttribute('aria-expanded', 'true');
-
     }
 
     function closeSidebar() {
-
         sidebar.classList.remove('open');
         overlay.classList.remove('show');
         document.body.classList.remove('sidebar-open');
-
         menuToggle.setAttribute('aria-expanded', 'false');
-
     }
 
     menuToggle.addEventListener('click', openSidebar);
-
     closeButton.addEventListener('click', closeSidebar);
-
     overlay.addEventListener('click', closeSidebar);
 
     document.addEventListener('keydown', function (event) {
-
         if (event.key === 'Escape') {
             closeSidebar();
         }
-
     });
 
     sidebar.querySelectorAll('a').forEach(function (link) {
-
         link.addEventListener('click', closeSidebar);
-
     });
 
 });
