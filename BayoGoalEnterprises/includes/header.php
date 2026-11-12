@@ -1,3 +1,4 @@
+
 <?php
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -10,16 +11,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <header class="site-header">
-
     <div class="header-container">
 
-        <!-- CENTRED LOGO -->
         <a href="index.php" class="site-logo">
             BAYO<span>GOAL</span>
             <small>ENTERPRISES</small>
         </a>
 
-        <!-- DESKTOP NAVIGATION -->
+        <!-- Desktop Navigation -->
         <nav class="desktop-nav">
 
             <a href="index.php" class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">Home</a>
@@ -33,21 +32,17 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <a href="index.php#contact">Contact</a>
 
             <?php if ($isLoggedIn): ?>
-
                 <a href="cart.php">Cart</a>
                 <a href="orders.php">My Orders</a>
                 <a href="logout.php" class="nav-button">Logout</a>
-
             <?php else: ?>
-
                 <a href="login.php">Login</a>
                 <a href="register.php" class="nav-button">Sign Up</a>
-
             <?php endif; ?>
 
         </nav>
 
-        <!-- MOBILE MENU BUTTON -->
+        <!-- Mobile Menu Button -->
         <button
             class="menu-toggle"
             id="menuToggle"
@@ -58,15 +53,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </button>
 
     </div>
-
 </header>
 
-
-<!-- SIDEBAR OVERLAY -->
+<!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-
-<!-- MOBILE SIDEBAR -->
+<!-- Mobile Sidebar -->
 <aside class="mobile-sidebar" id="mobileSidebar">
 
     <div class="sidebar-header">
@@ -76,9 +68,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <small>ENTERPRISES</small>
         </a>
 
-        <button class="sidebar-close" id="sidebarClose" type="button">
-            &times;
-        </button>
+        <button class="sidebar-close" id="sidebarClose" type="button">&times;</button>
 
     </div>
 
@@ -118,10 +108,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 </aside>
 
-
 <style>
-
-/* MAIN HEADER */
 
 .site-header {
     background: #071426;
@@ -132,31 +119,22 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 }
 
 .header-container {
-    max-width: 1400px;
-    min-height: 105px;
+    max-width: 1250px;
     margin: auto;
-    padding: 15px 25px;
+    padding: 16px 25px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    position: relative;
+    justify-content: space-between;
+    gap: 20px;
 }
 
-/* CENTRED LOGO */
-
 .site-logo {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     color: white;
     text-decoration: none;
-    font-size: 30px;
+    font-size: 25px;
     font-weight: 800;
     letter-spacing: 1px;
     white-space: nowrap;
-    text-align: center;
-    line-height: 1.1;
 }
 
 .site-logo span,
@@ -167,29 +145,24 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 .site-logo small,
 .sidebar-logo small {
     display: block;
-    font-size: 10px;
-    letter-spacing: 5px;
+    font-size: 9px;
+    letter-spacing: 4px;
     color: #aab8ca;
-    margin-top: 7px;
+    margin-top: 3px;
 }
 
-/* DESKTOP NAVIGATION - TOP RIGHT */
+/* DESKTOP NAVIGATION */
 
 .desktop-nav {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 13px;
-    margin-left: auto;
-    position: relative;
-    z-index: 2;
+    gap: 20px;
 }
 
 .desktop-nav a {
     color: white;
     text-decoration: none;
-    font-size: 13px;
-    white-space: nowrap;
+    font-size: 14px;
     transition: 0.3s;
 }
 
@@ -200,7 +173,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 .desktop-nav .nav-button {
     background: #2563EB;
-    padding: 10px 14px;
+    padding: 11px 17px;
     border-radius: 6px;
 }
 
@@ -209,7 +182,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     color: white;
 }
 
-/* MOBILE MENU BUTTON */
+/* MOBILE BUTTON */
 
 .menu-toggle {
     display: none;
@@ -222,10 +195,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     border: none;
     font-size: 30px;
     cursor: pointer;
-    z-index: 5;
 }
 
-/* MOBILE SIDEBAR */
+/* SIDEBAR */
 
 .mobile-sidebar {
     position: fixed;
@@ -318,8 +290,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     font-size: 13px;
 }
 
-/* SIDEBAR OVERLAY */
-
 .sidebar-overlay {
     position: fixed;
     inset: 0;
@@ -339,18 +309,18 @@ body.sidebar-open {
     overflow: hidden;
 }
 
-/* TABLET AND MOBILE */
+/* MOBILE RESPONSIVE */
 
-@media (max-width: 1050px) {
+@media (max-width: 850px) {
 
     .header-container {
-        min-height: 90px;
         justify-content: center;
         padding: 15px 18px;
+        position: relative;
     }
 
     .site-logo {
-        font-size: 27px;
+        text-align: center;
     }
 
     .desktop-nav {
@@ -365,7 +335,6 @@ body.sidebar-open {
 
 </style>
 
-
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -379,7 +348,6 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.classList.add('open');
         overlay.classList.add('show');
         document.body.classList.add('sidebar-open');
-
         menuToggle.setAttribute('aria-expanded', 'true');
     }
 
@@ -387,14 +355,11 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.classList.remove('open');
         overlay.classList.remove('show');
         document.body.classList.remove('sidebar-open');
-
         menuToggle.setAttribute('aria-expanded', 'false');
     }
 
     menuToggle.addEventListener('click', openSidebar);
-
     closeButton.addEventListener('click', closeSidebar);
-
     overlay.addEventListener('click', closeSidebar);
 
     document.addEventListener('keydown', function (event) {
