@@ -610,6 +610,23 @@ function e($value) {
     font-weight: 900;
 }
 
+/* CHECKOUT HEADING PANEL */
+.container h1 {
+    color: #071426 !important;
+    background: #294568;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 32px;
+    font-weight: 900;
+    border: 1px solid #3b5d82;
+}
+
+/* KEEP THE MAIN BACKGROUND DARK NAVY */
+body {
+    background: #071426 !important;
+}
+
     </style>
 
 </head>
