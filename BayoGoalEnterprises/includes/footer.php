@@ -1,4 +1,3 @@
-
 <footer class="site-footer" id="contact">
 
     <div class="footer-container">
@@ -44,9 +43,16 @@
             <h3>Contact Us</h3>
 
             <p>
-                Opp. Daughter of Charity Hospital,<br>
-                F.O. 1, Paulad Sport Center,<br>
-                Kubwa, Abuja, Nigeria.
+                <a
+                    href="https://www.google.com/maps/search/?api=1&query=Paulad+Sport+Center%2C+Opposite+Daughter+of+Charity+Hospital%2C+F.O.+1%2C+Kubwa%2C+Abuja%2C+Nigeria"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="location-link"
+                >
+                    📍 Opp. Daughter of Charity Hospital,<br>
+                    F.O. 1, Paulad Sport Center,<br>
+                    Kubwa, Abuja, Nigeria.
+                </a>
             </p>
 
             <p>
@@ -63,19 +69,12 @@
                 </a>
             </p>
         </div>
-   <a href="https://www.google.com/maps/search/?api=1&query=YOUR+BUSINESS+ADDRESS"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="location-link">
 
-    📍 Your Business Address
-
-</a>
     </div>
 
     <div class="footer-bottom">
         <p>
-            &copy; <?= date('Y') ?> Bayogoal Enterprises.
+            &copy; <?= date('Y') ?> BayoGoal Enterprises.
             All Rights Reserved.
         </p>
 
@@ -156,6 +155,17 @@
     display: inline;
 }
 
+.location-link {
+    color: #ffffff;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.location-link:hover {
+    color: #39FF14;
+    text-decoration: underline;
+}
+
 .footer-bottom {
     border-top: 1px solid #203b5c;
     padding: 20px 15px;
@@ -177,15 +187,5 @@
         padding: 35px 20px;
         gap: 30px;
     }
-}
-.location-link {
-    color: #ffffff;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.location-link:hover {
-    color: #39FF14;
-    text-decoration: underline;
 }
 </style>
