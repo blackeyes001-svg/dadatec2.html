@@ -321,7 +321,7 @@ function e($value) {
         }
 
         .subtitle {
-            color: #aabbd0;
+            color: #071426 ;
             margin-bottom: 30px;
         }
 
