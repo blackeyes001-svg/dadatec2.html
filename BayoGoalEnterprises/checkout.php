@@ -522,6 +522,94 @@ function e($value) {
 
         }
 
+/* =================================
+   CHECKOUT TEXT VISIBILITY UPGRADE
+================================= */
+
+/* Main checkout headings */
+.container h1 {
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/* Customer and delivery labels */
+.checkout-form label:not(.payment-option) {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 15px;
+}
+
+/* Input text */
+.checkout-form input,
+.checkout-form textarea {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Input placeholders */
+.checkout-form input::placeholder,
+.checkout-form textarea::placeholder {
+    color: #cbd5e1 !important;
+    opacity: 1;
+}
+
+/* Payment options */
+.payment-option {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 15px;
+}
+
+/* Product names */
+.order-item h3 {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+/* Product size, colour and quantity */
+.order-item p {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Product prices */
+.order-item .price {
+    color: #39FF14 !important;
+    font-weight: 800 !important;
+}
+
+/* Subtotal, delivery fee and their amounts */
+.summary-row {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 15px;
+}
+
+/* Total */
+.grand-total {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    font-size: 21px !important;
+}
+
+/* Total amount */
+.grand-total .price {
+    color: #39FF14 !important;
+    font-weight: 900 !important;
+}
+
+/* Order information notice */
+.order-summary > p {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Better visibility on checkout section headings */
+.box h2 {
+    color: #39FF14 !important;
+    font-weight: 900;
+}
+
     </style>
 
 </head>
