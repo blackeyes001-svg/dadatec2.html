@@ -15,19 +15,26 @@ a {
     color: inherit;
 }
 
+/* NAVBAR */
+
 .navbar {
-    height: 85px;
-    padding: 0 7%;
+    min-height: 78px;
+    padding: 0 3.5%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 20px;
     background: #151515;
     border-bottom: 1px solid #292929;
+    position: relative;
+    z-index: 100;
 }
 
 .logo {
-    font-size: 29px;
+    font-size: 27px;
     font-weight: 800;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .logo span {
@@ -36,12 +43,16 @@ a {
 
 .nav-links {
     display: flex;
-    gap: 35px;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(10px, 1.4vw, 23px);
+    flex: 1;
 }
 
 .nav-links a {
     color: #bbb;
-    font-size: 14px;
+    font-size: 12px;
+    white-space: nowrap;
     transition: .3s;
 }
 
@@ -53,18 +64,26 @@ a {
 .nav-buttons {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.nav-buttons span {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .login-btn {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .signup-btn,
 .primary-btn {
     background: #ff7628;
     color: #fff;
-    padding: 13px 23px;
+    padding: 11px 19px;
     border-radius: 7px;
     font-weight: 600;
 }
@@ -75,7 +94,10 @@ a {
     color: white;
     border: none;
     font-size: 25px;
+    cursor: pointer;
 }
+
+/* HERO SECTION */
 
 .hero {
     min-height: 600px;
@@ -146,11 +168,15 @@ a {
     color: #aaa;
 }
 
+/* HERO IMAGE */
+
 .hero-image {
     position: relative;
+    padding-top: 15px;
 }
 
 .hero-image img {
+    display: block;
     width: 100%;
     height: 410px;
     object-fit: cover;
@@ -185,6 +211,22 @@ a {
     color: #777;
     margin-top: 5px;
 }
+
+/* WELCOME MESSAGE ABOVE IMAGE */
+
+.welcome-message {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.welcome-message span {
+    color: #ff7628;
+}
+
+/* SEARCH SECTION */
 
 .search-section {
     background: #191919;
@@ -256,6 +298,8 @@ a {
     cursor: pointer;
 }
 
+/* ABOUT SECTION */
+
 .about-section {
     padding: 90px 7%;
     text-align: center;
@@ -273,6 +317,8 @@ a {
     max-width: 650px;
     margin: auto;
 }
+
+/* FOOTER */
 
 footer {
     background: #151515;

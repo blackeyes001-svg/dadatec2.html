@@ -1,10 +1,30 @@
-@media (max-width: 900px) {
+/* TABLETS AND SMALL LAPTOPS */
+
+@media (max-width: 1100px) {
+
     .navbar {
-        padding: 0 5%;
+        padding: 0 3%;
+        gap: 12px;
+    }
+
+    .logo {
+        font-size: 23px;
     }
 
     .nav-links {
-        gap: 15px;
+        gap: 10px;
+    }
+
+    .nav-links a {
+        font-size: 11px;
+    }
+
+    .nav-buttons span {
+        font-size: 11px;
+    }
+
+    .signup-btn {
+        padding: 10px 13px;
     }
 
     .hero {
@@ -17,9 +37,13 @@
     }
 }
 
-@media (max-width: 650px) {
+/* MOBILE */
+
+@media (max-width: 750px) {
+
     .navbar {
-        height: 75px;
+        min-height: 75px;
+        padding: 0 5%;
     }
 
     .nav-links {
@@ -31,6 +55,9 @@
         background: #151515;
         padding: 25px;
         flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        border-top: 1px solid #292929;
         z-index: 100;
     }
 
@@ -38,10 +65,20 @@
         display: flex;
     }
 
+    .nav-links a {
+        font-size: 14px;
+    }
+
     .nav-buttons {
         margin-left: auto;
-        margin-right: 20px;
-        gap: 12px;
+        gap: 10px;
+    }
+
+    .nav-buttons span {
+        font-size: 10px;
+        white-space: normal;
+        max-width: 105px;
+        text-align: right;
     }
 
     .signup-btn {
@@ -60,6 +97,7 @@
     .hero {
         grid-template-columns: 1fr;
         padding: 50px 6%;
+        gap: 35px;
     }
 
     .hero h1 {
@@ -85,6 +123,10 @@
 
     .hero-stats p {
         font-size: 10px;
+    }
+
+    .search-section {
+        padding: 50px 6%;
     }
 
     .search-box {
