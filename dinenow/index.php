@@ -1,14 +1,15 @@
-<?php  // Start session safely if (session_status() === PHP_SESSION_NONE) {     session_start(); }  $pageTitle = "DineNow | Discover & Book Restaurants";  // Check login status $isLoggedIn = isset($\_SESSION['user_id']); $customerName = $\_SESSION['full_name'] ?? '';  ?>
+<?php  // Start session safely if (session_status() === PHP_SESSION_NONE) {     session_start(); }  $pageTitle = "DineNow | Discover & Book Restaurants";  $isLoggedIn = isset($\_SESSION['user_id']); $customerName = $\_SESSION['full_name'] ?? '';  ?>
 
 <!DOCTYPE html>
 
 <html lang="en">
 
+<head>
+&#x20;   <meta charset="UTF-8">
+&#x20;   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-</head>
 
-<body>
-
+<title><?php echo htmlspecialchars($pageTitle); ?></title>
 
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/responsive.css">
@@ -24,6 +25,8 @@
 
 <body>
 
+<!-- NAVIGATION BAR -->
+
 <header class="navbar">
 
 
@@ -31,60 +34,76 @@
     Dine<span>Now.</span>
 </a>
 
+<button
+    class="menu-toggle"
+    id="menuToggle"
+    aria-label="Open navigation menu"
+    aria-expanded="false"
+    aria-controls="navLinks"
+    type="button"
+>
+    <i class="fas fa-bars"></i>
+</button>
+
 <nav class="nav-links" id="navLinks">
 
-    <a href="index.php" class="active">Home</a>
+    <a href="index.php">
+        <i class="fas fa-home"></i> Home
+    </a>
 
-    <a href="restaurants.php">Restaurants</a>
+    <a href="restaurants.php">
+        <i class="fas fa-utensils"></i> Restaurants
+    </a>
 
-    <a href="restaurants.php">Restaurant Details</a>
+    <a href="restaurants.php">
+        <i class="fas fa-store"></i> Restaurant Details
+    </a>
 
-    <a href="restaurants.php">Book a Table</a>
-
-    <a href="#about">About</a>
-
-    <a href="#contact">Contact</a>
-
-    <?php if ($isLoggedIn): ?>
-
-        <a href="profile.php">My Profile</a>
-
-        <a href="my-bookings.php">My Bookings</a>
-
-    <?php endif; ?>
-
-</nav>
-
-<div class="nav-buttons">
+    <a href="restaurants.php">
+        <i class="fas fa-calendar-check"></i> Book a Table
+    </a>
 
     <?php if ($isLoggedIn): ?>
 
-        <a href="logout.php" class="signup-btn">
-            Logout
+        <a href="profile.php">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+
+        <a href="my-bookings.php">
+            <i class="fas fa-book"></i> My Bookings
+        </a>
+
+        <a href="logout.php" class="menu-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </a>
 
     <?php else: ?>
 
-        <a href="login.php" class="login-btn">
-            Login
+        <a href="login.php">
+            <i class="fas fa-sign-in-alt"></i> Login
         </a>
 
-        <a href="register.php" class="signup-btn">
-            Register
+        <a href="register.php">
+            <i class="fas fa-user-plus"></i> Register
         </a>
 
     <?php endif; ?>
 
-</div>
+    <a href="#about">
+        <i class="fas fa-info-circle"></i> About
+    </a>
 
-<button class="menu-toggle" id="menuToggle" aria-label="Open navigation menu">
-    <i class="fas fa-bars"></i>
-</button>
+    <a href="#contact">
+        <i class="fas fa-envelope"></i> Contact
+    </a>
+
+</nav>
 
 
 </header>
 
 <main>
+
 
 <!-- HERO SECTION -->
 
@@ -142,7 +161,7 @@
     </div>
 
 
-    <!-- IMAGE SECTION -->
+    <!-- RESTAURANT IMAGE -->
 
     <div class="hero-image">
 
@@ -156,7 +175,7 @@
         <?php endif; ?>
 
         <img
-            src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900"
+            src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900"
             alt="Beautiful restaurant interior"
         >
 
@@ -220,13 +239,9 @@
                 <select name="cuisine">
 
                     <option value="">All cuisines</option>
-
                     <option>Italian</option>
-
                     <option>African</option>
-
                     <option>Chinese</option>
-
                     <option>Fast Food</option>
 
                 </select>
@@ -237,10 +252,8 @@
 
 
         <button type="submit" class="search-btn">
-
             <i class="fas fa-search"></i>
             Find Restaurants
-
         </button>
 
     </form>
@@ -272,10 +285,10 @@
 
 </section>
 
-
 </main>
 
 <!-- FOOTER -->
+
 <footer id="contact">
 
 
@@ -293,7 +306,84 @@
 
 </footer>
 
-<script src="js/script.js"></script>
+<!-- HAMBURGER MENU SCRIPT -->
+
+<script>
+
+const menuToggle = document.getElementById("menuToggle");
+const navLinks = document.getElementById("navLinks");
+const menuIcon = menuToggle.querySelector("i");
+
+function toggleMenu() {
+
+&#x20;   const isOpen = navLinks.classList.toggle("show");
+
+&#x20;   menuToggle.setAttribute("aria-expanded", isOpen);
+
+&#x20;   if (isOpen) {
+&#x20;       menuIcon.classList.remove("fa-bars");
+&#x20;       menuIcon.classList.add("fa-times");
+&#x20;   } else {
+&#x20;       menuIcon.classList.remove("fa-times");
+&#x20;       menuIcon.classList.add("fa-bars");
+&#x20;   }
+
+}
+
+menuToggle.addEventListener("click", toggleMenu);
+
+// Close menu after clicking a link
+navLinks.querySelectorAll("a").forEach(function(link) {
+
+&#x20;   link.addEventListener("click", function() {
+
+&#x20;       navLinks.classList.remove("show");
+
+&#x20;       menuToggle.setAttribute("aria-expanded", "false");
+
+&#x20;       menuIcon.classList.remove("fa-times");
+&#x20;       menuIcon.classList.add("fa-bars");
+
+&#x20;   });
+
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", function(event) {
+
+&#x20;   if (
+&#x20;       !menuToggle.contains(event.target) &&
+&#x20;       !navLinks.contains(event.target)
+&#x20;   ) {
+
+&#x20;       navLinks.classList.remove("show");
+
+&#x20;       menuToggle.setAttribute("aria-expanded", "false");
+
+&#x20;       menuIcon.classList.remove("fa-times");
+&#x20;       menuIcon.classList.add("fa-bars");
+
+&#x20;   }
+
+});
+
+// Close menu with Escape key
+document.addEventListener("keydown", function(event) {
+
+&#x20;   if (event.key === "Escape") {
+
+&#x20;       navLinks.classList.remove("show");
+
+&#x20;       menuToggle.setAttribute("aria-expanded", "false");
+
+&#x20;       menuIcon.classList.remove("fa-times");
+&#x20;       menuIcon.classList.add("fa-bars");
+
+&#x20;   }
+
+});
+
+</script>
 
 </body>
 </html>
