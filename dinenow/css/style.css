@@ -1,0 +1,288 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #101010;
+    color: #fff;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.navbar {
+    height: 85px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #151515;
+    border-bottom: 1px solid #292929;
+}
+
+.logo {
+    font-size: 29px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: #ff7628;
+}
+
+.nav-links {
+    display: flex;
+    gap: 35px;
+}
+
+.nav-links a {
+    color: #bbb;
+    font-size: 14px;
+    transition: .3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #ff7628;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.login-btn {
+    font-size: 14px;
+}
+
+.signup-btn,
+.primary-btn {
+    background: #ff7628;
+    color: #fff;
+    padding: 13px 23px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    color: white;
+    border: none;
+    font-size: 25px;
+}
+
+.hero {
+    min-height: 600px;
+    padding: 75px 7%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+}
+
+.hero-tag,
+.section-tag {
+    color: #ff7628;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.hero h1 {
+    font-size: clamp(35px, 4.5vw, 58px);
+    line-height: 1.25;
+    margin: 22px 0;
+}
+
+.hero h1 span {
+    color: #ff7628;
+}
+
+.hero-content > p {
+    color: #aaa;
+    line-height: 1.9;
+    max-width: 480px;
+    font-size: 14px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.primary-btn {
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.secondary-btn {
+    padding: 13px 23px;
+    border: 1px solid #555;
+    border-radius: 7px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 45px;
+    margin-top: 55px;
+}
+
+.hero-stats h3 {
+    color: #ff7628;
+    font-size: 25px;
+}
+
+.hero-stats p {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.hero-image {
+    position: relative;
+}
+
+.hero-image img {
+    width: 100%;
+    height: 410px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.floating-card {
+    position: absolute;
+    bottom: 25px;
+    left: -30px;
+    background: #fff;
+    color: #222;
+    padding: 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 30px #0005;
+}
+
+.floating-card i {
+    font-size: 25px;
+    color: #ff7628;
+}
+
+.floating-card strong,
+.floating-card small {
+    display: block;
+}
+
+.floating-card small {
+    color: #777;
+    margin-top: 5px;
+}
+
+.search-section {
+    background: #191919;
+    padding: 65px 7%;
+}
+
+.search-heading {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-heading h2 {
+    font-size: 27px;
+}
+
+.search-heading p {
+    color: #aaa;
+    margin-top: 10px;
+}
+
+.search-box {
+    background: #252525;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.search-field {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.search-field i {
+    color: #ff7628;
+    font-size: 22px;
+}
+
+.search-field label {
+    display: block;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.search-field input,
+.search-field select {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    padding-top: 7px;
+    width: 100%;
+}
+
+.search-field select option {
+    background: #222;
+}
+
+.search-btn {
+    background: #ff7628;
+    border: none;
+    padding: 16px 22px;
+    color: white;
+    border-radius: 7px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.about-section {
+    padding: 90px 7%;
+    text-align: center;
+}
+
+.about-section h2 {
+    font-size: 32px;
+    margin: 18px auto;
+    max-width: 650px;
+}
+
+.about-section p {
+    color: #aaa;
+    line-height: 1.9;
+    max-width: 650px;
+    margin: auto;
+}
+
+footer {
+    background: #151515;
+    padding: 40px 7%;
+    text-align: center;
+    border-top: 1px solid #292929;
+}
+
+footer p {
+    color: #888;
+    font-size: 13px;
+    margin-top: 12px;
+}
