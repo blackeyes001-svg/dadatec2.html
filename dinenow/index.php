@@ -1,5 +1,16 @@
 <?php
+
+// Start session safely
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $pageTitle = "DineNow | Discover & Book Restaurants";
+
+// Check login status
+$isLoggedIn = isset($_SESSION['user_id']);
+$customerName = $_SESSION['full_name'] ?? '';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,8 +40,24 @@ $pageTitle = "DineNow | Discover & Book Restaurants";
     </nav>
 
     <div class="nav-buttons">
-        <a href="login.php" class="login-btn">Login</a>
-        <a href="register.php" class="signup-btn">Sign Up</a>
+
+        <?php if ($isLoggedIn): ?>
+
+            <span style="color: #FFFFFF; font-weight: 600; margin-right: 12px;">
+                Welcome, <?php echo htmlspecialchars($customerName); ?>
+            </span>
+
+            <a href="logout.php" class="signup-btn">
+                Logout
+            </a>
+
+        <?php else: ?>
+
+            <a href="login.php" class="login-btn">Login</a>
+            <a href="register.php" class="signup-btn">Sign Up</a>
+
+        <?php endif; ?>
+
     </div>
 
     <button class="menu-toggle" id="menuToggle">
