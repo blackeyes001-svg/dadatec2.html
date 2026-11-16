@@ -1,15 +1,14 @@
-\<?php  // Start session safely if (session_status() === PHP_SESSION_NONE) {     session_start(); }  $pageTitle = "DineNow | Discover & Book Restaurants";  // Check login status $isLoggedIn = isset($\_SESSION['user_id']); $customerName = $\_SESSION['full_name'] ?? '';  ?>
+<?php  // Start session safely if (session_status() === PHP_SESSION_NONE) {     session_start(); }  $pageTitle = "DineNow | Discover & Book Restaurants";  // Check login status $isLoggedIn = isset($\_SESSION['user_id']); $customerName = $\_SESSION['full_name'] ?? '';  ?>
 
-\<!DOCTYPE html>
+<!DOCTYPE html>
 
-\<html lang="en">
+<html lang="en">
 
-\<head>
-&#x20;   \<meta charset="UTF-8">
-&#x20;   \<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<title><?php echo htmlspecialchars($pageTitle); ?></title>
+</head>
+
+<body>
+
 
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/responsive.css">
@@ -19,15 +18,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-```
 
-\</head>
 
-\<body>
+</head>
 
-\<header class="navbar">
+<body>
 
-```
+<header class="navbar">
+
+
 <a href="index.php" class="logo">
     Dine<span>Now.</span>
 </a>
@@ -81,13 +80,12 @@
 <button class="menu-toggle" id="menuToggle" aria-label="Open navigation menu">
     <i class="fas fa-bars"></i>
 </button>
-```
 
-\</header>
 
-\<main>
+</header>
 
-```
+<main>
+
 <!-- HERO SECTION -->
 
 <section class="hero">
@@ -273,15 +271,14 @@
     </div>
 
 </section>
-```
 
-\</main>
 
-\<!-- FOOTER -->
+</main>
 
-\<footer id="contact">
+<!-- FOOTER -->
+<footer id="contact">
 
-```
+
 <a href="index.php" class="logo">
     Dine<span>Now.</span>
 </a>
@@ -292,11 +289,11 @@
     &copy; <?php echo date("Y"); ?>
     DineNow. All Rights Reserved.
 </p>
-```
 
-\</footer>
 
-\<script src="js/script.js">\</script>
+</footer>
 
-\</body>
-\</html>
+<script src="js/script.js"></script>
+
+</body>
+</html>
