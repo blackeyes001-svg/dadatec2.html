@@ -1,12 +1,12 @@
-<?php
 
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 require_once __DIR__ . "/includes/db.php";
 
-// Customers must log in before booking
+// Require customer login
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -17,822 +17,476 @@ if (empty($_SESSION['booking_token'])) {
     $_SESSION['booking_token'] = bin2hex(random_bytes(32));
 }
 
-$errors = [];
-$success = false;
-$bookingReference = null;
-$selectedRestaurant = null;
+$restaurantId = filter_input(INPUT_GET, 'restaurant_id', FILTER_VALIDATE_INT);
 
-// Get restaurant ID
-$restaurantId = isset($_GET['restaurant_id'])
-    ? (int) $_GET['restaurant_id']
-    : (int) ($_POST['restaurant_id'] ?? 0);
-
-if ($restaurantId <= 0) {
-    die("Invalid restaurant selected.");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $restaurantId = filter_input(INPUT_POST, 'restaurant_id', FILTER_VALIDATE_INT);
 }
 
-// Fetch restaurant
+if (!$restaurantId || $restaurantId < 1) {
+    die("Invalid restaurant selected. Please return to the restaurants page and select a restaurant.");
+}
+
+// Get restaurant
 $stmt = $pdo->prepare("
     SELECT *
     FROM restaurants
-    WHERE id = ?
-    AND status = 'active'
+    WHERE id = :id AND status = 'active'
+    LIMIT 1
 ");
+$stmt->execute(['id' => $restaurantId]);
+$restaurant = $stmt->fetch();
 
-$stmt->execute([$restaurantId]);
-
-$selectedRestaurant = $stmt->fetch();
-
-if (!$selectedRestaurant) {
+if (!$restaurant) {
     die("Restaurant not found or currently unavailable.");
 }
 
+$error = "";
+$success = "";
+$bookingReference = "";
 
-// ==========================================
-// PROCESS BOOKING
-// ==========================================
+$bookingDate = "";
+$bookingTime = "";
+$guests = 2;
+$specialRequest = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Verify CSRF token
-    if (
-        !isset($_POST['csrf_token']) ||
-        !hash_equals(
-            $_SESSION['booking_token'],
-            $_POST['csrf_token']
-        )
-    ) {
-        $errors[] = "Invalid request. Please refresh the page and try again.";
-    }
+    $token = $_POST['booking_token'] ?? '';
 
-    $bookingDate = trim($_POST['booking_date'] ?? '');
-    $bookingTime = trim($_POST['booking_time'] ?? '');
-    $guests = (int) ($_POST['guests'] ?? 0);
-    $specialRequest = trim($_POST['special_request'] ?? '');
+    if (!hash_equals($_SESSION['booking_token'], $token)) {
+        $error = "Invalid request. Please refresh the page and try again.";
+    } else {
 
-    // Validate guests
-    if ($guests < 1 || $guests > 20) {
-        $errors[] = "Please select between 1 and 20 guests.";
-    }
+        $bookingDate = trim($_POST['booking_date'] ?? '');
+        $bookingTime = trim($_POST['booking_time'] ?? '');
+        $guests = (int)($_POST['guests'] ?? 2);
+        $specialRequest = trim($_POST['special_request'] ?? '');
 
-    // Validate date
-    $dateObject = DateTime::createFromFormat('!Y-m-d', $bookingDate);
+        $dateObject = DateTime::createFromFormat('Y-m-d', $bookingDate);
+        $timeObject = DateTime::createFromFormat('H:i', $bookingTime);
 
-    if (
-        !$dateObject ||
-        $dateObject->format('Y-m-d') !== $bookingDate
-    ) {
-        $errors[] = "Please select a valid booking date.";
-    } elseif ($bookingDate < date('Y-m-d')) {
-        $errors[] = "You cannot book a date in the past.";
-    }
+        if (!$dateObject || $dateObject->format('Y-m-d') !== $bookingDate) {
+            $error = "Please select a valid booking date.";
+        } elseif (!$timeObject || $timeObject->format('H:i') !== $bookingTime) {
+            $error = "Please select a valid booking time.";
+        } elseif ($bookingDate < date('Y-m-d')) {
+            $error = "You cannot book a date in the past.";
+        } elseif ($bookingDate === date('Y-m-d') && $bookingTime <= date('H:i')) {
+            $error = "Please select a future booking time.";
+        } elseif ($guests < 1 || $guests > 20) {
+            $error = "Guest number must be between 1 and 20.";
+        } elseif (strlen($specialRequest) > 1000) {
+            $error = "Your special request is too long.";
+        } else {
 
-    // Validate time
-    $timeObject = DateTime::createFromFormat('!H:i', $bookingTime);
+            $openingTime = substr($restaurant['opening_time'], 0, 5);
+            $closingTime = substr($restaurant['closing_time'], 0, 5);
 
-    if (
-        !$timeObject ||
-        $timeObject->format('H:i') !== $bookingTime
-    ) {
-        $errors[] = "Please select a valid booking time.";
-    }
-
-    // Validate special request length
-    if (strlen($specialRequest) > 1000) {
-        $errors[] = "Your special request is too long.";
-    }
-
-
-    // ======================================
-    // CHECK RESTAURANT OPENING HOURS
-    // ======================================
-
-    if (!$errors) {
-
-        $openingTime = substr(
-            $selectedRestaurant['opening_time'],
-            0,
-            5
-        );
-
-        $closingTime = substr(
-            $selectedRestaurant['closing_time'],
-            0,
-            5
-        );
-
-        $bookingStart = strtotime($bookingTime);
-        $opening = strtotime($openingTime);
-        $closing = strtotime($closingTime);
-
-        // Reservations last two hours
-        $bookingEnd = $bookingStart + (2 * 60 * 60);
-
-        if (
-            $bookingStart < $opening ||
-            $bookingEnd > $closing
-        ) {
-            $errors[] = "Please select a time within the restaurant's opening hours. Reservations last two hours.";
-        }
-
-        // Prevent same-day bookings in the past
-        if (
-            $bookingDate === date('Y-m-d') &&
-            $bookingStart <= strtotime(date('H:i'))
-        ) {
-            $errors[] = "Please select a future booking time.";
-        }
-    }
-
-
-    // ======================================
-    // FIND AVAILABLE TABLE
-    // ======================================
-
-    if (!$errors) {
-
-        try {
-
-            $pdo->beginTransaction();
-
-            /*
-             * Find a table that:
-             * 1. Belongs to the selected restaurant.
-             * 2. Can accommodate the guests.
-             * 3. Has no overlapping reservation.
-             */
-
-            $tableQuery = $pdo->prepare("
-
-                SELECT bt.id
-
-                FROM booking_tables bt
-
-                WHERE bt.restaurant_id = :restaurant_id
-
-                AND bt.capacity >= :guest_count
-
-                AND NOT EXISTS (
-
-                    SELECT 1
-
-                    FROM bookings b
-
-                    WHERE b.table_id = bt.id
-
-                    AND b.booking_date = :booking_date
-
-                    AND b.status <> 'cancelled'
-
-                    AND b.booking_time < ADDTIME(
-                        :requested_time_end,
-                        '02:00:00'
-                    )
-
-                    AND ADDTIME(
-                        b.booking_time,
-                        '02:00:00'
-                    ) > :requested_time_start
-
-                )
-
-                ORDER BY bt.capacity ASC
-
-                LIMIT 1
-
-                FOR UPDATE
-
-            ");
-
-            $tableQuery->execute([
-
-                ':restaurant_id' => $restaurantId,
-
-                ':guest_count' => $guests,
-
-                ':booking_date' => $bookingDate,
-
-                ':requested_time_end' => $bookingTime,
-
-                ':requested_time_start' => $bookingTime
-
-            ]);
-
-            $availableTable = $tableQuery->fetch();
-
-
-            if (!$availableTable) {
-
-                $pdo->rollBack();
-
-                $errors[] = "Sorry! No suitable table is available for your selected date, time and number of guests.";
-
+            if ($bookingTime < $openingTime || $bookingTime >= $closingTime) {
+                $error = "Please choose a time within the restaurant's opening hours.";
             } else {
 
-                // Save booking
+                try {
+                    $pdo->beginTransaction();
 
-                $insertBooking = $pdo->prepare("
+                    // Find a suitable available table
+                    $tableQuery = $pdo->prepare("
+                        SELECT bt.id
+                        FROM booking_tables bt
+                        WHERE bt.restaurant_id = :restaurant_id
+                        AND bt.capacity >= :guests
+                        AND bt.status = 'available'
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM bookings b
+                            WHERE b.table_id = bt.id
+                            AND b.booking_date = :booking_date
+                            AND b.status <> 'cancelled'
+                            AND b.booking_time < ADDTIME(:requested_end, '02:00:00')
+                            AND ADDTIME(b.booking_time, '02:00:00') > :requested_start
+                        )
+                        ORDER BY bt.capacity ASC
+                        LIMIT 1
+                        FOR UPDATE
+                    ");
 
-                    INSERT INTO bookings (
+                    $tableQuery->execute([
+                        'restaurant_id' => $restaurantId,
+                        'guests' => $guests,
+                        'booking_date' => $bookingDate,
+                        'requested_end' => $bookingTime,
+                        'requested_start' => $bookingTime
+                    ]);
 
-                        user_id,
-                        restaurant_id,
-                        table_id,
-                        booking_date,
-                        booking_time,
-                        guests,
-                        special_request,
-                        status
+                    $table = $tableQuery->fetch();
 
-                    )
+                    if (!$table) {
+                        $pdo->rollBack();
+                        $error = "Sorry, no suitable table is available at that date and time. Please try another time.";
+                    } else {
 
-                    VALUES (
+                        $insert = $pdo->prepare("
+                            INSERT INTO bookings
+                            (
+                                user_id,
+                                restaurant_id,
+                                table_id,
+                                booking_date,
+                                booking_time,
+                                guests,
+                                special_request,
+                                status,
+                                created_at
+                            )
+                            VALUES
+                            (
+                                :user_id,
+                                :restaurant_id,
+                                :table_id,
+                                :booking_date,
+                                :booking_time,
+                                :guests,
+                                :special_request,
+                                'pending',
+                                NOW()
+                            )
+                        ");
 
-                        :user_id,
-                        :restaurant_id,
-                        :table_id,
-                        :booking_date,
-                        :booking_time,
-                        :guests,
-                        :special_request,
-                        'pending'
+                        $insert->execute([
+                            'user_id' => $_SESSION['user_id'],
+                            'restaurant_id' => $restaurantId,
+                            'table_id' => $table['id'],
+                            'booking_date' => $bookingDate,
+                            'booking_time' => $bookingTime,
+                            'guests' => $guests,
+                            'special_request' => $specialRequest
+                        ]);
 
-                    )
+                        $bookingReference = $pdo->lastInsertId();
 
-                ");
+                        $pdo->commit();
 
-                $insertBooking->execute([
+                        $success = "Your table reservation has been submitted successfully!";
 
-                    ':user_id' => $_SESSION['user_id'],
+                        $_SESSION['booking_token'] = bin2hex(random_bytes(32));
 
-                    ':restaurant_id' => $restaurantId,
+                        $bookingDate = "";
+                        $bookingTime = "";
+                        $guests = 2;
+                        $specialRequest = "";
+                    }
 
-                    ':table_id' => $availableTable['id'],
+                } catch (PDOException $e) {
 
-                    ':booking_date' => $bookingDate,
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
 
-                    ':booking_time' => $bookingTime,
-
-                    ':guests' => $guests,
-
-                    ':special_request' => $specialRequest
-
-                ]);
-
-                $bookingReference = $pdo->lastInsertId();
-
-                $pdo->commit();
-
-                $success = true;
-
-                // Generate a fresh token
-                $_SESSION['booking_token'] = bin2hex(random_bytes(32));
-
+                    error_log($e->getMessage());
+                    $error = "Something went wrong while processing your booking. Please try again.";
+                }
             }
-
-        } catch (PDOException $e) {
-
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-
-            error_log($e->getMessage());
-
-            $errors[] = "Something went wrong while processing your booking. Please try again.";
-
         }
-
     }
-
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Book a Table | DineNow</title>
 
-    <link rel="stylesheet" href="css/style.css">
-
-    <link rel="stylesheet" href="css/responsive.css">
-
     <style>
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
         body {
             background: #101010;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            margin: 0;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 15px;
         }
 
         .booking-container {
-            width: 90%;
-            max-width: 1100px;
-            margin: 60px auto;
+            max-width: 850px;
+            margin: 0 auto;
         }
 
-        .booking-heading {
+        .brand {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            font-size: 30px;
+            font-weight: bold;
         }
 
-        .booking-heading h1 {
-            font-size: 38px;
-            margin-bottom: 10px;
-        }
-
-        .booking-heading h1 span {
-            color: #FF7628;
-        }
-
-        .booking-heading p {
-            color: #AAAAAA;
+        .brand span {
+            color: #ff7628;
         }
 
         .booking-card {
-            display: grid;
-            grid-template-columns: 0.9fr 1.1fr;
             background: #191919;
+            padding: 35px;
             border-radius: 15px;
-            overflow: hidden;
-            border: 1px solid #333333;
+            border: 1px solid #333;
+            box-shadow: 0 10px 35px rgba(0,0,0,.3);
         }
 
-        .restaurant-info {
-            padding: 40px;
-            background: #202020;
+        .booking-card h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
         }
 
-        .restaurant-info h2 {
-            font-size: 27px;
-            margin-bottom: 15px;
-        }
-
-        .restaurant-info h2 span {
-            color: #FF7628;
-        }
-
-        .restaurant-info p {
-            color: #AAAAAA;
-            line-height: 1.8;
-        }
-
-        .restaurant-detail {
-            margin-top: 25px;
-            padding: 15px;
-            background: #292929;
-            border-radius: 8px;
-        }
-
-        .restaurant-detail strong {
-            display: block;
-            color: #FF7628;
-            margin-bottom: 7px;
-        }
-
-        .booking-form {
-            padding: 40px;
-        }
-
-        .booking-form h2 {
-            margin-top: 0;
+        .subtitle {
+            color: #aaa;
             margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .restaurant-name {
+            color: #ff7628;
+            font-weight: bold;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        .form-group label {
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
             display: block;
             margin-bottom: 9px;
             font-weight: bold;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        input, select, textarea {
             width: 100%;
             padding: 14px;
             background: #101010;
-            color: #ffffff;
-            border: 1px solid #444444;
+            border: 1px solid #444;
             border-radius: 7px;
-            outline: none;
+            color: white;
             font-size: 15px;
+            outline: none;
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #FF7628;
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff7628;
         }
 
-        .form-group select option {
-            background: #191919;
-        }
-
-        .form-group textarea {
+        textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 110px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .booking-btn {
+        button {
             width: 100%;
             padding: 16px;
-            background: #FF7628;
+            background: #ff7628;
+            color: #101010;
             border: none;
-            color: #ffffff;
+            border-radius: 7px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 7px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: .3s;
         }
 
-        .booking-btn:hover {
-            background: #e65f12;
-            transform: translateY(-2px);
+        button:hover {
+            background: #fff;
         }
 
-        .error-message {
-            background: #441c1c;
-            color: #ff9999;
+        .message {
             padding: 15px;
             border-radius: 7px;
             margin-bottom: 20px;
+            line-height: 1.6;
         }
 
-        .success-box {
-            background: #183d25;
-            border: 1px solid #32844d;
-            color: #b8f5c8;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            line-height: 1.8;
+        .error {
+            background: #421b1b;
+            color: #ffaaaa;
+            border: 1px solid #8b3333;
         }
 
-        .success-box h2 {
-            color: #62df86;
+        .success {
+            background: #173c25;
+            color: #a5f0b9;
+            border: 1px solid #287a43;
         }
 
-        .success-box strong {
-            color: #ffffff;
+        .success a {
+            display: inline-block;
+            margin-top: 10px;
+            color: #ff7628;
+            font-weight: bold;
         }
 
         .back-link {
             display: inline-block;
             margin-top: 25px;
-            color: #FF7628;
+            color: #ff7628;
             text-decoration: none;
         }
 
         .back-link:hover {
-            text-decoration: underline;
+            color: white;
         }
 
-        @media(max-width: 768px) {
-
-            .booking-container {
-                margin: 35px auto;
+        @media(max-width: 600px) {
+            body {
+                padding: 20px 12px;
             }
 
             .booking-card {
-                grid-template-columns: 1fr;
+                padding: 22px 17px;
             }
 
-            .restaurant-info,
-            .booking-form {
-                padding: 25px;
-            }
-
-            .booking-heading h1 {
-                font-size: 29px;
-            }
-
-        }
-
-        @media(max-width: 450px) {
-
-            .form-row {
+            .form-grid {
                 grid-template-columns: 1fr;
                 gap: 0;
             }
 
+            .booking-card h1 {
+                font-size: 23px;
+            }
         }
-
     </style>
-
 </head>
 
 <body>
 
-
 <div class="booking-container">
 
-    <div class="booking-heading">
-
-        <h1>Reserve Your <span>Table</span></h1>
-
-        <p>Book your favourite restaurant and enjoy a wonderful dining experience.</p>
-
+    <div class="brand">
+        Dine<span>Now.</span>
     </div>
-
 
     <div class="booking-card">
 
+        <h1>Reserve Your Table</h1>
 
-        <!-- RESTAURANT INFORMATION -->
+        <p class="subtitle">
+            Complete the form below to reserve your table at
+            <span class="restaurant-name">
+                <?= htmlspecialchars($restaurant['name']) ?>
+            </span>.
+        </p>
 
-        <div class="restaurant-info">
-
-            <h2>
-                Welcome to <span>DineNow</span>
-            </h2>
-
-            <p>
-                You're just a few steps away from enjoying a memorable
-                dining experience. Complete your reservation details
-                to secure your table.
-            </p>
-
-
-            <div class="restaurant-detail">
-
-                <strong>Restaurant</strong>
-
-                <?php echo htmlspecialchars($selectedRestaurant['name']); ?>
-
+        <?php if ($error): ?>
+            <div class="message error">
+                <?= htmlspecialchars($error) ?>
             </div>
+        <?php endif; ?>
 
+        <?php if ($success): ?>
+            <div class="message success">
+                <?= htmlspecialchars($success) ?>
 
-            <div class="restaurant-detail">
+                <br>
+                Your booking reference is:
+                <strong>#<?= htmlspecialchars($bookingReference) ?></strong>
 
-                <strong>Location</strong>
+                <br>
 
-                <?php echo htmlspecialchars($selectedRestaurant['address']); ?>
-
+                <a href="my-bookings.php">View My Bookings</a>
             </div>
+        <?php endif; ?>
 
+        <form method="POST" action="booking.php?restaurant_id=<?= (int)$restaurantId ?>">
 
-            <div class="restaurant-detail">
+            <input type="hidden" name="restaurant_id" value="<?= (int)$restaurantId ?>">
 
-                <strong>Opening Hours</strong>
+            <input
+                type="hidden"
+                name="booking_token"
+                value="<?= htmlspecialchars($_SESSION['booking_token']) ?>"
+            >
 
-                <?php
+            <div class="form-grid">
 
-                echo date(
-                    'h:i A',
-                    strtotime($selectedRestaurant['opening_time'])
-                );
+                <div class="form-group">
+                    <label for="booking_date">Booking Date</label>
 
-                ?>
-
-                -
-
-                <?php
-
-                echo date(
-                    'h:i A',
-                    strtotime($selectedRestaurant['closing_time'])
-                );
-
-                ?>
-
-            </div>
-
-
-            <div class="restaurant-detail">
-
-                <strong>Reservation Duration</strong>
-
-                2 Hours
-
-            </div>
-
-        </div>
-
-
-
-        <!-- BOOKING FORM -->
-
-        <div class="booking-form">
-
-
-            <?php if ($success): ?>
-
-                <div class="success-box">
-
-                    <h2>Booking Successful!</h2>
-
-                    <p>
-                        Your reservation has been submitted successfully.
-                    </p>
-
-                    <p>
-                        <strong>Booking Reference:</strong>
-                        #<?php echo htmlspecialchars($bookingReference); ?>
-                    </p>
-
-                    <p>
-                        <strong>Restaurant:</strong>
-                        <?php echo htmlspecialchars($selectedRestaurant['name']); ?>
-                    </p>
-
-                    <p>
-                        Your booking is currently pending confirmation.
-                    </p>
-
-                    <a href="my-bookings.php" class="booking-btn"
-                       style="display:block;text-align:center;text-decoration:none;margin-top:20px;">
-
-                        View My Bookings
-
-                    </a>
-
+                    <input
+                        type="date"
+                        id="booking_date"
+                        name="booking_date"
+                        min="<?= date('Y-m-d') ?>"
+                        value="<?= htmlspecialchars($bookingDate) ?>"
+                        required
+                    >
                 </div>
 
-
-            <?php else: ?>
-
-
-                <h2>Complete Your Reservation</h2>
-
-
-                <?php if (!empty($errors)): ?>
-
-                    <div class="error-message">
-
-                        <?php foreach ($errors as $error): ?>
-
-                            <p>
-                                <?php echo htmlspecialchars($error); ?>
-                            </p>
-
-                        <?php endforeach; ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-
-                <form method="POST" action="booking.php?restaurant_id=<?php echo $restaurantId; ?>">
-
+                <div class="form-group">
+                    <label for="booking_time">Booking Time</label>
 
                     <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="<?php echo htmlspecialchars($_SESSION['booking_token']); ?>"
+                        type="time"
+                        id="booking_time"
+                        name="booking_time"
+                        value="<?= htmlspecialchars($bookingTime) ?>"
+                        required
                     >
+                </div>
 
+                <div class="form-group full">
+                    <label for="guests">Number of Guests</label>
 
-                    <input
-                        type="hidden"
-                        name="restaurant_id"
-                        value="<?php echo $restaurantId; ?>"
-                    >
-
-
-                    <div class="form-group">
-
-                        <label for="booking_date">
-                            Reservation Date
-                        </label>
-
-                        <input
-                            type="date"
-                            id="booking_date"
-                            name="booking_date"
-                            min="<?php echo date('Y-m-d'); ?>"
-                            value="<?php echo htmlspecialchars($_POST['booking_date'] ?? ''); ?>"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-row">
-
-
-                        <div class="form-group">
-
-                            <label for="booking_time">
-                                Reservation Time
-                            </label>
-
-                            <input
-                                type="time"
-                                id="booking_time"
-                                name="booking_time"
-                                value="<?php echo htmlspecialchars($_POST['booking_time'] ?? ''); ?>"
-                                step="1800"
-                                required
+                    <select name="guests" id="guests" required>
+                        <?php for ($i = 1; $i <= 20; $i++): ?>
+                            <option
+                                value="<?= $i ?>"
+                                <?= ((int)$guests === $i) ? 'selected' : '' ?>
                             >
+                                <?= $i ?> <?= $i === 1 ? 'Guest' : 'Guests' ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
 
-                        </div>
+                <div class="form-group full">
+                    <label for="special_request">Special Requests (Optional)</label>
 
+                    <textarea
+                        name="special_request"
+                        id="special_request"
+                        maxlength="1000"
+                        placeholder="Any special requests or preferences?"
+                    ><?= htmlspecialchars($specialRequest) ?></textarea>
+                </div>
 
+            </div>
 
-                        <div class="form-group">
+            <button type="submit">
+                Confirm Reservation
+            </button>
 
-                            <label for="guests">
-                                Number of Guests
-                            </label>
+        </form>
 
-                            <select name="guests" id="guests" required>
-
-                                <option value="">Select Guests</option>
-
-                                <?php for ($i = 1; $i <= 20; $i++): ?>
-
-                                    <option
-                                        value="<?php echo $i; ?>"
-                                        <?php echo (
-                                            isset($_POST['guests']) &&
-                                            $_POST['guests'] == $i
-                                        ) ? 'selected' : ''; ?>
-                                    >
-
-                                        <?php echo $i; ?>
-                                        <?php echo $i === 1 ? 'Guest' : 'Guests'; ?>
-
-                                    </option>
-
-                                <?php endfor; ?>
-
-                            </select>
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="special_request">
-                            Special Requests (Optional)
-                        </label>
-
-                        <textarea
-                            id="special_request"
-                            name="special_request"
-                            maxlength="1000"
-                            placeholder="Any special requests? Birthday celebration, preferred seating, etc."
-                        ><?php echo htmlspecialchars($_POST['special_request'] ?? ''); ?></textarea>
-
-                    </div>
-
-
-
-                    <button type="submit" class="booking-btn">
-
-                        Confirm Reservation
-
-                    </button>
-
-
-                </form>
-
-
-            <?php endif; ?>
-
-
-        </div>
-
+        <a href="restaurant-details.php?id=<?= (int)$restaurantId ?>" class="back-link">
+            ← Back to Restaurant
+        </a>
 
     </div>
 
-
-    <a href="restaurant-details.php?id=<?php echo $restaurantId; ?>" class="back-link">
-
-        ← Back to Restaurant
-
-    </a>
-
-
 </div>
-
 
 </body>
 </html>
