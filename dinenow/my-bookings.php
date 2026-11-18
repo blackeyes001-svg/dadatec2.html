@@ -84,8 +84,9 @@ $stmt = $pdo->prepare("
     FROM bookings b
     INNER JOIN restaurants r ON b.restaurant_id = r.id
     LEFT JOIN booking_tables bt ON b.table_id = bt.id
-    WHERE b.user_id = :user_id
-    ORDER BY b.created_at DESC
+   WHERE b.user_id = :user_id
+AND b.status <> 'cancelled'
+ORDER BY b.created_at DESC
 ");
 
 $stmt->execute(['user_id' => $userId]);
