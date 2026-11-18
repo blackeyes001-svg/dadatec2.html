@@ -1,3 +1,4 @@
+
 <?php
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -13,6 +14,59 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id'];
+
+if (empty($_SESSION['cancel_booking_token'])) {
+    $_SESSION['cancel_booking_token'] = bin2hex(random_bytes(32));
+}
+
+$error = "";
+$success = "";
+
+// Handle booking cancellation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['cancel_booking'])) {
+
+    $token = $_POST['cancel_booking_token'] ?? '';
+
+    if (!hash_equals($_SESSION['cancel_booking_token'], $token)) {
+        $error = "Invalid request. Please refresh the page and try again.";
+    } else {
+
+        $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
+
+        if (!$bookingId || $bookingId < 1) {
+            $error = "Invalid booking selected.";
+        } else {
+
+            try {
+                $cancel = $pdo->prepare("
+                    UPDATE bookings
+                    SET status = 'cancelled'
+                    WHERE id = :booking_id
+                    AND user_id = :user_id
+                    AND status IN ('pending', 'confirmed')
+                    AND TIMESTAMP(booking_date, booking_time) > NOW()
+                ");
+
+                $cancel->execute([
+                    'booking_id' => $bookingId,
+                    'user_id' => $userId
+                ]);
+
+                if ($cancel->rowCount() > 0) {
+                    $success = "Your booking has been cancelled successfully.";
+                    $_SESSION['cancel_booking_token'] = bin2hex(random_bytes(32));
+                } else {
+                    $error = "This booking cannot be cancelled. It may already have passed, been cancelled, or is no longer eligible.";
+                }
+
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                $error = "Something went wrong while cancelling your booking.";
+            }
+        }
+    }
+}
 
 // Get customer's bookings
 $stmt = $pdo->prepare("
@@ -176,6 +230,50 @@ $bookings = $stmt->fetchAll();
             line-height: 1.6;
         }
 
+        .booking-actions {
+            border-top: 1px solid #333;
+            margin-top: 22px;
+            padding-top: 20px;
+        }
+
+        .cancel-btn {
+            background: #b52b2b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .cancel-btn:hover {
+            background: #e04444;
+        }
+
+        .cancelled-note {
+            color: #ff9999;
+            font-size: 14px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #173c25;
+            color: #a5f0b9;
+            border: 1px solid #287a43;
+        }
+
+        .error {
+            background: #421b1b;
+            color: #ffaaaa;
+            border: 1px solid #8b3333;
+        }
+
         .empty-state {
             background: #191919;
             border: 1px solid #333;
@@ -201,11 +299,6 @@ $bookings = $stmt->fetchAll();
             border-radius: 7px;
             text-decoration: none;
             font-weight: bold;
-            transition: .3s;
-        }
-
-        .btn:hover {
-            background: #fff;
         }
 
         .back-link {
@@ -238,7 +331,6 @@ $bookings = $stmt->fetchAll();
             }
         }
     </style>
-
 </head>
 
 <body>
@@ -250,15 +342,21 @@ $bookings = $stmt->fetchAll();
     </div>
 
     <div class="page-heading">
-
         <h1>My Bookings</h1>
-
-        <p>
-            View and keep track of all your restaurant reservations.
-        </p>
-
+        <p>View and manage all your restaurant reservations.</p>
     </div>
 
+    <?php if ($success): ?>
+        <div class="message success">
+            <?= htmlspecialchars($success) ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($error): ?>
+        <div class="message error">
+            <?= htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
 
     <?php if (count($bookings) > 0): ?>
 
@@ -271,6 +369,9 @@ $bookings = $stmt->fetchAll();
                     $status,
                     ['pending', 'confirmed', 'cancelled', 'completed']
                 ) ? $status : 'pending';
+
+                $canCancel = in_array($status, ['pending', 'confirmed'])
+                    && strtotime($booking['booking_date'] . ' ' . $booking['booking_time']) > time();
             ?>
 
             <div class="booking-card">
@@ -278,7 +379,6 @@ $bookings = $stmt->fetchAll();
                 <div class="booking-top">
 
                     <div>
-
                         <h2>
                             <?= htmlspecialchars($booking['restaurant_name']) ?>
                         </h2>
@@ -287,7 +387,6 @@ $bookings = $stmt->fetchAll();
                             Booking Reference:
                             #<?= (int)$booking['id'] ?>
                         </div>
-
                     </div>
 
                     <span class="status <?= htmlspecialchars($statusClass) ?>">
@@ -296,12 +395,10 @@ $bookings = $stmt->fetchAll();
 
                 </div>
 
-
                 <div class="details">
 
                     <div class="detail">
                         <small>Booking Date</small>
-
                         <strong>
                             <?= date('d M Y', strtotime($booking['booking_date'])) ?>
                         </strong>
@@ -309,7 +406,6 @@ $bookings = $stmt->fetchAll();
 
                     <div class="detail">
                         <small>Booking Time</small>
-
                         <strong>
                             <?= date('h:i A', strtotime($booking['booking_time'])) ?>
                         </strong>
@@ -317,7 +413,6 @@ $bookings = $stmt->fetchAll();
 
                     <div class="detail">
                         <small>Number of Guests</small>
-
                         <strong>
                             <?= (int)$booking['guests'] ?>
                             <?= (int)$booking['guests'] === 1 ? 'Guest' : 'Guests' ?>
@@ -326,7 +421,6 @@ $bookings = $stmt->fetchAll();
 
                     <div class="detail">
                         <small>Table Number</small>
-
                         <strong>
                             <?= $booking['table_number'] !== null
                                 ? htmlspecialchars($booking['table_number'])
@@ -336,7 +430,6 @@ $bookings = $stmt->fetchAll();
 
                     <div class="detail">
                         <small>Restaurant Address</small>
-
                         <strong>
                             <?= htmlspecialchars($booking['address'] ?? 'Not available') ?>
                         </strong>
@@ -344,18 +437,51 @@ $bookings = $stmt->fetchAll();
 
                 </div>
 
-
                 <?php if (!empty($booking['special_request'])): ?>
-
                     <div class="special-request">
-
                         <strong>Special Request:</strong><br>
-
                         <?= nl2br(htmlspecialchars($booking['special_request'])) ?>
-
                     </div>
-
                 <?php endif; ?>
+
+                <div class="booking-actions">
+
+                    <?php if ($canCancel): ?>
+
+                        <form method="POST"
+                              onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+
+                            <input type="hidden"
+                                   name="booking_id"
+                                   value="<?= (int)$booking['id'] ?>">
+
+                            <input type="hidden"
+                                   name="cancel_booking_token"
+                                   value="<?= htmlspecialchars($_SESSION['cancel_booking_token']) ?>">
+
+                            <button type="submit"
+                                    name="cancel_booking"
+                                    class="cancel-btn">
+                                Cancel Booking
+                            </button>
+
+                        </form>
+
+                    <?php elseif ($status === 'cancelled'): ?>
+
+                        <p class="cancelled-note">
+                            This reservation has been cancelled.
+                        </p>
+
+                    <?php else: ?>
+
+                        <p class="cancelled-note">
+                            This reservation can no longer be cancelled.
+                        </p>
+
+                    <?php endif; ?>
+
+                </div>
 
             </div>
 
@@ -364,7 +490,6 @@ $bookings = $stmt->fetchAll();
     <?php else: ?>
 
         <div class="empty-state">
-
             <h2>No Bookings Yet</h2>
 
             <p>
@@ -375,11 +500,9 @@ $bookings = $stmt->fetchAll();
             <a href="restaurants.php" class="btn">
                 Explore Restaurants
             </a>
-
         </div>
 
     <?php endif; ?>
-
 
     <a href="index.php" class="back-link">
         ← Back to Home
