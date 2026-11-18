@@ -1,3 +1,4 @@
+```php
 <?php
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -6,7 +7,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . "/../includes/db.php";
 
-/* ADMIN AUTHENTICATION */
+/* =========================================
+   ADMIN AUTHENTICATION
+========================================= */
 
 if (
     !isset($_SESSION['user_id']) ||
@@ -16,447 +19,446 @@ if (
     exit;
 }
 
-/* CSRF TOKEN */
+/* =========================================
+   CSRF TOKEN
+========================================= */
 
 if (empty($_SESSION['restaurant_admin_token'])) {
     $_SESSION['restaurant_admin_token'] = bin2hex(random_bytes(32));
-}
-
-/\* CSRF TOKEN \*/
-
-if (empty($\_SESSION['restaurant_admin_token'])) {
-&#x20;   $\_SESSION['restaurant_admin_token'] = bin2hex(random_bytes(32));
 }
 
 $message = "";
 $error = "";
 $editing = null;
 
-/\* HANDLE FORM SUBMISSIONS \*/
+/* =========================================
+   HANDLE FORM SUBMISSIONS
+========================================= */
 
-if ($\_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-&#x20;   $token = $\_POST['csrf_token'] ?? '';
+    $token = $_POST['csrf_token'] ?? '';
 
-&#x20;   if (!hash_equals($\_SESSION['restaurant_admin_token'], $token)) {
+    if (
+        !hash_equals($_SESSION['restaurant_admin_token'], $token)
+    ) {
 
-&#x20;       $error = "Invalid request. Please refresh the page.";
+        $error = "Invalid request. Please refresh the page.";
 
-&#x20;   } else {
+    } else {
 
-&#x20;       $action = $\_POST['action'] ?? '';
+        $action = $_POST['action'] ?? '';
 
-&#x20;       /\* ADD OR EDIT RESTAURANT \*/
+        /* =========================================
+           ADD OR UPDATE RESTAURANT
+        ========================================= */
 
-&#x20;       if ($action === 'save') {
+        if ($action === 'save') {
 
-&#x20;           $id = (int)($\_POST['id'] ?? 0);
+            $id = (int)($_POST['id'] ?? 0);
 
-&#x20;           $name = trim($\_POST['name'] ?? '');
-&#x20;           $description = trim($\_POST['description'] ?? '');
-&#x20;           $address = trim($\_POST['address'] ?? '');
-&#x20;           $city = trim($\_POST['city'] ?? '');
-&#x20;           $cuisine = trim($\_POST['cuisine'] ?? '');
-&#x20;           $phone = trim($\_POST['phone'] ?? '');
-&#x20;           $email = trim($\_POST['email'] ?? '');
-&#x20;           $image = trim($\_POST['image'] ?? '');
-&#x20;           $opening = trim($\_POST['opening_time'] ?? '');
-&#x20;           $closing = trim($\_POST['closing_time'] ?? '');
+            $name = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $address = trim($_POST['address'] ?? '');
+            $city = trim($_POST['city'] ?? '');
+            $cuisine = trim($_POST['cuisine'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $image = trim($_POST['image'] ?? '');
+            $opening = trim($_POST['opening_time'] ?? '');
+            $closing = trim($_POST['closing_time'] ?? '');
 
-&#x20;           if ($name === '' || $city === '') {
+            if ($name === '' || $city === '') {
 
-&#x20;               $error = "Restaurant name and city are required.";
+                $error = "Restaurant name and city are required.";
 
-&#x20;           } elseif (
-&#x20;               $email !== '' &&
-&#x20;               !filter_var($email, FILTER_VALIDATE_EMAIL)
-&#x20;           ) {
+            } elseif (
+                $email !== '' &&
+                !filter_var($email, FILTER_VALIDATE_EMAIL)
+            ) {
 
-&#x20;               $error = "Enter a valid email address.";
+                $error = "Please enter a valid email address.";
 
-&#x20;           } else {
+            } else {
 
-&#x20;               if ($id > 0) {
+                try {
 
-&#x20;                   $stmt = $pdo->prepare("
-&#x20;                       UPDATE restaurants SET
+                    if ($id > 0) {
 
-&#x20;                           name = \:name,
-&#x20;                           description = \:description,
-&#x20;                           address = \:address,
-&#x20;                           city = \:city,
-&#x20;                           cuisine = \:cuisine,
-&#x20;                           phone = \:phone,
-&#x20;                           email = \:email,
-&#x20;                           image = \:image,
-&#x20;                           opening_time = \:opening,
-&#x20;                           closing_time = \:closing
+                        /* UPDATE EXISTING RESTAURANT */
 
-&#x20;                       WHERE id = \:id
-&#x20;                   ");
+                        $stmt = $pdo->prepare("
+                            UPDATE restaurants SET
+                                name = :name,
+                                description = :description,
+                                address = :address,
+                                city = :city,
+                                cuisine = :cuisine,
+                                phone = :phone,
+                                email = :email,
+                                image = :image,
+                                opening_time = :opening,
+                                closing_time = :closing
+                            WHERE id = :id
+                        ");
 
-&#x20;                   $stmt->execute([
-&#x20;                       'name' => $name,
-&#x20;                       'description' => $description,
-&#x20;                       'address' => $address,
-&#x20;                       'city' => $city,
-&#x20;                       'cuisine' => $cuisine,
-&#x20;                       'phone' => $phone,
-&#x20;                       'email' => $email,
-&#x20;                       'image' => $image,
-&#x20;                       'opening' => $opening,
-&#x20;                       'closing' => $closing,
-&#x20;                       'id' => $id
-&#x20;                   ]);
+                        $stmt->execute([
+                            'name' => $name,
+                            'description' => $description,
+                            'address' => $address,
+                            'city' => $city,
+                            'cuisine' => $cuisine,
+                            'phone' => $phone,
+                            'email' => $email,
+                            'image' => $image,
+                            'opening' => $opening,
+                            'closing' => $closing,
+                            'id' => $id
+                        ]);
 
-&#x20;                   $message = "Restaurant updated successfully.";
+                        $message = "Restaurant updated successfully.";
 
-&#x20;               } else {
+                    } else {
 
-&#x20;                   $stmt = $pdo->prepare("
-&#x20;                       INSERT INTO restaurants (
-&#x20;                           name,
-&#x20;                           description,
-&#x20;                           address,
-&#x20;                           city,
-&#x20;                           cuisine,
-&#x20;                           phone,
-&#x20;                           email,
-&#x20;                           image,
-&#x20;                           opening_time,
-&#x20;                           closing_time,
-&#x20;                           status
-&#x20;                       )
+                        /* ADD NEW RESTAURANT */
 
-&#x20;                       VALUES (
-&#x20;                           \:name,
-&#x20;                           \:description,
-&#x20;                           \:address,
-&#x20;                           \:city,
-&#x20;                           \:cuisine,
-&#x20;                           \:phone,
-&#x20;                           \:email,
-&#x20;                           \:image,
-&#x20;                           \:opening,
-&#x20;                           \:closing,
-&#x20;                           'active'
-&#x20;                       )
-&#x20;                   ");
+                        $stmt = $pdo->prepare("
+                            INSERT INTO restaurants (
+                                name,
+                                description,
+                                address,
+                                city,
+                                cuisine,
+                                phone,
+                                email,
+                                image,
+                                opening_time,
+                                closing_time,
+                                status
+                            )
+                            VALUES (
+                                :name,
+                                :description,
+                                :address,
+                                :city,
+                                :cuisine,
+                                :phone,
+                                :email,
+                                :image,
+                                :opening,
+                                :closing,
+                                'active'
+                            )
+                        ");
 
-&#x20;                   $stmt->execute([
-&#x20;                       'name' => $name,
-&#x20;                       'description' => $description,
-&#x20;                       'address' => $address,
-&#x20;                       'city' => $city,
-&#x20;                       'cuisine' => $cuisine,
-&#x20;                       'phone' => $phone,
-&#x20;                       'email' => $email,
-&#x20;                       'image' => $image,
-&#x20;                       'opening' => $opening,
-&#x20;                       'closing' => $closing
-&#x20;                   ]);
+                        $stmt->execute([
+                            'name' => $name,
+                            'description' => $description,
+                            'address' => $address,
+                            'city' => $city,
+                            'cuisine' => $cuisine,
+                            'phone' => $phone,
+                            'email' => $email,
+                            'image' => $image,
+                            'opening' => $opening,
+                            'closing' => $closing
+                        ]);
 
-&#x20;                   $message = "Restaurant added successfully.";
-&#x20;               }
-&#x20;           }
-&#x20;       }
+                        $message = "Restaurant added successfully.";
+                    }
 
-&#x20;       /\* ACTIVATE OR DEACTIVATE RESTAURANT \*/
+                } catch (PDOException $e) {
 
-&#x20;       if ($action === 'toggle') {
+                    $error = "Database error: " . $e->getMessage();
 
-&#x20;           $id = (int)($\_POST['id'] ?? 0);
+                }
+            }
+        }
 
-&#x20;           $stmt = $pdo->prepare("
-&#x20;               UPDATE restaurants
+        /* =========================================
+           ACTIVATE OR DEACTIVATE RESTAURANT
+        ========================================= */
 
-&#x20;               SET status = CASE
+        elseif ($action === 'toggle') {
 
-&#x20;                   WHEN status = 'active'
-&#x20;                   THEN 'inactive'
+            $id = (int)($_POST['id'] ?? 0);
 
-&#x20;                   ELSE 'active'
+            if ($id > 0) {
 
-&#x20;               END
+                try {
 
-&#x20;               WHERE id = \:id
-&#x20;           ");
+                    $stmt = $pdo->prepare("
+                        UPDATE restaurants
+                        SET status = CASE
+                            WHEN status = 'active' THEN 'inactive'
+                            ELSE 'active'
+                        END
+                        WHERE id = :id
+                    ");
 
-&#x20;           $stmt->execute(['id' => $id]);
+                    $stmt->execute(['id' => $id]);
 
-&#x20;           $message = "Restaurant status updated.";
-&#x20;       }
-&#x20;   }
+                    $message = "Restaurant status updated successfully.";
+
+                } catch (PDOException $e) {
+
+                    $error = "Unable to update restaurant status.";
+
+                }
+            }
+        }
+    }
 }
 
-/\* FETCH RESTAURANT FOR EDITING \*/
+/* =========================================
+   FETCH RESTAURANT FOR EDITING
+========================================= */
 
-if (isset($\_GET['edit'])) {
+if (isset($_GET['edit'])) {
 
-&#x20;   $stmt = $pdo->prepare("
-&#x20;       SELECT \*
-&#x20;       FROM restaurants
-&#x20;       WHERE id = \:id
-&#x20;   ");
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM restaurants
+        WHERE id = :id
+    ");
 
-&#x20;   $stmt->execute([
-&#x20;       'id' => (int)$\_GET['edit']
-&#x20;   ]);
+    $stmt->execute([
+        'id' => (int)$_GET['edit']
+    ]);
 
-&#x20;   $editing = $stmt->fetch();
+    $editing = $stmt->fetch();
+
 }
 
-/\* FETCH ALL RESTAURANTS \*/
+/* =========================================
+   FETCH ALL RESTAURANTS
+========================================= */
 
 $restaurants = $pdo->query("
-&#x20;   SELECT \*
-&#x20;   FROM restaurants
-&#x20;   ORDER BY id DESC
+    SELECT *
+    FROM restaurants
+    ORDER BY id DESC
 ")->fetchAll();
 
 ?>
 
-\<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
 
-\<html lang="en">
+<head>
 
-\<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DineNow | Manage Restaurants</title>
 
-<title>DineNow | Manage Restaurants</title>
+    <style>
 
-<style>
+        /* GENERAL RESET */
 
-    /* GENERAL RESET */
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
-    }
-
-    body {
-        background: #101010;
-        color: #FFFFFF;
-        padding: 30px;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: auto;
-    }
-
-    /* PAGE HEADER */
-
-    h1 {
-        font-size: 28px;
-        margin-bottom: 12px;
-    }
-
-    h2 {
-        font-size: 21px;
-        margin-bottom: 20px;
-    }
-
-    /* NAVIGATION */
-
-    .nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-
-        margin: 20px 0 30px;
-    }
-
-    .nav a {
-        color: #FF7628;
-        text-decoration: none;
-    }
-
-    .nav a:hover {
-        text-decoration: underline;
-    }
-
-    /* CONTENT BOXES */
-
-    .box {
-        background: #191919;
-
-        border: 1px solid #333333;
-        border-radius: 10px;
-
-        padding: 25px;
-
-        margin-bottom: 25px;
-    }
-
-    /* FORM GRID */
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-
-        gap: 18px;
-    }
-
-    label {
-        display: block;
-
-        color: #CCCCCC;
-        font-size: 14px;
-
-        margin-bottom: 8px;
-    }
-
-    input,
-    textarea {
-        width: 100%;
-
-        padding: 12px;
-
-        background: #101010;
-
-        border: 1px solid #444444;
-        border-radius: 6px;
-
-        color: #FFFFFF;
-
-        outline: none;
-    }
-
-    input:focus,
-    textarea:focus {
-        border-color: #FF7628;
-    }
-
-    textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    .description-group {
-        margin-top: 18px;
-    }
-
-    /* BUTTONS */
-
-    button {
-        padding: 12px 18px;
-
-        background: #FF7628;
-        color: #FFFFFF;
-
-        border: none;
-        border-radius: 6px;
-
-        cursor: pointer;
-
-        transition: 0.3s;
-    }
-
-    button:hover {
-        background: #E65F12;
-    }
-
-    .submit-button {
-        margin-top: 20px;
-    }
-
-    /* MESSAGES */
-
-    .message {
-        color: #70DB90;
-        margin-bottom: 18px;
-    }
-
-    .error {
-        color: #FF7777;
-        margin-bottom: 18px;
-    }
-
-    /* TABLE */
-
-    .table-wrap {
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-
-        border-collapse: collapse;
-
-        min-width: 750px;
-    }
-
-    th,
-    td {
-        padding: 14px;
-
-        text-align: left;
-
-        border-bottom: 1px solid #333333;
-    }
-
-    th {
-        color: #FF7628;
-    }
-
-    td {
-        color: #DDDDDD;
-    }
-
-    /* TABLE ACTIONS */
-
-    .actions form {
-        display: inline;
-    }
-
-    .actions button {
-        margin: 4px;
-    }
-
-    .edit-link {
-        color: #FF7628;
-    }
-
-    .cancel-link {
-        margin-left: 15px;
-        color: #AAAAAA;
-    }
-
-    /* MOBILE RESPONSIVENESS */
-
-    @media (max-width: 650px) {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
         body {
-            padding: 15px;
+            background: #101010;
+            color: #FFFFFF;
+            padding: 30px;
         }
 
-        .grid {
-            grid-template-columns: 1fr;
+        .container {
+            max-width: 1200px;
+            margin: auto;
         }
 
-        .box {
-            padding: 18px;
-        }
+        /* HEADINGS */
 
         h1 {
-            font-size: 24px;
+            font-size: 28px;
+            margin-bottom: 12px;
         }
 
-    }
+        h2 {
+            font-size: 21px;
+            margin-bottom: 20px;
+        }
 
-</style>
+        /* NAVIGATION */
 
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0 30px;
+        }
 
-\</head>
+        .nav a {
+            color: #FF7628;
+            text-decoration: none;
+        }
 
-\<body>
+        .nav a:hover {
+            text-decoration: underline;
+        }
 
+        /* CONTENT BOXES */
+
+        .box {
+            background: #191919;
+            border: 1px solid #333333;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* FORM GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            color: #CCCCCC;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #101010;
+            border: 1px solid #444444;
+            border-radius: 6px;
+            color: #FFFFFF;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #FF7628;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .description-group {
+            margin-top: 18px;
+        }
+
+        /* BUTTONS */
+
+        button {
+            padding: 12px 18px;
+            background: #FF7628;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #E65F12;
+        }
+
+        .submit-button {
+            margin-top: 20px;
+        }
+
+        /* MESSAGES */
+
+        .message {
+            color: #70DB90;
+            margin-bottom: 18px;
+        }
+
+        .error {
+            color: #FF7777;
+            margin-bottom: 18px;
+        }
+
+        /* TABLE */
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+        }
+
+        th {
+            color: #FF7628;
+        }
+
+        td {
+            color: #DDDDDD;
+        }
+
+        /* TABLE ACTIONS */
+
+        .actions form {
+            display: inline;
+        }
+
+        .actions button {
+            margin: 4px;
+        }
+
+        .edit-link {
+            color: #FF7628;
+        }
+
+        .cancel-link {
+            margin-left: 15px;
+            color: #AAAAAA;
+        }
+
+        /* MOBILE RESPONSIVENESS */
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .box {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
 
 <div class="container">
 
@@ -521,7 +523,6 @@ $restaurants = $pdo->query("
             <div class="grid">
 
                 <div>
-
                     <label>Restaurant Name</label>
 
                     <input
@@ -530,11 +531,9 @@ $restaurants = $pdo->query("
                         required
                         value="<?php echo htmlspecialchars($editing['name'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Cuisine</label>
 
                     <input
@@ -543,11 +542,9 @@ $restaurants = $pdo->query("
                         placeholder="e.g. African, Italian"
                         value="<?php echo htmlspecialchars($editing['cuisine'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>City</label>
 
                     <input
@@ -556,11 +553,9 @@ $restaurants = $pdo->query("
                         required
                         value="<?php echo htmlspecialchars($editing['city'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Address</label>
 
                     <input
@@ -568,11 +563,9 @@ $restaurants = $pdo->query("
                         name="address"
                         value="<?php echo htmlspecialchars($editing['address'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Phone</label>
 
                     <input
@@ -580,11 +573,9 @@ $restaurants = $pdo->query("
                         name="phone"
                         value="<?php echo htmlspecialchars($editing['phone'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Email</label>
 
                     <input
@@ -592,11 +583,9 @@ $restaurants = $pdo->query("
                         name="email"
                         value="<?php echo htmlspecialchars($editing['email'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Image Path</label>
 
                     <input
@@ -605,11 +594,9 @@ $restaurants = $pdo->query("
                         placeholder="images/restaurants/example.jpg"
                         value="<?php echo htmlspecialchars($editing['image'] ?? ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Opening Time</label>
 
                     <input
@@ -617,11 +604,9 @@ $restaurants = $pdo->query("
                         name="opening_time"
                         value="<?php echo htmlspecialchars(isset($editing['opening_time']) ? substr($editing['opening_time'], 0, 5) : ''); ?>"
                     >
-
                 </div>
 
                 <div>
-
                     <label>Closing Time</label>
 
                     <input
@@ -629,7 +614,6 @@ $restaurants = $pdo->query("
                         name="closing_time"
                         value="<?php echo htmlspecialchars(isset($editing['closing_time']) ? substr($editing['closing_time'], 0, 5) : ''); ?>"
                     >
-
                 </div>
 
             </div>
@@ -643,9 +627,7 @@ $restaurants = $pdo->query("
             </div>
 
             <button type="submit" class="submit-button">
-
                 <?php echo $editing ? 'Update Restaurant' : 'Add Restaurant'; ?>
-
             </button>
 
             <?php if ($editing): ?>
@@ -674,101 +656,4 @@ $restaurants = $pdo->query("
 
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>City</th>
-                        <th>Cuisine</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    <?php foreach ($restaurants as $restaurant): ?>
-
-                        <tr>
-
-                            <td>
-                                <?php echo (int)$restaurant['id']; ?>
-                            </td>
-
-                            <td>
-                                <?php echo htmlspecialchars($restaurant['name']); ?>
-                            </td>
-
-                            <td>
-                                <?php echo htmlspecialchars($restaurant['city']); ?>
-                            </td>
-
-                            <td>
-                                <?php echo htmlspecialchars($restaurant['cuisine'] ?? ''); ?>
-                            </td>
-
-                            <td>
-                                <?php echo htmlspecialchars($restaurant['status']); ?>
-                            </td>
-
-                            <td class="actions">
-
-                                <a
-                                    class="edit-link"
-                                    href="restaurants.php?edit=<?php echo (int)$restaurant['id']; ?>"
-                                >
-                                    Edit
-                                </a>
-
-                                <form
-                                    method="POST"
-                                    onsubmit="return confirm('Change this restaurant status?');"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="csrf_token"
-                                        value="<?php echo htmlspecialchars($_SESSION['restaurant_admin_token']); ?>"
-                                    >
-
-                                    <input type="hidden" name="action" value="toggle">
-
-                                    <input
-                                        type="hidden"
-                                        name="id"
-                                        value="<?php echo (int)$restaurant['id']; ?>"
-                                    >
-
-                                    <button type="submit">
-
-                                        <?php echo $restaurant['status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
-
-                                    </button>
-
-                                </form>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
-                    <?php if (!$restaurants): ?>
-
-                        <tr>
-                            <td colspan="6">No restaurants found.</td>
-                        </tr>
-
-                    <?php endif; ?>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-\</body>
-\</html>
+                        <th
