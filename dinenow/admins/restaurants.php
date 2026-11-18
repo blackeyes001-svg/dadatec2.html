@@ -1,19 +1,25 @@
-\<?php
+<?php
 
 if (session_status() === PHP_SESSION_NONE) {
-&#x20;   session_start();
+    session_start();
 }
 
-require_once \_\_DIR\_\_ . "/../includes/db.php";
+require_once __DIR__ . "/../includes/db.php";
 
-/\* ADMIN AUTHENTICATION \*/
+/* ADMIN AUTHENTICATION */
 
 if (
-&#x20;   !isset($\_SESSION['user_id']) ||
-&#x20;   ($\_SESSION['role'] ?? '') !== 'admin'
+    !isset($_SESSION['user_id']) ||
+    ($_SESSION['role'] ?? '') !== 'admin'
 ) {
-&#x20;   header("Location: login.php");
-&#x20;   exit;
+    header("Location: login.php");
+    exit;
+}
+
+/* CSRF TOKEN */
+
+if (empty($_SESSION['restaurant_admin_token'])) {
+    $_SESSION['restaurant_admin_token'] = bin2hex(random_bytes(32));
 }
 
 /\* CSRF TOKEN \*/
