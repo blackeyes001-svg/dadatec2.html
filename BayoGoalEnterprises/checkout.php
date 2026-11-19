@@ -1,7 +1,6 @@
 
 <?php
 require_once __DIR__ . '/includes/session.php';
-
 require_once __DIR__ . '/includes/db.php';
 
 // CUSTOMER LOGIN CHECK
@@ -30,15 +29,20 @@ $city = '';
 $state = '';
 $payment = '';
 
+// ESCAPE OUTPUT
+function e($value) {
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
 // FETCH CART PRODUCTS
 foreach ($_SESSION['cart'] as $key => $item) {
 
-    $stmt = $pdo->prepare(
-        "SELECT id, name, price, image, stock
-         FROM products
-         WHERE id = ?
-         LIMIT 1"
-    );
+    $stmt = $pdo->prepare("
+        SELECT id, name, price, image, stock
+        FROM products
+        WHERE id = ?
+        LIMIT 1
+    ");
 
     $stmt->execute([(int)$item['product_id']]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -56,7 +60,6 @@ foreach ($_SESSION['cart'] as $key => $item) {
     }
 
     $lineTotal = (float)$product['price'] * $quantity;
-
     $subtotal += $lineTotal;
 
     $products[] = [
@@ -116,12 +119,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
 
             $userId = (int)$_SESSION['user_id'];
-
             $deliveryAddress = $address . ', ' . $city . ', ' . $state;
 
             /*
-             * LOCK PRODUCTS AND VERIFY STOCK.
-             * Recalculate prices using current database values.
+             * STEP 1:
+             * GROUP CART QUANTITIES BY PRODUCT.
+             * This prevents duplicate cart entries from
+             * bypassing stock validation.
+             */
+
+            $requiredStock = [];
+
+            foreach ($_SESSION['cart'] as $item) {
+
+                $productId = (int)$item['product_id'];
+                $quantity = (int)$item['quantity'];
+
+                if ($productId < 1 || $quantity < 1) {
+                    throw new Exception("Invalid product quantity in cart.");
+                }
+
+                if (!isset($requiredStock[$productId])) {
+                    $requiredStock[$productId] = 0;
+                }
+
+                $requiredStock[$productId] += $quantity;
+            }
+
+            /*
+             * STEP 2:
+             * LOCK PRODUCTS AND VERIFY INVENTORY.
+             */
+
+            $lockedProducts = [];
+
+            foreach ($requiredStock as $productId => $requiredQuantity) {
+
+                $stmt = $pdo->prepare("
+                    SELECT id, name, price, stock
+                    FROM products
+                    WHERE id = ?
+                    FOR UPDATE
+                ");
+
+                $stmt->execute([$productId]);
+                $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$product) {
+                    throw new Exception("A product in your cart no longer exists.");
+                }
+
+                if ($requiredQuantity > (int)$product['stock']) {
+                    throw new Exception(
+                        "Insufficient stock for " . $product['name'] .
+                        ". Please update your cart."
+                    );
+                }
+
+                // Check actual remaining batch quantities.
+                $batchStmt = $pdo->prepare("
+                    SELECT COALESCE(SUM(quantity_remaining), 0)
+                    FROM inventory_batches
+                    WHERE product_id = ?
+                ");
+
+                $batchStmt->execute([$productId]);
+
+                $batchStock = (int)$batchStmt->fetchColumn();
+
+                if ($batchStock !== (int)$product['stock']) {
+                    throw new Exception(
+                        "Inventory records need attention for " .
+                        $product['name'] .
+                        ". Please contact the store administrator."
+                    );
+                }
+
+                if ($requiredQuantity > $batchStock) {
+                    throw new Exception(
+                        "Insufficient available inventory for " .
+                        $product['name'] . "."
+                    );
+                }
+
+                $lockedProducts[$productId] = $product;
+            }
+
+            /*
+             * STEP 3:
+             * REBUILD VERIFIED CART ITEMS AND PRICES.
              */
 
             $verifiedProducts = [];
@@ -132,30 +218,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $productId = (int)$item['product_id'];
                 $quantity = (int)$item['quantity'];
 
-                $stmt = $pdo->prepare(
-                    "SELECT id, name, price, stock
-                     FROM products
-                     WHERE id = ?
-                     FOR UPDATE"
-                );
-
-                $stmt->execute([$productId]);
-
-                $product = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if (!$product) {
-                    throw new Exception("A product in your cart no longer exists.");
-                }
-
-                if ($quantity < 1 || $quantity > (int)$product['stock']) {
-                    throw new Exception(
-                        "Insufficient stock for " . $product['name'] .
-                        ". Please update your cart."
-                    );
-                }
+                $product = $lockedProducts[$productId];
 
                 $lineTotal = (float)$product['price'] * $quantity;
-
                 $subtotal += $lineTotal;
 
                 $verifiedProducts[] = [
@@ -169,7 +234,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $total = $subtotal + $deliveryFee;
 
-            // CREATE MAIN ORDER
+            /*
+             * STEP 4:
+             * CREATE MAIN ORDER.
+             */
 
             $stmt = $pdo->prepare("
                 INSERT INTO orders
@@ -193,63 +261,162 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $payment
             ]);
 
-            $orderId = $pdo->lastInsertId();
+            $orderId = (int)$pdo->lastInsertId();
 
-            // SAVE ORDER ITEMS AND REDUCE STOCK
+            /*
+             * STEP 5:
+             * SAVE ORDER ITEMS.
+             */
+
+            $itemStmt = $pdo->prepare("
+                INSERT INTO order_items
+                (
+                    order_id,
+                    product_id,
+                    quantity,
+                    price,
+                    selected_size,
+                    selected_color
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+            ");
 
             foreach ($verifiedProducts as $item) {
 
-                $productId = (int)$item['product']['id'];
-                $quantity = (int)$item['quantity'];
-
-                $stockStmt = $pdo->prepare("
-                    UPDATE products
-                    SET stock = stock - ?
-                    WHERE id = ? AND stock >= ?
-                ");
-
-                $stockStmt->execute([
-                    $quantity,
-                    $productId,
-                    $quantity
-                ]);
-
-                if ($stockStmt->rowCount() !== 1) {
-                    throw new Exception(
-                        "Unable to update stock for " .
-                        $item['product']['name']
-                    );
-                }
-
-                $itemStmt = $pdo->prepare("
-                    INSERT INTO order_items
-                    (
-                        order_id,
-                        product_id,
-                        quantity,
-                        price,
-                        selected_size,
-                        selected_color
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ");
-
                 $itemStmt->execute([
                     $orderId,
-                    $productId,
-                    $quantity,
+                    (int)$item['product']['id'],
+                    (int)$item['quantity'],
                     $item['product']['price'],
                     $item['size'],
                     $item['color']
                 ]);
             }
 
-            // COMPLETE TRANSACTION
+            /*
+             * STEP 6:
+             * FIFO INVENTORY DEDUCTION.
+             *
+             * Oldest delivery batches are deducted first.
+             */
+
+            foreach ($requiredStock as $productId => $requiredQuantity) {
+
+                $remainingToDeduct = $requiredQuantity;
+
+                $batchStmt = $pdo->prepare("
+                    SELECT id, quantity_remaining
+                    FROM inventory_batches
+                    WHERE product_id = ?
+                    AND quantity_remaining > 0
+                    ORDER BY received_at ASC, id ASC
+                    FOR UPDATE
+                ");
+
+                $batchStmt->execute([$productId]);
+
+                $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($batches as $batch) {
+
+                    if ($remainingToDeduct <= 0) {
+                        break;
+                    }
+
+                    $available = (int)$batch['quantity_remaining'];
+
+                    $deduct = min(
+                        $available,
+                        $remainingToDeduct
+                    );
+
+                    $newRemaining = $available - $deduct;
+
+                    // Update individual batch.
+                    $updateBatch = $pdo->prepare("
+                        UPDATE inventory_batches
+                        SET
+                            quantity_remaining = ?,
+                            status = ?
+                        WHERE id = ?
+                    ");
+
+                    $newStatus = $newRemaining === 0
+                        ? 'finished'
+                        : 'active';
+
+                    $updateBatch->execute([
+                        $newRemaining,
+                        $newStatus,
+                        (int)$batch['id']
+                    ]);
+
+                    // Record stock movement.
+                    $movementStmt = $pdo->prepare("
+                        INSERT INTO inventory_movements
+                        (
+                            product_id,
+                            batch_id,
+                            movement_type,
+                            quantity,
+                            reference_type,
+                            reference_id,
+                            notes
+                        )
+                        VALUES (?, ?, 'stock_out', ?, 'order', ?, ?)
+                    ");
+
+                    $movementStmt->execute([
+                        $productId,
+                        (int)$batch['id'],
+                        $deduct,
+                        $orderId,
+                        "Customer purchase - Order #" . $orderId
+                    ]);
+
+                    $remainingToDeduct -= $deduct;
+                }
+
+                // Safety check.
+                if ($remainingToDeduct > 0) {
+                    throw new Exception(
+                        "Unable to complete FIFO stock deduction."
+                    );
+                }
+
+                /*
+                 * STEP 7:
+                 * UPDATE MAIN PRODUCT STOCK.
+                 */
+
+                $stockStmt = $pdo->prepare("
+                    UPDATE products
+                    SET stock = stock - ?
+                    WHERE id = ?
+                    AND stock >= ?
+                ");
+
+                $stockStmt->execute([
+                    $requiredQuantity,
+                    $productId,
+                    $requiredQuantity
+                ]);
+
+                if ($stockStmt->rowCount() !== 1) {
+                    throw new Exception(
+                        "Unable to update product stock."
+                    );
+                }
+            }
+
+            /*
+             * STEP 8:
+             * COMPLETE TRANSACTION.
+             */
 
             $pdo->commit();
 
-            // CLEAR CART AFTER SUCCESSFUL ORDER
-
+            // Clear cart only after successful order.
             unset($_SESSION['cart']);
 
             header("Location: orders.php?success=1");
@@ -261,21 +428,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->rollBack();
             }
 
-            error_log('Bayogoal checkout error: ' . $e->getMessage());
+            error_log(
+                'Bayogoal checkout error: ' . $e->getMessage()
+            );
 
             $message = "Your order could not be placed. " .
                        "Please check your cart and try again.";
         }
     }
-}
-
-// ESCAPE OUTPUT
-function e($value) {
-    return htmlspecialchars(
-        (string)$value,
-        ENT_QUOTES,
-        'UTF-8'
-    );
 }
 ?>
 
