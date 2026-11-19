@@ -1,9 +1,6 @@
-
-
 <?php
 require_once __DIR__ . '/../includes/session.php';
-
-require_once "../includes/db.php";
+require_once __DIR__ . '/../includes/db.php';
 
 // Protect dashboard
 if (!isset($_SESSION['admin_id'])) {
@@ -12,23 +9,32 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 // Dashboard statistics
-$totalProducts = $pdo->query(
-    "SELECT COUNT(*) FROM products"
-)->fetchColumn();
+$totalProducts = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
 
 $totalCustomers = $pdo->query(
     "SELECT COUNT(*) FROM users WHERE role = 'customer'"
 )->fetchColumn();
 
-$totalOrders = $pdo->query(
-    "SELECT COUNT(*) FROM orders"
-)->fetchColumn();
+$totalOrders = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
 
 $totalRevenue = $pdo->query(
     "SELECT COALESCE(SUM(total_amount), 0) FROM orders"
 )->fetchColumn();
 
-// Fetch latest five orders
+// Inventory statistics
+$totalAvailableStock = $pdo->query(
+    "SELECT COALESCE(SUM(quantity_remaining), 0) FROM inventory_batches"
+)->fetchColumn();
+
+$totalBatches = $pdo->query(
+    "SELECT COUNT(*) FROM inventory_batches"
+)->fetchColumn();
+
+$finishedBatches = $pdo->query(
+    "SELECT COUNT(*) FROM inventory_batches WHERE status = 'finished'"
+)->fetchColumn();
+
+// Latest five orders
 $recentOrders = $pdo->query("
     SELECT
         o.id,
@@ -55,7 +61,7 @@ function e($value) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Dashboard | Bayogoal Enterprises</title>
+<title>Admin Dashboard | BayoGoal Enterprises</title>
 
 <style>
 * {
@@ -80,6 +86,7 @@ body {
     left: 0;
     padding: 30px 18px;
     border-right: 1px solid #203b5c;
+    overflow-y: auto;
 }
 
 .brand {
@@ -104,8 +111,10 @@ body {
     letter-spacing: 2px;
 }
 
-.sidebar a {
+.sidebar a,
+.inventory-toggle {
     display: block;
+    width: 100%;
     color: #d1d5db;
     text-decoration: none;
     padding: 14px 15px;
@@ -113,12 +122,49 @@ body {
     border-radius: 7px;
     transition: 0.3s;
     font-size: 14px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
 }
 
 .sidebar a:hover,
-.sidebar a.active {
+.sidebar a.active,
+.inventory-toggle:hover {
     background: #2563EB;
     color: #ffffff;
+}
+
+.inventory-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-toggle .arrow {
+    transition: transform 0.3s;
+}
+
+.inventory-toggle.open .arrow {
+    transform: rotate(180deg);
+}
+
+.inventory-submenu {
+    display: none;
+    padding-left: 12px;
+    margin-bottom: 12px;
+}
+
+.inventory-submenu.show {
+    display: block;
+}
+
+.inventory-submenu a {
+    font-size: 13px;
+    padding: 11px 12px;
+    margin-bottom: 5px;
+    border-left: 2px solid #39FF14;
+    border-radius: 0 7px 7px 0;
 }
 
 .sidebar .website-link {
@@ -215,6 +261,10 @@ body {
     font-weight: bold;
     color: #39FF14;
     overflow-wrap: anywhere;
+}
+
+.inventory-card {
+    border-left-color: #39FF14;
 }
 
 .orders-card {
@@ -318,11 +368,25 @@ tr:hover td {
         margin-bottom: 20px;
     }
 
-    .sidebar a {
+    .sidebar a,
+    .inventory-toggle {
         display: inline-block;
+        width: auto;
         padding: 11px;
         margin: 4px 2px;
         font-size: 13px;
+    }
+
+    .inventory-toggle .arrow {
+        margin-left: 8px;
+    }
+
+    .inventory-submenu {
+        padding-left: 5px;
+    }
+
+    .inventory-submenu a {
+        display: inline-block;
     }
 
     .sidebar .website-link {
@@ -366,7 +430,22 @@ tr:hover td {
 
     <nav>
         <a href="dashboard.php" class="active">Dashboard</a>
+
         <a href="products.php">Manage Products</a>
+
+        <button type="button" class="inventory-toggle" id="inventoryToggle">
+            <span>Inventory</span>
+            <span class="arrow">▼</span>
+        </button>
+
+        <div class="inventory-submenu" id="inventorySubmenu">
+            <a href="inventory/index.php">Overview</a>
+            <a href="inventory/stock-in.php">Stock In</a>
+            <a href="inventory/stock-out.php">Stock Out</a>
+            <a href="inventory/batches.php">Batches</a>
+            <a href="inventory/history.php">History</a>
+        </div>
+
         <a href="orders.php">Manage Orders</a>
         <a href="customers.php">Manage Customers</a>
         <a href="../index.php" class="website-link" target="_blank">View Website</a>
@@ -378,18 +457,12 @@ tr:hover td {
 <main class="main">
 
     <div class="topbar">
-
         <div class="welcome">
             <h1>Admin Dashboard</h1>
-
-            <p>
-                Welcome back,
-                <strong><?= e($adminName) ?></strong>!
-            </p>
+            <p>Welcome back, <strong><?= e($adminName) ?></strong>!</p>
         </div>
 
         <a href="logout.php" class="logout">Logout</a>
-
     </div>
 
     <div class="section-heading">
@@ -419,6 +492,21 @@ tr:hover td {
             <p>₦<?= number_format((float)$totalRevenue, 2) ?></p>
         </div>
 
+        <div class="card inventory-card">
+            <h3>Available Inventory</h3>
+            <p><?= number_format((int)$totalAvailableStock) ?></p>
+        </div>
+
+        <div class="card inventory-card">
+            <h3>Total Batches</h3>
+            <p><?= number_format((int)$totalBatches) ?></p>
+        </div>
+
+        <div class="card inventory-card">
+            <h3>Finished Batches</h3>
+            <p><?= number_format((int)$finishedBatches) ?></p>
+        </div>
+
     </div>
 
     <section class="orders-card">
@@ -431,9 +519,7 @@ tr:hover td {
         <?php if ($recentOrders): ?>
 
             <div class="table-wrapper">
-
                 <table>
-
                     <thead>
                         <tr>
                             <th>Order ID</th>
@@ -445,35 +531,17 @@ tr:hover td {
                     </thead>
 
                     <tbody>
-
                         <?php foreach ($recentOrders as $order): ?>
-
                             <tr>
                                 <td>#<?= (int)$order['id'] ?></td>
-
-                                <td>
-                                    <?= e($order['full_name'] ?? 'Unknown Customer') ?>
-                                </td>
-
-                                <td>
-                                    ₦<?= number_format((float)$order['total_amount'], 2) ?>
-                                </td>
-
-                                <td class="status">
-                                    <?= e($order['status'] ?? 'Pending') ?>
-                                </td>
-
-                                <td>
-                                    <?= date('d M Y', strtotime($order['created_at'])) ?>
-                                </td>
+                                <td><?= e($order['full_name'] ?? 'Unknown Customer') ?></td>
+                                <td>₦<?= number_format((float)$order['total_amount'], 2) ?></td>
+                                <td class="status"><?= e($order['status'] ?? 'Pending') ?></td>
+                                <td><?= date('d M Y', strtotime($order['created_at'])) ?></td>
                             </tr>
-
                         <?php endforeach; ?>
-
                     </tbody>
-
                 </table>
-
             </div>
 
         <?php else: ?>
@@ -485,11 +553,21 @@ tr:hover td {
     </section>
 
     <div class="dashboard-footer">
-        &copy; <?= date('Y') ?> Bayogoal Enterprises.
+        &copy; <?= date('Y') ?> BayoGoal Enterprises.
         Admin Control Panel.
     </div>
 
 </main>
+
+<script>
+const inventoryToggle = document.getElementById('inventoryToggle');
+const inventorySubmenu = document.getElementById('inventorySubmenu');
+
+inventoryToggle.addEventListener('click', function () {
+    inventorySubmenu.classList.toggle('show');
+    inventoryToggle.classList.toggle('open');
+});
+</script>
 
 </body>
 </html>
