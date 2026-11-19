@@ -8,7 +8,36 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . "/includes/db.php";
+// Use Nigerian local time
+date_default_timezone_set('Africa/Lagos');
+
+// Check restaurant opening status
+function getRestaurantStatus($openingTime, $closingTime)
+{
+    $now = date('H:i:s');
+
+    $opening = date('H:i:s', strtotime($openingTime));
+    $closing = date('H:i:s', strtotime($closingTime));
+
+    // Restaurants that close after midnight
+    if ($closing < $opening) {
+        $isOpen = ($now >= $opening || $now < $closing);
+    } else {
+        $isOpen = ($now >= $opening && $now < $closing);
+    }
+
+    if ($isOpen) {
+        return [
+            'text' => 'OPEN NOW',
+            'class' => 'open'
+        ];
+    }
+
+    return [
+        'text' => 'CLOSED',
+        'class' => 'closed'
+    ];
+}
 
 $pageTitle = "DineNow | Discover & Book Restaurants";
 
