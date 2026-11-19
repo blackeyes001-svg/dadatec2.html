@@ -1,4 +1,3 @@
-
 <?php
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -77,10 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             try {
 
-                // Start database transaction
                 $pdo->beginTransaction();
 
-                // Get existing booking
                 $stmt = $pdo->prepare("
                     SELECT user_id, status
                     FROM bookings
@@ -88,9 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     LIMIT 1
                 ");
 
-                $stmt->execute([
-                    'id' => $id
-                ]);
+                $stmt->execute(['id' => $id]);
 
                 $booking = $stmt->fetch();
 
@@ -100,10 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $oldStatus = $booking['status'];
 
-                // Only update when the status changes
                 if ($oldStatus !== $status) {
 
-                    // Update booking
                     $stmt = $pdo->prepare("
                         UPDATE bookings
                         SET status = :status
@@ -115,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'id' => $id
                     ]);
 
-                    // Prepare customer notification
                     $title = "Booking Status Updated";
 
                     $notificationMessage =
@@ -124,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ucfirst($oldStatus) . " to " .
                         ucfirst($status) . ".";
 
-                    // Save notification
                     $stmt = $pdo->prepare("
                         INSERT INTO notifications
                         (
@@ -157,7 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 }
 
-                // Save changes
                 $pdo->commit();
 
             } catch (PDOException $e) {
@@ -194,11 +184,9 @@ $bookings = $pdo->query("
         b.special_request,
         b.status,
         b.created_at,
-
         u.full_name,
         u.email,
         u.phone,
-
         r.name AS restaurant_name
 
     FROM bookings b
@@ -230,121 +218,583 @@ $bookings = $pdo->query("
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        :root {
+            --orange: #FF7628;
+            --black: #101010;
+            --dark: #191919;
+            --white: #FFFFFF;
+            --muted: #AAAAAA;
+            --glass: rgba(255,255,255,0.055);
+            --border: rgba(255,255,255,0.12);
         }
 
         body {
-            background: #101010;
-            color: #FFFFFF;
-            padding: 30px;
+            min-height: 100vh;
+            color: var(--white);
+
+            background:
+                radial-gradient(circle at 15% 10%, rgba(255,118,40,0.12), transparent 35%),
+                radial-gradient(circle at 90% 90%, rgba(255,118,40,0.07), transparent 35%),
+                linear-gradient(135deg, #080808, #171717, #101010);
+
+            background-attachment: fixed;
         }
 
-        .container {
-            max-width: 1350px;
-            margin: auto;
+        .glass {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.35);
         }
 
-        h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
+        /* SIDEBAR */
 
-        .nav {
+        .sidebar {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            bottom: 18px;
+            width: 255px;
+            padding: 25px 17px;
+            border-radius: 22px;
+            z-index: 100;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 30px;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
-        .nav a {
-            color: #FF7628;
+        .logo {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            padding: 5px 12px 30px;
+        }
+
+        .logo span {
+            color: var(--orange);
+        }
+
+        .sidebar-label {
+            color: #777;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.7px;
+            padding: 15px 12px 10px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            color: #CCC;
             text-decoration: none;
+            padding: 13px 14px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: 0.3s;
         }
 
-        .nav a:hover {
-            text-decoration: underline;
+        .sidebar a:hover {
+            background: rgba(255,118,40,0.10);
+            color: white;
+            transform: translateX(4px);
         }
 
-        .box {
-            background: #191919;
-            border: 1px solid #333333;
-            border-radius: 10px;
-            padding: 25px;
-            overflow-x: auto;
+        .sidebar a.active {
+            color: white;
+            background: linear-gradient(
+                110deg,
+                rgba(255,118,40,0.30),
+                rgba(255,118,40,0.09)
+            );
+            border: 1px solid rgba(255,118,40,0.35);
+            box-shadow: 0 0 20px rgba(255,118,40,0.10);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 25px;
+        }
+
+        .sidebar .logout-link {
+            color: #FF9A80;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            margin-left: 290px;
+            padding: 30px 35px 40px;
+            max-width: 1800px;
+        }
+
+        /* TOPBAR */
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .welcome h1 {
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: -0.7px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .welcome p span {
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 13px;
+            border-radius: 13px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF7628, #B94412);
+            font-weight: bold;
+        }
+
+        .profile-info strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        /* PAGE INTRO */
+
+        .page-intro {
+            margin-bottom: 25px;
+        }
+
+        .page-intro h2 {
+            font-size: 20px;
+            margin-bottom: 7px;
+        }
+
+        .page-intro p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* BOOKING SUMMARY */
+
+        .summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            padding: 20px 23px;
+            border-radius: 17px;
+            flex: 1;
+        }
+
+        .summary-card small {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .summary-card h2 {
+            font-size: 27px;
+            margin-top: 9px;
+            color: var(--orange);
+        }
+
+        /* MESSAGES */
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
         }
 
         .message {
             color: #70DB90;
-            margin-bottom: 18px;
+            background: rgba(50,220,145,0.09);
+            border: 1px solid rgba(50,220,145,0.20);
         }
 
         .error {
-            color: #FF7777;
-            margin-bottom: 18px;
+            color: #FF9696;
+            background: rgba(255,80,80,0.09);
+            border: 1px solid rgba(255,80,80,0.20);
+        }
+
+        /* BOOKING TABLE SECTION */
+
+        .content-section {
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .section-heading h2 {
+            font-size: 18px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            width: 260px;
+            border-radius: 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 13px;
+        }
+
+        .search-box input::placeholder {
+            color: #888;
+        }
+
+        /* TABLE */
+
+        .table-container {
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
+            min-width: 1250px;
             border-collapse: collapse;
-            min-width: 1050px;
-        }
-
-        th,
-        td {
-            padding: 14px;
-            text-align: left;
-            border-bottom: 1px solid #333333;
-            font-size: 14px;
         }
 
         th {
-            color: #FF7628;
+            color: var(--orange);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            font-weight: 600;
+            padding: 16px 12px;
+            text-align: left;
             white-space: nowrap;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
         }
 
         td {
-            color: #DDDDDD;
+            color: #DDD;
+            font-size: 13px;
+            padding: 17px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255,118,40,0.045);
+        }
+
+        .reference {
+            color: var(--orange);
+            font-weight: 700;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: white;
+        }
+
+        .restaurant-name {
+            color: #CCC;
         }
 
         .request {
             max-width: 180px;
             white-space: normal;
+            line-height: 1.5;
+        }
+
+        /* STATUS BADGES */
+
+        .status {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: capitalize;
+            background: rgba(255,255,255,0.10);
+            white-space: nowrap;
+        }
+
+        .status.pending {
+            color: #FFC56A;
+            background: rgba(255,180,55,0.13);
+        }
+
+        .status.confirmed,
+        .status.completed {
+            color: #65E4AD;
+            background: rgba(50,220,145,0.13);
+        }
+
+        .status.cancelled,
+        .status.rejected {
+            color: #FF9696;
+            background: rgba(255,80,80,0.13);
+        }
+
+        .status.processing {
+            color: #FFAA75;
+            background: rgba(255,118,40,0.13);
+        }
+
+        /* UPDATE FORM */
+
+        .update-form {
+            display: flex;
+            align-items: center;
+            gap: 7px;
         }
 
         select {
-            padding: 9px;
-            background: #101010;
-            color: #FFFFFF;
-            border: 1px solid #444444;
-            border-radius: 5px;
-        }
-
-        button {
-            padding: 9px 12px;
-            background: #FF7628;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 5px;
+            padding: 10px 11px;
+            background: #191919;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 8px;
+            outline: none;
             cursor: pointer;
-            margin-left: 5px;
+            font-size: 12px;
         }
 
-        button:hover {
+        select:focus {
+            border-color: var(--orange);
+        }
+
+        select option {
+            background: #191919;
+            color: white;
+        }
+
+        .save-btn {
+            padding: 10px 14px;
+            background: var(--orange);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .save-btn:hover {
             background: #E65F12;
+            transform: translateY(-2px);
+        }
+
+        .empty-message {
+            color: var(--muted);
+            text-align: center;
+            padding: 35px;
+        }
+
+        /* MOBILE MENU */
+
+        .mobile-menu {
+            display: none;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 90;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* ANIMATIONS */
+
+        .summary-card,
+        .content-section,
+        .topbar {
+            animation: fadeUp 0.6s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RESPONSIVE DESIGN */
+
+        @media (max-width: 1200px) {
+            .main {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                transform: translateX(-120%);
+                transition: 0.3s;
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 25px;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .topbar {
+                flex-wrap: wrap;
+            }
+
+            .welcome {
+                flex: 1;
+            }
         }
 
         @media (max-width: 600px) {
 
-            body {
-                padding: 15px;
+            .main {
+                padding: 18px 13px;
             }
 
-            .box {
-                padding: 15px;
+            .topbar {
+                align-items: flex-start;
+                gap: 13px;
             }
 
-            h1 {
-                font-size: 24px;
+            .welcome h1 {
+                font-size: 22px;
+            }
+
+            .welcome p {
+                font-size: 12px;
+            }
+
+            .topbar-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .profile {
+                padding: 5px;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .summary {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .summary-card {
+                padding: 17px;
+            }
+
+            .content-section {
+                padding: 17px 12px;
+            }
+
+            .section-heading {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
             }
 
         }
@@ -355,168 +805,369 @@ $bookings = $pdo->query("
 
 <body>
 
-<div class="container">
+<!-- SIDEBAR -->
 
-    <h1>Manage Bookings</h1>
+<aside class="sidebar glass" id="sidebar">
 
-    <div class="nav">
+    <div class="logo">
+        Dine<span>Now.</span>
+    </div>
 
-        <a href="dashboard.php">Dashboard</a>
+    <div class="sidebar-label">OVERVIEW</div>
 
-        <a href="restaurants.php">Restaurants</a>
+    <a href="dashboard.php">
+        <span class="nav-icon">▦</span>
+        Dashboard
+    </a>
 
-        <a href="bookings.php">Bookings</a>
+    <div class="sidebar-label">MANAGEMENT</div>
 
-        <a href="customers.php">Customers</a>
+    <a href="restaurants.php">
+        <span class="nav-icon">🍽</span>
+        Restaurants
+    </a>
 
-        <a href="../index.php">View Website</a>
+    <a href="bookings.php" class="active">
+        <span class="nav-icon">📅</span>
+        Bookings
+    </a>
+
+    <a href="customers.php">
+        <span class="nav-icon">♙</span>
+        Customers
+    </a>
+
+    <div class="sidebar-label">WEBSITE</div>
+
+    <a href="../index.php">
+        <span class="nav-icon">⌂</span>
+        View Website
+    </a>
+
+    <div class="sidebar-bottom">
+
+        <a href="../logout.php" class="logout-link">
+            <span class="nav-icon">⇥</span>
+            Logout
+        </a>
 
     </div>
 
-    <div class="box">
+</aside>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- MAIN CONTENT -->
+
+<main class="main">
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <button class="mobile-menu" id="menuButton" type="button">
+            ☰
+        </button>
+
+        <div class="welcome">
+
+            <h1>Booking Management</h1>
+
+            <p>
+                Welcome, <span>Dada David.</span>
+                Manage your customers' reservations.
+            </p>
+
+        </div>
+
+        <div class="topbar-right">
+
+            <div class="profile glass">
+
+                <div class="avatar">D</div>
+
+                <div class="profile-info">
+                    <strong>Dada David</strong>
+                    <small>Administrator</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- PAGE INTRO -->
+
+    <div class="page-intro">
+
+        <h2>All Reservations</h2>
+
+        <p>
+            View booking details, manage reservation statuses
+            and notify customers about updates.
+        </p>
+
+    </div>
+
+    <!-- BOOKING SUMMARY -->
+
+    <section class="summary">
+
+        <div class="summary-card glass">
+
+            <small>Total Bookings</small>
+
+            <h2><?php echo count($bookings); ?></h2>
+
+        </div>
+
+        <div class="summary-card glass">
+
+            <small>Pending Bookings</small>
+
+            <h2>
+                <?php
+                echo count(array_filter($bookings, function ($booking) {
+                    return strtolower($booking['status']) === 'pending';
+                }));
+                ?>
+            </h2>
+
+        </div>
+
+        <div class="summary-card glass">
+
+            <small>Confirmed Bookings</small>
+
+            <h2>
+                <?php
+                echo count(array_filter($bookings, function ($booking) {
+                    return strtolower($booking['status']) === 'confirmed';
+                }));
+                ?>
+            </h2>
+
+        </div>
+
+    </section>
+
+    <!-- BOOKING MANAGEMENT -->
+
+    <section class="content-section glass">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Booking Records</h2>
+                <p>Manage and update customer reservations.</p>
+            </div>
+
+            <div class="search-box glass">
+                <span>⌕</span>
+                <input
+                    type="text"
+                    id="bookingSearch"
+                    placeholder="Search bookings..."
+                >
+            </div>
+
+        </div>
 
         <?php if ($message): ?>
 
-            <p class="message">
+            <div class="alert message">
                 <?php echo htmlspecialchars($message); ?>
-            </p>
+            </div>
 
         <?php endif; ?>
 
         <?php if ($error): ?>
 
-            <p class="error">
+            <div class="alert error">
                 <?php echo htmlspecialchars($error); ?>
-            </p>
+            </div>
 
         <?php endif; ?>
 
-        <table>
+        <div class="table-container">
 
-            <thead>
+            <table id="bookingsTable">
 
-                <tr>
-                    <th>Reference</th>
-                    <th>Customer</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Restaurant</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Guests</th>
-                    <th>Request</th>
-                    <th>Status</th>
-                    <th>Update</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <?php foreach ($bookings as $booking): ?>
+                <thead>
 
                     <tr>
-
-                        <td>
-                            #<?php echo (int)$booking['id']; ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars($booking['full_name']); ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars($booking['email']); ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars($booking['phone'] ?? ''); ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars($booking['restaurant_name']); ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars($booking['booking_date']); ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars($booking['booking_time']); ?>
-                        </td>
-
-                        <td>
-                            <?php echo (int)$booking['guests']; ?>
-                        </td>
-
-                        <td class="request">
-                            <?php echo htmlspecialchars($booking['special_request'] ?? 'None'); ?>
-                        </td>
-
-                        <td>
-                            <?php echo htmlspecialchars(ucfirst($booking['status'])); ?>
-                        </td>
-
-                        <td>
-
-                            <form method="POST">
-
-                                <input
-                                    type="hidden"
-                                    name="csrf_token"
-                                    value="<?php echo htmlspecialchars($_SESSION['booking_admin_token']); ?>"
-                                >
-
-                                <input
-                                    type="hidden"
-                                    name="booking_id"
-                                    value="<?php echo (int)$booking['id']; ?>"
-                                >
-
-                                <select name="status">
-
-                                    <?php foreach ($allowedStatuses as $status): ?>
-
-                                        <option
-                                            value="<?php echo htmlspecialchars($status); ?>"
-                                            <?php echo $booking['status'] === $status ? 'selected' : ''; ?>
-                                        >
-                                            <?php echo htmlspecialchars(ucfirst($status)); ?>
-                                        </option>
-
-                                    <?php endforeach; ?>
-
-                                </select>
-
-                                <button type="submit">
-                                    Save
-                                </button>
-
-                            </form>
-
-                        </td>
-
+                        <th>Reference</th>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Restaurant</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Guests</th>
+                        <th>Request</th>
+                        <th>Status</th>
+                        <th>Update</th>
                     </tr>
 
-                <?php endforeach; ?>
+                </thead>
 
-                <?php if (!$bookings): ?>
+                <tbody>
 
-                    <tr>
-                        <td colspan="11">
-                            No bookings found.
-                        </td>
-                    </tr>
+                    <?php foreach ($bookings as $booking): ?>
 
-                <?php endif; ?>
+                        <tr>
 
-            </tbody>
+                            <td class="reference">
+                                #<?php echo (int)$booking['id']; ?>
+                            </td>
 
-        </table>
+                            <td class="customer-name">
+                                <?php echo htmlspecialchars($booking['full_name']); ?>
+                            </td>
 
-    </div>
+                            <td>
+                                <?php echo htmlspecialchars($booking['email']); ?>
+                            </td>
 
-</div>
+                            <td>
+                                <?php echo htmlspecialchars($booking['phone'] ?? ''); ?>
+                            </td>
+
+                            <td class="restaurant-name">
+                                <?php echo htmlspecialchars($booking['restaurant_name']); ?>
+                            </td>
+
+                            <td>
+                                <?php echo htmlspecialchars($booking['booking_date']); ?>
+                            </td>
+
+                            <td>
+                                <?php echo htmlspecialchars($booking['booking_time']); ?>
+                            </td>
+
+                            <td>
+                                <?php echo (int)$booking['guests']; ?>
+                            </td>
+
+                            <td class="request">
+                                <?php echo htmlspecialchars($booking['special_request'] ?? 'None'); ?>
+                            </td>
+
+                            <td>
+
+                                <span class="status <?php echo htmlspecialchars(strtolower($booking['status'])); ?>">
+                                    <?php echo htmlspecialchars(ucfirst($booking['status'])); ?>
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <form method="POST" class="update-form">
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="<?php echo htmlspecialchars($_SESSION['booking_admin_token']); ?>"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="booking_id"
+                                        value="<?php echo (int)$booking['id']; ?>"
+                                    >
+
+                                    <select name="status">
+
+                                        <?php foreach ($allowedStatuses as $status): ?>
+
+                                            <option
+                                                value="<?php echo htmlspecialchars($status); ?>"
+                                                <?php echo $booking['status'] === $status ? 'selected' : ''; ?>
+                                            >
+                                                <?php echo htmlspecialchars(ucfirst($status)); ?>
+                                            </option>
+
+                                        <?php endforeach; ?>
+
+                                    </select>
+
+                                    <button type="submit" class="save-btn">
+                                        Save
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                    <?php if (!$bookings): ?>
+
+                        <tr>
+                            <td colspan="11" class="empty-message">
+                                No bookings found yet.
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+
+/* MOBILE SIDEBAR */
+
+const sidebar = document.getElementById('sidebar');
+const menuButton = document.getElementById('menuButton');
+const overlay = document.getElementById('overlay');
+
+menuButton.addEventListener('click', function () {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+});
+
+overlay.addEventListener('click', function () {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+});
+
+/* BOOKING SEARCH */
+
+const searchInput = document.getElementById('bookingSearch');
+
+const tableRows = document.querySelectorAll(
+    '#bookingsTable tbody tr'
+);
+
+searchInput.addEventListener('input', function () {
+
+    const searchValue = this.value.toLowerCase();
+
+    tableRows.forEach(function (row) {
+
+        const rowText = row.textContent.toLowerCase();
+
+        row.style.display = rowText.includes(searchValue)
+            ? ''
+            : 'none';
+
+    });
+
+});
+
+</script>
 
 </body>
 </html>
