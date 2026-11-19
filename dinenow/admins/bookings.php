@@ -31,7 +31,7 @@ $message = "";
 $error = "";
 
 /* =========================================
-   GET VALID BOOKING STATUSES FROM DATABASE
+   GET VALID BOOKING STATUSES
 ========================================= */
 
 $statusColumn = $pdo->query("
@@ -40,14 +40,17 @@ $statusColumn = $pdo->query("
 
 $allowedStatuses = [];
 
-if ($statusColumn && preg_match('/^enum\((.*)\)$/i', $statusColumn['Type'], $matches)) {
+if (
+    $statusColumn &&
+    preg_match('/^enum\((.*)\)$/i', $statusColumn['Type'], $matches)
+) {
     $allowedStatuses = str_getcsv($matches[1], ',', "'");
 } else {
     $allowedStatuses = ['pending', 'cancelled'];
 }
 
 /* =========================================
-   UPDATE BOOKING STATUS
+   UPDATE BOOKING STATUS AND NOTIFY CUSTOMER
 ========================================= */
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -74,22 +77,104 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             try {
 
+                // Start database transaction
+                $pdo->beginTransaction();
+
+                // Get existing booking
                 $stmt = $pdo->prepare("
-                    UPDATE bookings
-                    SET status = :status
+                    SELECT user_id, status
+                    FROM bookings
                     WHERE id = :id
+                    LIMIT 1
                 ");
 
                 $stmt->execute([
-                    'status' => $status,
                     'id' => $id
                 ]);
 
-                $message = "Booking status updated successfully.";
+                $booking = $stmt->fetch();
+
+                if (!$booking) {
+                    throw new Exception("Booking not found.");
+                }
+
+                $oldStatus = $booking['status'];
+
+                // Only update when the status changes
+                if ($oldStatus !== $status) {
+
+                    // Update booking
+                    $stmt = $pdo->prepare("
+                        UPDATE bookings
+                        SET status = :status
+                        WHERE id = :id
+                    ");
+
+                    $stmt->execute([
+                        'status' => $status,
+                        'id' => $id
+                    ]);
+
+                    // Prepare customer notification
+                    $title = "Booking Status Updated";
+
+                    $notificationMessage =
+                        "Your restaurant booking (#" . $id .
+                        ") status has been changed from " .
+                        ucfirst($oldStatus) . " to " .
+                        ucfirst($status) . ".";
+
+                    // Save notification
+                    $stmt = $pdo->prepare("
+                        INSERT INTO notifications
+                        (
+                            user_id,
+                            booking_id,
+                            title,
+                            message
+                        )
+                        VALUES
+                        (
+                            :user_id,
+                            :booking_id,
+                            :title,
+                            :message
+                        )
+                    ");
+
+                    $stmt->execute([
+                        'user_id' => $booking['user_id'],
+                        'booking_id' => $id,
+                        'title' => $title,
+                        'message' => $notificationMessage
+                    ]);
+
+                    $message = "Booking updated and customer notified successfully.";
+
+                } else {
+
+                    $message = "No changes were made to this booking.";
+
+                }
+
+                // Save changes
+                $pdo->commit();
 
             } catch (PDOException $e) {
 
-                $error = "Unable to update booking status.";
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+
+                $error = "Database error. Unable to update booking.";
+
+            } catch (Exception $e) {
+
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+
+                $error = $e->getMessage();
 
             }
         }
@@ -141,8 +226,6 @@ $bookings = $pdo->query("
 
     <style>
 
-        /* GENERAL RESET */
-
         * {
             margin: 0;
             padding: 0;
@@ -161,14 +244,10 @@ $bookings = $pdo->query("
             margin: auto;
         }
 
-        /* PAGE HEADER */
-
         h1 {
             font-size: 28px;
             margin-bottom: 20px;
         }
-
-        /* NAVIGATION */
 
         .nav {
             display: flex;
@@ -186,8 +265,6 @@ $bookings = $pdo->query("
             text-decoration: underline;
         }
 
-        /* MAIN CONTENT */
-
         .box {
             background: #191919;
             border: 1px solid #333333;
@@ -195,8 +272,6 @@ $bookings = $pdo->query("
             padding: 25px;
             overflow-x: auto;
         }
-
-        /* MESSAGES */
 
         .message {
             color: #70DB90;
@@ -207,8 +282,6 @@ $bookings = $pdo->query("
             color: #FF7777;
             margin-bottom: 18px;
         }
-
-        /* BOOKINGS TABLE */
 
         table {
             width: 100%;
@@ -233,14 +306,10 @@ $bookings = $pdo->query("
             color: #DDDDDD;
         }
 
-        /* SPECIAL REQUEST */
-
         .request {
             max-width: 180px;
             white-space: normal;
         }
-
-        /* STATUS SELECT */
 
         select {
             padding: 9px;
@@ -249,8 +318,6 @@ $bookings = $pdo->query("
             border: 1px solid #444444;
             border-radius: 5px;
         }
-
-        /* UPDATE BUTTON */
 
         button {
             padding: 9px 12px;
@@ -265,8 +332,6 @@ $bookings = $pdo->query("
         button:hover {
             background: #E65F12;
         }
-
-        /* MOBILE RESPONSIVENESS */
 
         @media (max-width: 600px) {
 
@@ -294,8 +359,6 @@ $bookings = $pdo->query("
 
     <h1>Manage Bookings</h1>
 
-    <!-- NAVIGATION -->
-
     <div class="nav">
 
         <a href="dashboard.php">Dashboard</a>
@@ -309,8 +372,6 @@ $bookings = $pdo->query("
         <a href="../index.php">View Website</a>
 
     </div>
-
-    <!-- BOOKINGS SECTION -->
 
     <div class="box">
 
