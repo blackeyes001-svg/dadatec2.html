@@ -111,12 +111,227 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Create Account | DineNow</title>
+<title>Create Account | DineNow</title>
 
-    <link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="css/auth.css">
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(255,118,40,0.22), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(255,118,40,0.15), transparent 35%),
+        linear-gradient(135deg, #080808, #191919, #090909);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 18px;
+    color: #fff;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 470px;
+}
+
+.auth-box {
+    width: 100%;
+    padding: 40px 35px;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 22px;
+    box-shadow:
+        0 8px 40px rgba(0,0,0,0.5),
+        0 0 25px rgba(255,118,40,0.08);
+    text-align: center;
+}
+
+.logo {
+    display: inline-block;
+    font-size: 34px;
+    font-weight: 800;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: #FF7628;
+}
+
+.tagline {
+    color: #FF7628;
+    font-size: 11px;
+    letter-spacing: 4px;
+    margin-top: 7px;
+    margin-bottom: 27px;
+    font-weight: bold;
+}
+
+.auth-box h1 {
+    font-size: 29px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #bdbdbd;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #eee;
+}
+
+.form-group input {
+    width: 100%;
+    height: 49px;
+    padding: 0 15px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 10px;
+    outline: none;
+    color: #fff;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+.form-group input:focus {
+    border-color: #FF7628;
+    box-shadow: 0 0 12px rgba(255,118,40,0.2);
+    background: rgba(255,255,255,0.11);
+}
+
+/* Password show and hide */
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 75px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #FF7628;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px 3px;
+}
+
+.toggle-password:hover {
+    color: #fff;
+}
+
+.auth-button {
+    width: 100%;
+    height: 51px;
+    border: none;
+    border-radius: 10px;
+    background: #FF7628;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 9px;
+}
+
+.auth-button:hover {
+    background: #ff8d4d;
+    box-shadow: 0 0 22px rgba(255,118,40,0.4);
+    transform: translateY(-2px);
+}
+
+.error-message {
+    background: rgba(255,60,60,0.13);
+    color: #ff9292;
+    border: 1px solid rgba(255,60,60,0.3);
+    padding: 12px;
+    border-radius: 9px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.auth-switch {
+    margin-top: 24px;
+    font-size: 13px;
+    color: #bbb;
+}
+
+.auth-switch a {
+    color: #FF7628;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.back-home {
+    display: inline-block;
+    margin-top: 23px;
+    color: #aaa;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.back-home:hover {
+    color: #FF7628;
+}
+
+@media(max-width: 480px) {
+
+    body {
+        padding: 18px 13px;
+    }
+
+    .auth-box {
+        padding: 32px 22px;
+    }
+
+    .auth-box h1 {
+        font-size: 26px;
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -127,7 +342,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="auth-box">
 
         <a href="index.php" class="logo">
-            Dine<span>Now</span>
+            Dine<span>Now.</span>
         </a>
 
         <p class="tagline">BOOK. DINE. ENJOY.</p>
@@ -164,6 +379,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     placeholder="Enter your full name"
                     value="<?= htmlspecialchars($full_name) ?>"
                     maxlength="100"
+                    autocomplete="name"
                     required
                 >
 
@@ -179,6 +395,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     placeholder="Enter your email"
                     value="<?= htmlspecialchars($email) ?>"
                     maxlength="150"
+                    autocomplete="email"
                     required
                 >
 
@@ -194,6 +411,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     placeholder="Enter your phone number"
                     value="<?= htmlspecialchars($phone) ?>"
                     maxlength="20"
+                    autocomplete="tel"
                     required
                 >
 
@@ -203,13 +421,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <label>Password</label>
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Minimum 8 characters"
-                    minlength="8"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Minimum 8 characters"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        onclick="togglePassword('password', this)"
+                    >
+                        Show
+                    </button>
+
+                </div>
 
             </div>
 
@@ -217,13 +449,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <label>Confirm Password</label>
 
-                <input
-                    type="password"
-                    name="confirm_password"
-                    placeholder="Confirm your password"
-                    minlength="8"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        placeholder="Confirm your password"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        onclick="togglePassword('confirm_password', this)"
+                    >
+                        Show
+                    </button>
+
+                </div>
 
             </div>
 
@@ -245,6 +491,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
 </div>
+
+<script>
+
+function togglePassword(inputId, button) {
+
+    const passwordInput = document.getElementById(inputId);
+
+    if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+        button.textContent = "Hide";
+
+    } else {
+
+        passwordInput.type = "password";
+        button.textContent = "Show";
+
+    }
+
+}
+
+</script>
 
 </body>
 </html>
