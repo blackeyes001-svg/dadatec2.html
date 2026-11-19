@@ -1,4 +1,3 @@
-
 <?php
 // ==========================================
 // SESSION AND DATABASE
@@ -8,10 +7,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . "/includes/db.php";
+
 // Use Nigerian local time
 date_default_timezone_set('Africa/Lagos');
 
-// Check restaurant opening status
+// ==========================================
+// RESTAURANT OPENING STATUS
+// ==========================================
+
 function getRestaurantStatus($openingTime, $closingTime)
 {
     $now = date('H:i:s');
@@ -44,6 +48,7 @@ $pageTitle = "DineNow | Discover & Book Restaurants";
 $isLoggedIn = isset($_SESSION['user_id']);
 $customerName = $_SESSION['full_name'] ?? '';
 
+
 // ==========================================
 // FETCH FEATURED RESTAURANTS
 // ==========================================
@@ -52,7 +57,16 @@ $featuredRestaurants = [];
 
 try {
     $restaurantQuery = $pdo->prepare("
-        SELECT id, name, description, address, city, cuisine, image
+        SELECT
+            id,
+            name,
+            description,
+            address,
+            city,
+            cuisine,
+            image,
+            opening_time,
+            closing_time
         FROM restaurants
         WHERE status = 'active'
         ORDER BY id DESC
@@ -65,6 +79,7 @@ try {
 } catch (PDOException $e) {
     $featuredRestaurants = [];
 }
+
 
 // ==========================================
 // FETCH POPULAR DISHES
@@ -92,6 +107,7 @@ try {
     $popularDishes = [];
 }
 
+
 // ==========================================
 // COUNT ACTIVE RESTAURANTS
 // ==========================================
@@ -109,6 +125,7 @@ try {
 } catch (PDOException $e) {
     $totalRestaurants = 0;
 }
+
 
 // ==========================================
 // IMAGE HELPER
@@ -483,6 +500,45 @@ section {
     padding: 7px 12px;
     border-radius: 20px;
 }
+
+/* ==========================================
+   LIVE RESTAURANT AVAILABILITY
+========================================== */
+
+.availability-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 7px 11px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.availability-badge i {
+    font-size: 7px;
+}
+
+.availability-badge.open {
+    background: rgba(22, 163, 74, 0.18);
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.4);
+}
+
+.availability-badge.closed {
+    background: rgba(220, 38, 38, 0.18);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+/* ==========================================
+   RESTAURANT CARD CONTENT
+========================================== */
 
 .restaurant-card-content {
     padding: 22px;
@@ -1245,6 +1301,13 @@ section {
 
             <?php foreach ($featuredRestaurants as $restaurant): ?>
 
+                <?php
+                $availability = getRestaurantStatus(
+                    $restaurant['opening_time'],
+                    $restaurant['closing_time']
+                );
+                ?>
+
                 <div class="restaurant-card">
 
                     <div class="restaurant-card-image">
@@ -1260,6 +1323,11 @@ section {
 
                         <span class="restaurant-label">
                             FEATURED
+                        </span>
+
+                        <span class="availability-badge <?php echo $availability['class']; ?>">
+                            <i class="fas fa-circle"></i>
+                            <?php echo $availability['text']; ?>
                         </span>
 
                     </div>
