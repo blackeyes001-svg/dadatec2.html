@@ -1,67 +1,68 @@
-\<?php
-require_once \_\_DIR\_\_ . '/../../includes/session.php';
-require_once \_\_DIR\_\_ . '/../../includes/db.php';
+
+<?php
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/db.php';
 
 // Admin protection
-if (!isset($\_SESSION['admin_id'])) {
-&#x20;   header("Location: ../login.php");
-&#x20;   exit;
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../login.php");
+    exit;
 }
 
 function e($value) {
-&#x20;   return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-$adminName = $\_SESSION['admin_name'] ?? 'Administrator';
+$adminName = $_SESSION['admin_name'] ?? 'Administrator';
 
 // Filters
-$search = trim($\_GET['search'] ?? '');
-$type = $\_GET['type'] ?? '';
-$fromDate = $\_GET['from'] ?? '';
-$toDate = $\_GET['to'] ?? '';
+$search = trim($_GET['search'] ?? '');
+$type = $_GET['type'] ?? '';
+$fromDate = $_GET['from'] ?? '';
+$toDate = $_GET['to'] ?? '';
 
 $sql = "
-&#x20;   SELECT
-&#x20;       m.\*,
-&#x20;       p.name AS product_name,
-&#x20;       b.batch_code
-&#x20;   FROM inventory_movements m
-&#x20;   LEFT JOIN products p ON m.product_id = p.id
-&#x20;   LEFT JOIN inventory_batches b ON m.batch_id = b.id
-&#x20;   WHERE 1=1
+    SELECT
+        m.*,
+        p.name AS product_name,
+        b.batch_code
+    FROM inventory_movements m
+    LEFT JOIN products p ON m.product_id = p.id
+    LEFT JOIN inventory_batches b ON m.batch_id = b.id
+    WHERE 1=1
 ";
 
 $params = [];
 
 if ($search !== '') {
-&#x20;   $sql .= " AND (
-&#x20;       p.name LIKE ?
-&#x20;       OR b.batch_code LIKE ?
-&#x20;       OR m.notes LIKE ?
-&#x20;       OR m.reference_type LIKE ?
-&#x20;   )";
+    $sql .= " AND (
+        p.name LIKE ?
+        OR b.batch_code LIKE ?
+        OR m.notes LIKE ?
+        OR m.reference_type LIKE ?
+    )";
 
-&#x20;   $term = "%$search%";
+    $term = "%$search%";
 
-&#x20;   $params[] = $term;
-&#x20;   $params[] = $term;
-&#x20;   $params[] = $term;
-&#x20;   $params[] = $term;
+    $params[] = $term;
+    $params[] = $term;
+    $params[] = $term;
+    $params[] = $term;
 }
 
 if (in_array($type, ['stock_in', 'stock_out', 'adjustment'], true)) {
-&#x20;   $sql .= " AND m.movement_type = ?";
-&#x20;   $params[] = $type;
+    $sql .= " AND m.movement_type = ?";
+    $params[] = $type;
 }
 
 if ($fromDate !== '') {
-&#x20;   $sql .= " AND DATE(m.created_at) >= ?";
-&#x20;   $params[] = $fromDate;
+    $sql .= " AND DATE(m.created_at) >= ?";
+    $params[] = $fromDate;
 }
 
 if ($toDate !== '') {
-&#x20;   $sql .= " AND DATE(m.created_at) <= ?";
-&#x20;   $params[] = $toDate;
+    $sql .= " AND DATE(m.created_at) <= ?";
+    $params[] = $toDate;
 }
 
 $sql .= " ORDER BY m.created_at DESC, m.id DESC";
@@ -72,521 +73,516 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Summary statistics
 $totalActivities = $pdo->query("
-&#x20;   SELECT COUNT(\*) FROM inventory_movements
+    SELECT COUNT(*) FROM inventory_movements
 ")->fetchColumn();
 
 $totalStockIn = $pdo->query("
-&#x20;   SELECT COALESCE(SUM(quantity), 0)
-&#x20;   FROM inventory_movements
-&#x20;   WHERE movement_type = 'stock_in'
+    SELECT COALESCE(SUM(quantity), 0)
+    FROM inventory_movements
+    WHERE movement_type = 'stock_in'
 ")->fetchColumn();
 
 $totalStockOut = $pdo->query("
-&#x20;   SELECT COALESCE(SUM(quantity), 0)
-&#x20;   FROM inventory_movements
-&#x20;   WHERE movement_type = 'stock_out'
+    SELECT COALESCE(SUM(quantity), 0)
+    FROM inventory_movements
+    WHERE movement_type = 'stock_out'
 ")->fetchColumn();
 ?>
 
-\<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-\<html lang="en">
-\<head>
-\<meta charset="UTF-8">
-\<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory History | BayoGoal Enterprises</title>
 
-\<title>Inventory History | BayoGoal Enterprises\</title>
-
-\<style>
-\* {
-&#x20;   margin: 0;
-&#x20;   padding: 0;
-&#x20;   box-sizing: border-box;
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-&#x20;   font-family: Arial, sans-serif;
-&#x20;   background: #071426;
-&#x20;   color: #fff;
+    font-family: Arial, sans-serif;
+    background: #071426;
+    color: #fff;
 }
 
 .sidebar {
-&#x20;   width: 250px;
-&#x20;   min-height: 100vh;
-&#x20;   background: #10233d;
-&#x20;   position: fixed;
-&#x20;   padding: 30px 18px;
-&#x20;   border-right: 1px solid #203b5c;
+    width: 250px;
+    min-height: 100vh;
+    background: #10233d;
+    position: fixed;
+    padding: 30px 18px;
+    border-right: 1px solid #203b5c;
 }
 
 .brand {
-&#x20;   text-align: center;
-&#x20;   margin-bottom: 40px;
+    text-align: center;
+    margin-bottom: 40px;
 }
 
 .brand h2 {
-&#x20;   font-size: 25px;
+    font-size: 25px;
 }
 
 .brand span {
-&#x20;   color: #39FF14;
+    color: #39FF14;
 }
 
 .brand p {
-&#x20;   color: #9ca3af;
-&#x20;   font-size: 11px;
-&#x20;   margin-top: 7px;
-&#x20;   letter-spacing: 2px;
+    color: #9ca3af;
+    font-size: 11px;
+    margin-top: 7px;
+    letter-spacing: 2px;
 }
 
 .sidebar a {
-&#x20;   display: block;
-&#x20;   color: #d1d5db;
-&#x20;   text-decoration: none;
-&#x20;   padding: 14px 15px;
-&#x20;   margin-bottom: 9px;
-&#x20;   border-radius: 7px;
-&#x20;   font-size: 14px;
+    display: block;
+    color: #d1d5db;
+    text-decoration: none;
+    padding: 14px 15px;
+    margin-bottom: 9px;
+    border-radius: 7px;
+    font-size: 14px;
 }
 
-.sidebar a\:hover,
+.sidebar a:hover,
 .sidebar a.active {
-&#x20;   background: #2563EB;
-&#x20;   color: #fff;
+    background: #2563EB;
+    color: #fff;
 }
 
 .submenu {
-&#x20;   padding-left: 12px;
-&#x20;   margin-bottom: 10px;
+    padding-left: 12px;
+    margin-bottom: 10px;
 }
 
 .submenu a {
-&#x20;   font-size: 13px;
-&#x20;   padding: 11px 12px;
-&#x20;   border-left: 2px solid #39FF14;
+    font-size: 13px;
+    padding: 11px 12px;
+    border-left: 2px solid #39FF14;
 }
 
 .main {
-&#x20;   margin-left: 250px;
-&#x20;   padding: 35px;
+    margin-left: 250px;
+    padding: 35px;
 }
 
 .topbar {
-&#x20;   display: flex;
-&#x20;   justify-content: space-between;
-&#x20;   align-items: center;
-&#x20;   gap: 15px;
-&#x20;   flex-wrap: wrap;
-&#x20;   margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
 }
 
 .topbar h1 {
-&#x20;   font-size: 27px;
-&#x20;   margin-bottom: 8px;
+    font-size: 27px;
+    margin-bottom: 8px;
 }
 
 .topbar p {
-&#x20;   color: #9ca3af;
-&#x20;   font-size: 14px;
+    color: #9ca3af;
+    font-size: 14px;
 }
 
 .topbar strong {
-&#x20;   color: #39FF14;
+    color: #39FF14;
 }
 
 .back-link {
-&#x20;   background: #2563EB;
-&#x20;   color: #fff;
-&#x20;   padding: 12px 20px;
-&#x20;   text-decoration: none;
-&#x20;   border-radius: 7px;
+    background: #2563EB;
+    color: #fff;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 7px;
 }
 
 .cards {
-&#x20;   display: grid;
-&#x20;   grid-template-columns: repeat(3, minmax(0, 1fr));
-&#x20;   gap: 20px;
-&#x20;   margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .card {
-&#x20;   background: #10233d;
-&#x20;   padding: 23px;
-&#x20;   border-radius: 10px;
-&#x20;   border-left: 4px solid #39FF14;
+    background: #10233d;
+    padding: 23px;
+    border-radius: 10px;
+    border-left: 4px solid #39FF14;
 }
 
 .card h3 {
-&#x20;   color: #9ca3af;
-&#x20;   font-size: 13px;
-&#x20;   font-weight: normal;
-&#x20;   margin-bottom: 15px;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: normal;
+    margin-bottom: 15px;
 }
 
 .card p {
-&#x20;   color: #39FF14;
-&#x20;   font-size: 27px;
-&#x20;   font-weight: bold;
+    color: #39FF14;
+    font-size: 27px;
+    font-weight: bold;
 }
 
 .panel {
-&#x20;   background: #10233d;
-&#x20;   border: 1px solid #203b5c;
-&#x20;   border-radius: 12px;
-&#x20;   padding: 25px;
+    background: #10233d;
+    border: 1px solid #203b5c;
+    border-radius: 12px;
+    padding: 25px;
 }
 
 .panel-heading {
-&#x20;   margin-bottom: 22px;
+    margin-bottom: 22px;
 }
 
 .panel-heading h2 {
-&#x20;   font-size: 20px;
-&#x20;   margin-bottom: 7px;
+    font-size: 20px;
+    margin-bottom: 7px;
 }
 
 .panel-heading p {
-&#x20;   color: #9ca3af;
-&#x20;   font-size: 13px;
+    color: #9ca3af;
+    font-size: 13px;
 }
 
 .filters {
-&#x20;   display: flex;
-&#x20;   gap: 12px;
-&#x20;   flex-wrap: wrap;
-&#x20;   margin-bottom: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
 }
 
 .filters input,
 .filters select {
-&#x20;   padding: 12px;
-&#x20;   background: #071426;
-&#x20;   border: 1px solid #304968;
-&#x20;   color: #fff;
-&#x20;   border-radius: 7px;
-&#x20;   outline: none;
+    padding: 12px;
+    background: #071426;
+    border: 1px solid #304968;
+    color: #fff;
+    border-radius: 7px;
+    outline: none;
 }
 
 .filters input[name="search"] {
-&#x20;   flex: 1;
-&#x20;   min-width: 200px;
+    flex: 1;
+    min-width: 200px;
 }
 
 .filters button {
-&#x20;   padding: 12px 20px;
-&#x20;   background: #2563EB;
-&#x20;   border: none;
-&#x20;   color: #fff;
-&#x20;   border-radius: 7px;
-&#x20;   cursor: pointer;
+    padding: 12px 20px;
+    background: #2563EB;
+    border: none;
+    color: #fff;
+    border-radius: 7px;
+    cursor: pointer;
 }
 
 .reset {
-&#x20;   padding: 12px 18px;
-&#x20;   background: #334155;
-&#x20;   color: #fff;
-&#x20;   border-radius: 7px;
-&#x20;   text-decoration: none;
-&#x20;   font-size: 13px;
+    padding: 12px 18px;
+    background: #334155;
+    color: #fff;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 13px;
 }
 
 .table-wrapper {
-&#x20;   width: 100%;
-&#x20;   overflow-x: auto;
+    width: 100%;
+    overflow-x: auto;
 }
 
 table {
-&#x20;   width: 100%;
-&#x20;   border-collapse: collapse;
-&#x20;   min-width: 1050px;
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1050px;
 }
 
 th, td {
-&#x20;   padding: 15px 12px;
-&#x20;   text-align: left;
-&#x20;   border-bottom: 1px solid #304968;
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 1px solid #304968;
 }
 
 th {
-&#x20;   color: #39FF14;
-&#x20;   font-size: 12px;
-&#x20;   text-transform: uppercase;
+    color: #39FF14;
+    font-size: 12px;
+    text-transform: uppercase;
 }
 
 td {
-&#x20;   color: #e5e7eb;
-&#x20;   font-size: 13px;
+    color: #e5e7eb;
+    font-size: 13px;
 }
 
 .product-name {
-&#x20;   font-weight: bold;
+    font-weight: bold;
 }
 
 .batch-code {
-&#x20;   color: #60a5fa;
+    color: #60a5fa;
 }
 
 .badge {
-&#x20;   display: inline-block;
-&#x20;   padding: 6px 10px;
-&#x20;   border-radius: 20px;
-&#x20;   font-size: 11px;
-&#x20;   font-weight: bold;
-&#x20;   text-transform: uppercase;
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .stock-in {
-&#x20;   background: rgba(57,255,20,.12);
-&#x20;   color: #39FF14;
+    background: rgba(57,255,20,.12);
+    color: #39FF14;
 }
 
 .stock-out {
-&#x20;   background: rgba(239,68,68,.15);
-&#x20;   color: #f87171;
+    background: rgba(239,68,68,.15);
+    color: #f87171;
 }
 
 .adjustment {
-&#x20;   background: rgba(37,99,235,.15);
-&#x20;   color: #60a5fa;
+    background: rgba(37,99,235,.15);
+    color: #60a5fa;
 }
 
 .empty {
-&#x20;   text-align: center;
-&#x20;   padding: 35px;
-&#x20;   color: #9ca3af;
+    text-align: center;
+    padding: 35px;
+    color: #9ca3af;
 }
 
 @media(max-width: 1000px) {
-&#x20;   .cards {
-&#x20;       grid-template-columns: repeat(2, 1fr);
-&#x20;   }
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media(max-width: 700px) {
-&#x20;   .sidebar {
-&#x20;       width: 100%;
-&#x20;       min-height: auto;
-&#x20;       position: relative;
-&#x20;       padding: 20px 15px;
-&#x20;   }
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        position: relative;
+        padding: 20px 15px;
+    }
 
-&#x20;   .brand {
-&#x20;       margin-bottom: 20px;
-&#x20;   }
+    .brand {
+        margin-bottom: 20px;
+    }
 
-&#x20;   .sidebar a {
-&#x20;       display: inline-block;
-&#x20;       padding: 11px;
-&#x20;       margin: 4px 2px;
-&#x20;   }
+    .sidebar a {
+        display: inline-block;
+        padding: 11px;
+        margin: 4px 2px;
+    }
 
-&#x20;   .submenu {
-&#x20;       padding-left: 0;
-&#x20;   }
+    .submenu {
+        padding-left: 0;
+    }
 
-&#x20;   .main {
-&#x20;       margin-left: 0;
-&#x20;       padding: 22px 15px;
-&#x20;   }
+    .main {
+        margin-left: 0;
+        padding: 22px 15px;
+    }
 
-&#x20;   .cards {
-&#x20;       grid-template-columns: 1fr;
-&#x20;   }
+    .cards {
+        grid-template-columns: 1fr;
+    }
 
-&#x20;   .panel {
-&#x20;       padding: 18px;
-&#x20;   }
+    .panel {
+        padding: 18px;
+    }
 }
-\</style>
+</style>
 
-\</head>
+</head>
 
-\<body>
+<body>
 
-\<aside class="sidebar">
+<aside class="sidebar">
 
-```
-<div class="brand">
-    <h2>BAYO<span>GOAL</span></h2>
-    <p>ENTERPRISES</p>
-</div>
-
-<nav>
-    <a href="../dashboard.php">Dashboard</a>
-    <a href="../products.php">Manage Products</a>
-    <a href="index.php">Inventory Overview</a>
-
-    <div class="submenu">
-        <a href="stock-in.php">Stock In</a>
-        <a href="stock-out.php">Stock Out</a>
-        <a href="batches.php">Batches</a>
-        <a href="history.php" class="active">History</a>
+    <div class="brand">
+        <h2>BAYO<span>GOAL</span></h2>
+        <p>ENTERPRISES</p>
     </div>
 
-    <a href="../orders.php">Manage Orders</a>
-    <a href="../customers.php">Manage Customers</a>
-    <a href="../../index.php" target="_blank">View Website</a>
-    <a href="../logout.php">Logout</a>
-</nav>
-```
+    <nav>
+        <a href="../dashboard.php">Dashboard</a>
+        <a href="../products.php">Manage Products</a>
+        <a href="index.php">Inventory Overview</a>
 
-\</aside>
+        <div class="submenu">
+            <a href="stock-in.php">Stock In</a>
+            <a href="stock-out.php">Stock Out</a>
+            <a href="batches.php">Batches</a>
+            <a href="history.php" class="active">History</a>
+        </div>
 
-\<main class="main">
+        <a href="../orders.php">Manage Orders</a>
+        <a href="../customers.php">Manage Customers</a>
+        <a href="../../index.php" target="_blank">View Website</a>
+        <a href="../logout.php">Logout</a>
+    </nav>
 
-```
-<div class="topbar">
-    <div>
-        <h1>Inventory History</h1>
-        <p>Welcome, <strong><?= e($adminName) ?></strong>. Track every stock movement.</p>
+</aside>
+
+<main class="main">
+
+    <div class="topbar">
+        <div>
+            <h1>Inventory History</h1>
+            <p>Welcome, <strong><?= e($adminName) ?></strong>. Track every stock movement.</p>
+        </div>
+
+        <a href="index.php" class="back-link">← Inventory Overview</a>
     </div>
 
-    <a href="index.php" class="back-link">← Inventory Overview</a>
-</div>
+    <div class="cards">
 
-<div class="cards">
+        <div class="card">
+            <h3>Total Activities</h3>
+            <p><?= number_format((int)$totalActivities) ?></p>
+        </div>
 
-    <div class="card">
-        <h3>Total Activities</h3>
-        <p><?= number_format((int)$totalActivities) ?></p>
+        <div class="card">
+            <h3>Total Goods Received</h3>
+            <p><?= number_format((int)$totalStockIn) ?></p>
+        </div>
+
+        <div class="card">
+            <h3>Total Stock Removed</h3>
+            <p><?= number_format((int)$totalStockOut) ?></p>
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Total Goods Received</h3>
-        <p><?= number_format((int)$totalStockIn) ?></p>
-    </div>
+    <section class="panel">
 
-    <div class="card">
-        <h3>Total Stock Removed</h3>
-        <p><?= number_format((int)$totalStockOut) ?></p>
-    </div>
+        <div class="panel-heading">
+            <h2>Stock Movement Records</h2>
+            <p>Search and review all recorded inventory activities.</p>
+        </div>
 
-</div>
+        <form method="GET" class="filters">
 
-<section class="panel">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search product, batch or notes..."
+                value="<?= e($search) ?>"
+            >
 
-    <div class="panel-heading">
-        <h2>Stock Movement Records</h2>
-        <p>Search and review all recorded inventory activities.</p>
-    </div>
+            <select name="type">
+                <option value="">All Activities</option>
 
-    <form method="GET" class="filters">
+                <option value="stock_in" <?= $type === 'stock_in' ? 'selected' : '' ?>>
+                    Stock In
+                </option>
 
-        <input
-            type="text"
-            name="search"
-            placeholder="Search product, batch or notes..."
-            value="<?= e($search) ?>"
-        >
+                <option value="stock_out" <?= $type === 'stock_out' ? 'selected' : '' ?>>
+                    Stock Out
+                </option>
 
-        <select name="type">
-            <option value="">All Activities</option>
+                <option value="adjustment" <?= $type === 'adjustment' ? 'selected' : '' ?>>
+                    Adjustment
+                </option>
+            </select>
 
-            <option value="stock_in" <?= $type === 'stock_in' ? 'selected' : '' ?>>
-                Stock In
-            </option>
+            <input type="date" name="from" value="<?= e($fromDate) ?>">
+            <input type="date" name="to" value="<?= e($toDate) ?>">
 
-            <option value="stock_out" <?= $type === 'stock_out' ? 'selected' : '' ?>>
-                Stock Out
-            </option>
+            <button type="submit">Filter</button>
 
-            <option value="adjustment" <?= $type === 'adjustment' ? 'selected' : '' ?>>
-                Adjustment
-            </option>
-        </select>
+            <a href="history.php" class="reset">Reset</a>
 
-        <input type="date" name="from" value="<?= e($fromDate) ?>">
-        <input type="date" name="to" value="<?= e($toDate) ?>">
+        </form>
 
-        <button type="submit">Filter</button>
+        <div class="table-wrapper">
 
-        <a href="history.php" class="reset">Reset</a>
+            <table>
 
-    </form>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Batch Code</th>
+                        <th>Activity</th>
+                        <th>Quantity</th>
+                        <th>Reference</th>
+                        <th>Notes / Reason</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
 
-    <div class="table-wrapper">
+                <tbody>
 
-        <table>
+                <?php if ($activities): ?>
 
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Batch Code</th>
-                    <th>Activity</th>
-                    <th>Quantity</th>
-                    <th>Reference</th>
-                    <th>Notes / Reason</th>
-                    <th>Date & Time</th>
-                </tr>
-            </thead>
+                    <?php foreach ($activities as $activity): ?>
 
-            <tbody>
+                        <tr>
 
-            <?php if ($activities): ?>
+                            <td class="product-name">
+                                <?= e($activity['product_name'] ?? 'Unknown Product') ?>
+                            </td>
 
-                <?php foreach ($activities as $activity): ?>
+                            <td class="batch-code">
+                                <?= e($activity['batch_code'] ?? 'N/A') ?>
+                            </td>
+
+                            <td>
+                                <?php
+                                $movementType = $activity['movement_type'];
+                                $badgeClass = str_replace('_', '-', $movementType);
+                                ?>
+
+                                <span class="badge <?= e($badgeClass) ?>">
+                                    <?= e(str_replace('_', ' ', $movementType)) ?>
+                                </span>
+                            </td>
+
+                            <td>
+                                <?= number_format((int)$activity['quantity']) ?>
+                            </td>
+
+                            <td>
+                                <?= e($activity['reference_type'] ?? 'N/A') ?>
+                            </td>
+
+                            <td>
+                                <?= e($activity['notes'] ?: '—') ?>
+                            </td>
+
+                            <td>
+                                <?= date('d M Y, h:i A', strtotime($activity['created_at'])) ?>
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                <?php else: ?>
 
                     <tr>
-
-                        <td class="product-name">
-                            <?= e($activity['product_name'] ?? 'Unknown Product') ?>
+                        <td colspan="7" class="empty">
+                            No inventory history found.
                         </td>
-
-                        <td class="batch-code">
-                            <?= e($activity['batch_code'] ?? 'N/A') ?>
-                        </td>
-
-                        <td>
-                            <?php
-                            $movementType = $activity['movement_type'];
-                            $badgeClass = str_replace('_', '-', $movementType);
-                            ?>
-
-                            <span class="badge <?= e($badgeClass) ?>">
-                                <?= e(str_replace('_', ' ', $movementType)) ?>
-                            </span>
-                        </td>
-
-                        <td>
-                            <?= number_format((int)$activity['quantity']) ?>
-                        </td>
-
-                        <td>
-                            <?= e($activity['reference_type'] ?? 'N/A') ?>
-                        </td>
-
-                        <td>
-                            <?= e($activity['notes'] ?: '—') ?>
-                        </td>
-
-                        <td>
-                            <?= date('d M Y, h:i A', strtotime($activity['created_at'])) ?>
-                        </td>
-
                     </tr>
 
-                <?php endforeach; ?>
+                <?php endif; ?>
 
-            <?php else: ?>
+                </tbody>
 
-                <tr>
-                    <td colspan="7" class="empty">
-                        No inventory history found.
-                    </td>
-                </tr>
+            </table>
 
-            <?php endif; ?>
+        </div>
 
-            </tbody>
+    </section>
 
-        </table>
+</main>
 
-    </div>
-
-</section>
-```
-
-\</main>
-
-\</body>
-\</html>
+</body>
+</html>
