@@ -1,44 +1,46 @@
 <?php
 session_start();
+
 require_once __DIR__ . "/includes/db.php";
 
-// Redirect logged-in users
 if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
 }
 
-// Generate CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 $error = "";
 $email = "";
+$registered = isset($_GET['registered']);
 
-// Login form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    if (
-        !isset($_POST['csrf_token']) ||
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
-        $error = "Invalid request. Please refresh the page and try again.";
+    $email = trim($_POST['email'] ?? "");
+    $password = $_POST['password'] ?? "";
+    $csrf_token = $_POST['csrf_token'] ?? "";
+
+    if (!hash_equals($_SESSION['csrf_token'], $csrf_token)) {
+        $error = "Invalid request. Please refresh the page.";
+
+    } elseif (empty($email) || empty($password)) {
+        $error = "Please enter your email and password.";
+
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Please enter a valid email address.";
+
     } else {
-
-        $email = trim($_POST['email'] ?? "");
-        $password = $_POST['password'] ?? "";
-
-        if (empty($email) || empty($password)) {
-            $error = "Please enter your email and password.";
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = "Please enter a valid email address.";
-        } else {
-
+        try {
             $stmt = $pdo->prepare(
-                "SELECT * FROM users WHERE email = ? LIMIT 1"
+                "SELECT id, full_name, email, password, role
+                 FROM users
+                 WHERE email = :email
+                 LIMIT 1"
             );
-            $stmt->execute([$email]);
+
+            $stmt->execute([':email' => $email]);
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
@@ -56,533 +58,670 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 exit;
 
             } else {
-                $error = "Incorrect email or password.";
+                $error = "Incorrect email address or password.";
             }
+
+        } catch (PDOException $e) {
+            $error = "Something went wrong. Please try again.";
         }
     }
 }
-
-$registered = isset($_GET['registered']) && $_GET['registered'] == 1;
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | DineNow</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #101010;
-            color: #fff;
-        }
-
-        .page-container {
-            min-height: 100vh;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        /* LEFT IMAGE SECTION */
-
-        .image-section {
-            position: relative;
-            min-height: 100vh;
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(0,0,0,0.12),
-                    rgba(0,0,0,0.85)
-                ),
-                url("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=85");
-
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: flex-end;
-            padding: 65px;
-        }
-
-        .image-content {
-            max-width: 500px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .brand {
-            position: absolute;
-            top: 35px;
-            left: 50px;
-            font-size: 27px;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .brand span {
-            color: #FF7628;
-        }
-
-        .image-content .tag {
-            color: #FF7628;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            margin-bottom: 15px;
-        }
-
-        .image-content h1 {
-            font-size: clamp(35px, 4vw, 55px);
-            line-height: 1.15;
-            margin-bottom: 18px;
-        }
-
-        .image-content h1 span {
-            color: #FF7628;
-        }
-
-        .image-content p {
-            color: #dedede;
-            line-height: 1.8;
-            font-size: 14px;
-            max-width: 420px;
-        }
-
-        /* RIGHT SECTION */
-
-        .form-section {
-            min-height: 100vh;
-            padding: 35px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-
-            background:
-                radial-gradient(
-                    circle at 15% 20%,
-                    rgba(255,118,40,0.18),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 90% 85%,
-                    rgba(255,118,40,0.12),
-                    transparent 35%
-                ),
-                #111111;
-        }
-
-        .glow {
-            position: absolute;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background: rgba(255,118,40,0.16);
-            filter: blur(90px);
-            pointer-events: none;
-        }
-
-        .glow.one {
-            top: 5%;
-            right: 5%;
-        }
-
-        .glow.two {
-            bottom: 5%;
-            left: 5%;
-        }
-
-        /* GLASS CARD */
-
-        .login-card {
-            width: 100%;
-            max-width: 440px;
-            padding: 42px 38px;
-            position: relative;
-            z-index: 2;
-
-            background: rgba(255,255,255,0.075);
-            border: 1px solid rgba(255,255,255,0.17);
-            border-radius: 22px;
-
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-
-            box-shadow:
-                0 20px 60px rgba(0,0,0,0.4),
-                inset 0 1px 1px rgba(255,255,255,0.12);
-        }
-
-        .card-brand {
-            display: none;
-            font-size: 25px;
-            font-weight: 800;
-            margin-bottom: 30px;
-        }
-
-        .card-brand span {
-            color: #FF7628;
-        }
-
-        .login-card h2 {
-            font-size: 30px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: #bcbcbc;
-            font-size: 13px;
-            margin-bottom: 30px;
-        }
-
-        .message {
-            padding: 12px 14px;
-            border-radius: 9px;
-            font-size: 12px;
-            margin-bottom: 18px;
-        }
-
-        .error-message {
-            background: rgba(255,60,60,0.12);
-            border: 1px solid rgba(255,80,80,0.3);
-            color: #ff9999;
-        }
-
-        .success-message {
-            background: rgba(50,200,100,0.12);
-            border: 1px solid rgba(50,200,100,0.3);
-            color: #9df0b8;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 9px;
-            color: #eeeeee;
-        }
-
-        .input-box {
-            position: relative;
-        }
-
-        .input-box input {
-            width: 100%;
-            height: 52px;
-            padding: 0 45px 0 15px;
-
-            background: rgba(0,0,0,0.25);
-            border: 1px solid rgba(255,255,255,0.16);
-            border-radius: 10px;
-
-            outline: none;
-            color: #fff;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .input-box input::placeholder {
-            color: #888;
-        }
-
-        .input-box input:focus {
-            border-color: #FF7628;
-            box-shadow: 0 0 0 3px rgba(255,118,40,0.12);
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .toggle-password:hover {
-            color: #FF7628;
-        }
-
-        .form-options {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: -5px;
-            margin-bottom: 24px;
-        }
-
-        .forgot-link {
-            color: #FF7628;
-            text-decoration: none;
-            font-size: 12px;
-        }
-
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-
-        .login-btn {
-            width: 100%;
-            height: 52px;
-            border: none;
-            border-radius: 10px;
-
-            background: #FF7628;
-            color: #fff;
-
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .login-btn:hover {
-            background: #e85e12;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,118,40,0.25);
-        }
-
-        .register-text {
-            text-align: center;
-            margin-top: 25px;
-            color: #aaa;
-            font-size: 12px;
-        }
-
-        .register-text a {
-            color: #FF7628;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .register-text a:hover {
-            text-decoration: underline;
-        }
-
-        .back-home {
-            display: block;
-            text-align: center;
-            margin-top: 22px;
-            color: #aaa;
-            font-size: 12px;
-            text-decoration: none;
-        }
-
-        .back-home:hover {
-            color: #FF7628;
-        }
-
-        /* MOBILE RESPONSIVENESS */
-
-        @media (max-width: 850px) {
-            .page-container {
-                grid-template-columns: 1fr;
-            }
-
-            .image-section {
-                min-height: 290px;
-                padding: 35px 25px;
-                background-position: center 55%;
-            }
-
-            .brand {
-                top: 22px;
-                left: 25px;
-                font-size: 23px;
-            }
-
-            .image-content h1 {
-                font-size: 32px;
-                margin-bottom: 10px;
-            }
-
-            .image-content p {
-                font-size: 12px;
-            }
-
-            .image-content .tag {
-                font-size: 10px;
-                margin-bottom: 8px;
-            }
-
-            .form-section {
-                min-height: auto;
-                padding: 35px 20px 50px;
-            }
-
-            .login-card {
-                max-width: 480px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .image-section {
-                min-height: 245px;
-                padding: 25px 22px;
-            }
-
-            .brand {
-                top: 18px;
-                left: 22px;
-            }
-
-            .image-content h1 {
-                font-size: 27px;
-            }
-
-            .login-card {
-                padding: 32px 23px;
-                border-radius: 18px;
-            }
-
-            .login-card h2 {
-                font-size: 26px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login | DineNow</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --orange: #FF7628;
+    --orange-light: #ff914f;
+    --black: #101010;
+    --dark: #191919;
+    --white: #ffffff;
+    --grey: #777777;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    font-family: 'DM Sans', Arial, sans-serif;
+    background: #f5f5f5;
+    color: var(--black);
+}
+
+a {
+    text-decoration: none;
+}
+
+/* MAIN LAYOUT */
+
+.auth-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* LEFT VISUAL PANEL */
+
+.visual-panel {
+    position: relative;
+    min-height: 100vh;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(10,10,10,.85),
+            rgba(10,10,10,.48)
+        ),
+        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1800&q=85');
+
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 45px 55px;
+    overflow: hidden;
+    color: white;
+}
+
+.visual-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255,118,40,.15),
+        transparent 60%
+    );
+    pointer-events: none;
+}
+
+.visual-content,
+.visual-footer,
+.visual-logo {
+    position: relative;
+    z-index: 2;
+}
+
+.visual-logo {
+    font-size: 30px;
+    font-weight: 800;
+    color: white;
+}
+
+.visual-logo span {
+    color: var(--orange);
+}
+
+.visual-content {
+    max-width: 600px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.visual-content .small-heading {
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.visual-content h1 {
+    font-size: clamp(45px, 5vw, 76px);
+    line-height: 1.05;
+    font-weight: 800;
+    margin-bottom: 25px;
+}
+
+.visual-content h1 span {
+    color: var(--orange);
+}
+
+.visual-content p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #e2e2e2;
+    max-width: 480px;
+    margin-bottom: 35px;
+}
+
+.explore-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--orange);
+    color: white;
+    padding: 17px 27px;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: .3s;
+}
+
+.explore-button:hover {
+    background: var(--orange-light);
+    transform: translateY(-3px);
+}
+
+.visual-footer {
+    color: #c5c5c5;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* RIGHT LOGIN PANEL */
+
+.form-panel {
+    background: white;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 45px 8%;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 460px;
+}
+
+.mobile-logo {
+    display: none;
+}
+
+.home-link {
+    display: inline-block;
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 38px;
+    transition: .3s;
+}
+
+.home-link:hover {
+    transform: translateX(-4px);
+}
+
+.welcome-heading {
+    text-align: center;
+    margin-bottom: 38px;
+}
+
+.welcome-heading .welcome-small {
+    color: var(--grey);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.welcome-heading h2 {
+    font-size: 39px;
+    font-weight: 800;
+    color: var(--black);
+    margin-bottom: 12px;
+}
+
+.welcome-heading h2 span {
+    color: var(--orange);
+}
+
+.welcome-heading p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* MESSAGES */
+
+.error-message {
+    background: #fff0ef;
+    color: #c0392b;
+    border: 1px solid #ffd2cd;
+    padding: 13px;
+    border-radius: 9px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.success-message {
+    background: #fff4e9;
+    color: #b85b1b;
+    border: 1px solid #ffd9bd;
+    padding: 13px;
+    border-radius: 9px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+/* FORM */
+
+.form-group {
+    margin-bottom: 23px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #292929;
+    margin-bottom: 10px;
+}
+
+.form-group input {
+    width: 100%;
+    height: 56px;
+    padding: 0 17px;
+    border: 1px solid #dedede;
+    border-radius: 10px;
+    background: #fafafa;
+    color: #222;
+    font-size: 14px;
+    outline: none;
+    transition: .3s;
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+.form-group input:focus {
+    border-color: var(--orange);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255,118,40,.10);
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 75px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: var(--orange);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -7px;
+    margin-bottom: 25px;
+}
+
+.forgot-link {
+    color: var(--orange);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.forgot-link:hover {
+    color: #d95712;
+}
+
+/* BUTTON */
+
+.auth-button {
+    width: 100%;
+    height: 56px;
+    border: none;
+    border-radius: 10px;
+    background: var(--orange);
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.auth-button:hover {
+    background: #e9651d;
+    box-shadow: 0 8px 22px rgba(255,118,40,.25);
+    transform: translateY(-2px);
+}
+
+/* DIVIDER */
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 30px 0;
+    color: #999;
+    font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e7e7e7;
+}
+
+/* ACCOUNT SWITCH */
+
+.auth-switch {
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.auth-switch a {
+    color: var(--orange);
+    font-weight: 800;
+    margin-left: 5px;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.back-home-bottom {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+    color: #999;
+    font-size: 12px;
+}
+
+.back-home-bottom:hover {
+    color: var(--orange);
+}
+
+/* TABLETS */
+
+@media(max-width: 950px) {
+    .auth-layout {
+        grid-template-columns: 42% 58%;
+    }
+
+    .visual-panel {
+        padding: 35px;
+    }
+
+    .visual-content h1 {
+        font-size: 48px;
+    }
+
+    .form-panel {
+        padding: 40px 7%;
+    }
+}
+
+/* MOBILE */
+
+@media(max-width: 700px) {
+    .auth-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .visual-panel {
+        min-height: 340px;
+        padding: 28px 25px;
+        background-position: center;
+    }
+
+    .visual-logo {
+        font-size: 25px;
+    }
+
+    .visual-content {
+        margin: 55px 0 35px;
+    }
+
+    .visual-content .small-heading {
+        font-size: 11px;
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+    }
+
+    .visual-content h1 {
+        font-size: 43px;
+        margin-bottom: 15px;
+    }
+
+    .visual-content p {
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .explore-button {
+        padding: 13px 21px;
+        font-size: 13px;
+    }
+
+    .visual-footer {
+        font-size: 10px;
+    }
+
+    .form-panel {
+        min-height: auto;
+        padding: 45px 24px;
+    }
+
+    .form-content {
+        max-width: 480px;
+    }
+
+    .home-link {
+        margin-bottom: 25px;
+    }
+
+    .welcome-heading {
+        margin-bottom: 30px;
+    }
+
+    .welcome-heading h2 {
+        font-size: 32px;
+    }
+}
+
+@media(max-width: 380px) {
+    .visual-content h1 {
+        font-size: 36px;
+    }
+
+    .form-panel {
+        padding: 35px 18px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<div class="page-container">
+<div class="auth-layout">
 
-    <!-- LEFT IMAGE SECTION -->
-    <section class="image-section">
+    <!-- LEFT VISUAL SECTION -->
 
-        <div class="brand">
+    <section class="visual-panel">
+
+        <a href="index.php" class="visual-logo">
             Dine<span>Now.</span>
-        </div>
+        </a>
 
-        <div class="image-content">
-            <div class="tag">BOOK. DINE. ENJOY.</div>
+        <div class="visual-content">
+
+            <div class="small-heading">
+                BOOK. DINE. ENJOY.
+            </div>
 
             <h1>
-                Great food.<br>
-                Beautiful moments.<br>
-                <span>One reservation away.</span>
+                Welcome to<br>
+                Dine<span>Now</span>
             </h1>
 
             <p>
-                Discover amazing restaurants, reserve your table
-                and enjoy unforgettable dining experiences with DineNow.
+                Discover and book the best restaurants,
+                enjoy delicious meals, and create
+                unforgettable dining experiences.
             </p>
+
+            <a href="restaurants.php" class="explore-button">
+                Explore Restaurants <span>→</span>
+            </a>
+
+        </div>
+
+        <div class="visual-footer">
+            GOOD FOOD. GREAT MOMENTS. ONLY ON DINENOW.
         </div>
 
     </section>
 
+
     <!-- RIGHT LOGIN SECTION -->
-    <section class="form-section">
 
-        <div class="glow one"></div>
-        <div class="glow two"></div>
+    <section class="form-panel">
 
-        <div class="login-card">
+        <div class="form-content">
 
-            <div class="card-brand">
-                Dine<span>Now.</span>
+            <a href="index.php" class="home-link">
+                ← Back to Homepage
+            </a>
+
+            <div class="welcome-heading">
+
+                <p class="welcome-small">
+                    Welcome back to
+                </p>
+
+                <h2>
+                    Dine<span>Now.</span>
+                </h2>
+
+                <p>
+                    Login to your account and continue
+                    your dining experience with us.
+                </p>
+
             </div>
 
-            <h2>Welcome Back!</h2>
-
-            <p class="subtitle">
-                Sign in to continue your dining experience.
-            </p>
 
             <?php if ($registered): ?>
-                <div class="message success-message">
-                    Your account has been created successfully. Please log in.
+                <div class="success-message">
+                    Registration successful! You can now log in.
                 </div>
             <?php endif; ?>
 
+
             <?php if (!empty($error)): ?>
-                <div class="message error-message">
-                    <?= htmlspecialchars($error) ?>
+                <div class="error-message">
+                    <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                 </div>
             <?php endif; ?>
+
 
             <form method="POST" action="">
 
                 <input
                     type="hidden"
                     name="csrf_token"
-                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
+                    value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>"
                 >
 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
 
-                    <div class="input-box">
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your email address"
-                            value="<?= htmlspecialchars($email) ?>"
-                            required
-                        >
-                    </div>
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email address"
+                        value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
+                        autocomplete="email"
+                        required
+                    >
+
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
 
-                    <div class="input-box">
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
                         <input
                             type="password"
                             id="password"
                             name="password"
                             placeholder="Enter your password"
+                            autocomplete="current-password"
                             required
                         >
 
                         <button
                             type="button"
                             class="toggle-password"
-                            onclick="togglePassword()"
-                            id="toggleText"
+                            onclick="togglePassword('password', this)"
                         >
                             Show
                         </button>
+
                     </div>
+
                 </div>
+
 
                 <div class="form-options">
-                    <a href="#" class="forgot-link">Forgot Password?</a>
+                    <a href="#" class="forgot-link">
+                        Forgot Password?
+                    </a>
                 </div>
 
-                <button type="submit" class="login-btn">
-                    Sign In
+
+                <button type="submit" class="auth-button">
+                    Login to Account →
                 </button>
 
             </form>
 
-            <div class="register-text">
-                Don't have an account?
-                <a href="register.php">Create Account</a>
+
+            <div class="divider">
+                YOUR DINING EXPERIENCE STARTS HERE
             </div>
 
-            <a href="index.php" class="back-home">
-                ← Back to Homepage
+
+            <p class="auth-switch">
+                Don't have an account?
+                <a href="register.php">Create Account</a>
+            </p>
+
+
+            <a href="index.php" class="back-home-bottom">
+                © <?= date('Y') ?> DineNow. All Rights Reserved.
             </a>
 
         </div>
@@ -591,18 +730,20 @@ $registered = isset($_GET['registered']) && $_GET['registered'] == 1;
 
 </div>
 
-<script>
-function togglePassword() {
-    const password = document.getElementById("password");
-    const toggleText = document.getElementById("toggleText");
 
-    if (password.type === "password") {
-        password.type = "text";
-        toggleText.textContent = "Hide";
+<script>
+function togglePassword(inputId, button) {
+
+    const passwordInput = document.getElementById(inputId);
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        button.textContent = "Hide";
     } else {
-        password.type = "password";
-        toggleText.textContent = "Show";
+        passwordInput.type = "password";
+        button.textContent = "Show";
     }
+
 }
 </script>
 
