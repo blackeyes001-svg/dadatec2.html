@@ -26,7 +26,9 @@ $pageTitle = $pageTitle ?? 'Result Management System';
             <?php endif; ?>
             <a href="logout.php" class="logout">Logout (<?= e($_SESSION['full_name']) ?>)</a>
         <?php else: ?>
-            <a href="login.php">Login</a>
+            <a href="admin_login.php">Admin Login</a>
+            <a href="student_login.php">Student Login</a>
+            <a href="check_student.php">Check Student</a>
         <?php endif; ?>
     </nav>
 </header>

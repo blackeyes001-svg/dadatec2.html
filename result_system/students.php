@@ -6,7 +6,7 @@ $q = trim($_GET['q'] ?? '');
 
 if ($q !== '') {
     $stmt = $pdo->prepare(
-        'SELECT s.id, s.matric_no, s.department, s.level, u.full_name, u.email
+        'SELECT s.id, s.school, s.matric_no, s.department, s.level, u.full_name, u.email
          FROM students s JOIN users u ON u.id = s.user_id
          WHERE u.full_name LIKE ? OR s.matric_no LIKE ?
          ORDER BY u.full_name'
@@ -14,7 +14,7 @@ if ($q !== '') {
     $stmt->execute(['%' . $q . '%', '%' . $q . '%']);
 } else {
     $stmt = $pdo->query(
-        'SELECT s.id, s.matric_no, s.department, s.level, u.full_name, u.email
+        'SELECT s.id, s.school, s.matric_no, s.department, s.level, u.full_name, u.email
          FROM students s JOIN users u ON u.id = s.user_id
          ORDER BY u.full_name'
     );
@@ -38,17 +38,18 @@ require 'header.php';
 <div class="table-wrap">
 <table>
     <thead>
-        <tr><th>Name</th><th>Matric No</th><th>Email</th><th>Department</th><th>Level</th><th>Actions</th></tr>
+        <tr><th>Name</th><th>Matric No</th><th>Email</th><th>School</th><th>Department</th><th>Level</th><th>Actions</th></tr>
     </thead>
     <tbody>
     <?php if (!$students): ?>
-        <tr><td colspan="6" class="empty">No students found.</td></tr>
+        <tr><td colspan="7" class="empty">No students found.</td></tr>
     <?php endif; ?>
     <?php foreach ($students as $s): ?>
         <tr>
             <td><?= e($s['full_name']) ?></td>
             <td><?= e($s['matric_no']) ?></td>
             <td><?= e($s['email']) ?></td>
+            <td><?= e($s['school']) ?></td>
             <td><?= e($s['department']) ?></td>
             <td><?= e($s['level']) ?></td>
             <td class="row-actions">

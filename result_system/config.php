@@ -36,13 +36,41 @@ function is_logged_in()
     return isset($_SESSION['user_id']);
 }
 
-// Send the user to login if not logged in, or if the role does not match
+// Send the user to the correct login page if not logged in, or if the role does not match
 function require_login($role = null)
 {
     if (!is_logged_in() || ($role !== null && $_SESSION['role'] !== $role)) {
-        header('Location: login.php');
+        header('Location: ' . ($role === 'student' ? 'student_login.php' : 'admin_login.php'));
         exit;
     }
+}
+
+// Check email + password for a given role ('admin' or 'student').
+// On success: starts the session and redirects to that role's dashboard.
+// On failure: returns an error message.
+function attempt_login($pdo, $role)
+{
+    $email    = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    if ($email === '' || $password === '') {
+        return 'Enter your email and password.';
+    }
+
+    $stmt = $pdo->prepare('SELECT id, full_name, password, role FROM users WHERE email = ? AND role = ?');
+    $stmt->execute([$email, $role]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        session_regenerate_id(true);
+        $_SESSION['user_id']   = $user['id'];
+        $_SESSION['full_name'] = $user['full_name'];
+        $_SESSION['role']      = $user['role'];
+        header('Location: ' . ($role === 'admin' ? 'admin_dashboard.php' : 'student_dashboard.php'));
+        exit;
+    }
+
+    return 'Invalid email or password.';
 }
 
 // CSRF protection for forms

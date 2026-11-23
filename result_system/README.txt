@@ -6,9 +6,11 @@ HOW TO RUN (XAMPP)
 3. Open http://localhost/phpmyadmin, click Import, choose database.sql, click Go.
 4. Open http://localhost/result_system/setup.php ONCE to create the admin account.
    Then DELETE setup.php.
-5. Open http://localhost/result_system/ and login:
+5. Login pages:
+   Admin:   http://localhost/result_system/admin_login.php
+   Student: http://localhost/result_system/student_login.php
    Admin email: admin@school.com
-   Admin password: admin123   (change it after first login if you add that feature)
+   Admin password: admin123
 
 If your MySQL has a password, change it in config.php.
 

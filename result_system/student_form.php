@@ -10,6 +10,7 @@ $row     = null;
 $data = [
     'full_name'  => '',
     'email'      => '',
+    'school'     => '',
     'matric_no'  => '',
     'department' => '',
     'level'      => 100,
@@ -17,7 +18,7 @@ $data = [
 
 if ($editing) {
     $stmt = $pdo->prepare(
-        'SELECT s.id, s.user_id, s.matric_no, s.department, s.level, u.full_name, u.email
+        'SELECT s.id, s.user_id, s.school, s.matric_no, s.department, s.level, u.full_name, u.email
          FROM students s JOIN users u ON u.id = s.user_id
          WHERE s.id = ?'
     );
@@ -32,6 +33,7 @@ if ($editing) {
     $data = [
         'full_name'  => $row['full_name'],
         'email'      => $row['email'],
+        'school'     => $row['school'],
         'matric_no'  => $row['matric_no'],
         'department' => $row['department'],
         'level'      => $row['level'],
@@ -43,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $data['full_name']  = trim($_POST['full_name'] ?? '');
     $data['email']      = trim($_POST['email'] ?? '');
+    $data['school']     = trim($_POST['school'] ?? '');
     $data['matric_no']  = strtoupper(trim($_POST['matric_no'] ?? ''));
     $data['department'] = trim($_POST['department'] ?? '');
     $data['level']      = (int)($_POST['level'] ?? 0);
@@ -53,6 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Enter a valid email address.';
+    }
+    if ($data['school'] === '' || strlen($data['school']) > 150) {
+        $errors[] = 'Enter the school name (maximum 150 characters).';
     }
     if ($data['matric_no'] === '' || strlen($data['matric_no']) > 30) {
         $errors[] = 'Enter the matric number (maximum 30 characters).';
@@ -83,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ->execute([password_hash($password, PASSWORD_DEFAULT), $row['user_id']]);
                 }
 
-                $pdo->prepare('UPDATE students SET matric_no = ?, department = ?, level = ? WHERE id = ?')
-                    ->execute([$data['matric_no'], $data['department'], $data['level'], $id]);
+                $pdo->prepare('UPDATE students SET school = ?, matric_no = ?, department = ?, level = ? WHERE id = ?')
+                    ->execute([$data['school'], $data['matric_no'], $data['department'], $data['level'], $id]);
 
                 $message = 'Student updated.';
             } else {
@@ -92,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$data['full_name'], $data['email'], password_hash($password, PASSWORD_DEFAULT), 'student']);
                 $userId = $pdo->lastInsertId();
 
-                $pdo->prepare('INSERT INTO students (user_id, matric_no, department, level) VALUES (?, ?, ?, ?)')
-                    ->execute([$userId, $data['matric_no'], $data['department'], $data['level']]);
+                $pdo->prepare('INSERT INTO students (user_id, school, matric_no, department, level) VALUES (?, ?, ?, ?, ?)')
+                    ->execute([$userId, $data['school'], $data['matric_no'], $data['department'], $data['level']]);
 
                 $message = 'Student added.';
             }
@@ -134,6 +140,9 @@ require 'header.php';
 
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="<?= e($data['email']) ?>" required>
+
+        <label for="school">School Name</label>
+        <input type="text" id="school" name="school" value="<?= e($data['school']) ?>" required>
 
         <label for="matric_no">Matric Number</label>
         <input type="text" id="matric_no" name="matric_no" value="<?= e($data['matric_no']) ?>" required>
