@@ -11,9 +11,6 @@ require_once __DIR__ . "/includes/db.php";
 
 // Use Nigerian local time
 date_default_timezone_set('Africa/Lagos');
-echo "<div style='background:orange;color:black;padding:10px;text-align:center;'>
-    PHP TIME: " . date('Y-m-d H:i:s') . "
-</div>";
 
 // ==========================================
 // RESTAURANT OPENING STATUS
