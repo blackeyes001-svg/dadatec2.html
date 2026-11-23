@@ -73,9 +73,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Login | DineNow</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
+:root {
+    --orange: #FF7628;
+    --orange-light: #ff914f;
+    --black: #101010;
+    --dark: #191919;
+    --white: #ffffff;
+    --grey: #777777;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -84,88 +98,239 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 body {
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background:
-        radial-gradient(circle at 15% 20%, rgba(255,118,40,.22), transparent 35%),
-        radial-gradient(circle at 85% 80%, rgba(255,118,40,.15), transparent 35%),
-        linear-gradient(135deg, #080808, #191919, #090909);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 25px;
-    color: white;
+    font-family: 'DM Sans', Arial, sans-serif;
+    background: #f5f5f5;
+    color: var(--black);
 }
 
-.auth-container {
-    width: 100%;
-    max-width: 440px;
-}
-
-.auth-box {
-    padding: 42px 35px;
-    background: rgba(255,255,255,.07);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 22px;
-    box-shadow: 0 8px 40px rgba(0,0,0,.5),
-                0 0 25px rgba(255,118,40,.08);
-    text-align: center;
-}
-
-.logo {
-    font-size: 34px;
-    font-weight: 800;
-    color: white;
+a {
     text-decoration: none;
 }
 
-.logo span {
-    color: #FF7628;
+/* MAIN LAYOUT */
+
+.auth-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
-.tagline {
-    color: #FF7628;
-    font-size: 11px;
+/* LEFT VISUAL PANEL */
+
+.visual-panel {
+    position: relative;
+    min-height: 100vh;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(10,10,10,.85),
+            rgba(10,10,10,.48)
+        ),
+        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1800&q=85');
+
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 45px 55px;
+    overflow: hidden;
+    color: white;
+}
+
+.visual-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255,118,40,.15),
+        transparent 60%
+    );
+    pointer-events: none;
+}
+
+.visual-content,
+.visual-footer,
+.visual-logo {
+    position: relative;
+    z-index: 2;
+}
+
+.visual-logo {
+    font-size: 30px;
+    font-weight: 800;
+    color: white;
+}
+
+.visual-logo span {
+    color: var(--orange);
+}
+
+.visual-content {
+    max-width: 600px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.visual-content .small-heading {
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 800;
     letter-spacing: 4px;
-    margin: 7px 0 32px;
-    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
 }
 
-.auth-box h1 {
-    font-size: 29px;
-    margin-bottom: 10px;
+.visual-content h1 {
+    font-size: clamp(45px, 5vw, 76px);
+    line-height: 1.05;
+    font-weight: 800;
+    margin-bottom: 25px;
 }
 
-.subtitle {
-    color: #bdbdbd;
+.visual-content h1 span {
+    color: var(--orange);
+}
+
+.visual-content p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #e2e2e2;
+    max-width: 480px;
+    margin-bottom: 35px;
+}
+
+.explore-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--orange);
+    color: white;
+    padding: 17px 27px;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: .3s;
+}
+
+.explore-button:hover {
+    background: var(--orange-light);
+    transform: translateY(-3px);
+}
+
+.visual-footer {
+    color: #c5c5c5;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* RIGHT LOGIN PANEL */
+
+.form-panel {
+    background: white;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 45px 8%;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 460px;
+}
+
+.mobile-logo {
+    display: none;
+}
+
+.home-link {
+    display: inline-block;
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 38px;
+    transition: .3s;
+}
+
+.home-link:hover {
+    transform: translateX(-4px);
+}
+
+.welcome-heading {
+    text-align: center;
+    margin-bottom: 38px;
+}
+
+.welcome-heading .welcome-small {
+    color: var(--grey);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.welcome-heading h2 {
+    font-size: 39px;
+    font-weight: 800;
+    color: var(--black);
+    margin-bottom: 12px;
+}
+
+.welcome-heading h2 span {
+    color: var(--orange);
+}
+
+.welcome-heading p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* MESSAGES */
+
+.error-message {
+    background: #fff0ef;
+    color: #c0392b;
+    border: 1px solid #ffd2cd;
+    padding: 13px;
+    border-radius: 9px;
+    margin-bottom: 20px;
     font-size: 13px;
-    line-height: 1.6;
-    margin-bottom: 28px;
 }
+
+.success-message {
+    background: #fff4e9;
+    color: #b85b1b;
+    border: 1px solid #ffd9bd;
+    padding: 13px;
+    border-radius: 9px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+/* FORM */
 
 .form-group {
-    text-align: left;
-    margin-bottom: 21px;
+    margin-bottom: 23px;
 }
 
 .form-group label {
     display: block;
-    font-size: 13px;
-    margin-bottom: 9px;
-    color: #eee;
+    font-size: 14px;
+    font-weight: 700;
+    color: #292929;
+    margin-bottom: 10px;
 }
 
 .form-group input {
     width: 100%;
-    height: 50px;
-    padding: 0 15px;
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.16);
+    height: 56px;
+    padding: 0 17px;
+    border: 1px solid #dedede;
     border-radius: 10px;
-    outline: none;
-    color: white;
+    background: #fafafa;
+    color: #222;
     font-size: 14px;
+    outline: none;
     transition: .3s;
 }
 
@@ -174,8 +339,9 @@ body {
 }
 
 .form-group input:focus {
-    border-color: #FF7628;
-    box-shadow: 0 0 12px rgba(255,118,40,.2);
+    border-color: var(--orange);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255,118,40,.10);
 }
 
 .password-wrapper {
@@ -188,95 +354,201 @@ body {
 
 .toggle-password {
     position: absolute;
-    right: 13px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
     border: none;
-    color: #FF7628;
+    background: transparent;
+    color: var(--orange);
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 800;
     cursor: pointer;
 }
 
-.toggle-password:hover {
-    color: white;
+.form-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -7px;
+    margin-bottom: 25px;
 }
+
+.forgot-link {
+    color: var(--orange);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.forgot-link:hover {
+    color: #d95712;
+}
+
+/* BUTTON */
 
 .auth-button {
     width: 100%;
-    height: 51px;
+    height: 56px;
     border: none;
     border-radius: 10px;
-    background: #FF7628;
+    background: var(--orange);
     color: white;
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 800;
     cursor: pointer;
     transition: .3s;
-    margin-top: 8px;
 }
 
 .auth-button:hover {
-    background: #ff8d4d;
-    box-shadow: 0 0 22px rgba(255,118,40,.4);
+    background: #e9651d;
+    box-shadow: 0 8px 22px rgba(255,118,40,.25);
     transform: translateY(-2px);
 }
 
-.error-message {
-    background: rgba(255,60,60,.13);
-    color: #ff9292;
-    border: 1px solid rgba(255,60,60,.3);
-    padding: 12px;
-    border-radius: 9px;
-    margin-bottom: 20px;
-    font-size: 13px;
+/* DIVIDER */
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 30px 0;
+    color: #999;
+    font-size: 12px;
 }
 
-.success-message {
-    background: rgba(30,150,70,.15);
-    color: #8be0a5;
-    padding: 12px;
-    border-radius: 9px;
-    margin-bottom: 20px;
-    font-size: 13px;
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e7e7e7;
 }
+
+/* ACCOUNT SWITCH */
 
 .auth-switch {
-    margin-top: 25px;
-    font-size: 13px;
-    color: #bbb;
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    line-height: 1.8;
 }
 
 .auth-switch a {
-    color: #FF7628;
-    text-decoration: none;
-    font-weight: bold;
+    color: var(--orange);
+    font-weight: 800;
+    margin-left: 5px;
 }
 
-.back-home {
-    display: inline-block;
-    margin-top: 25px;
-    color: #aaa;
-    text-decoration: none;
-    font-size: 13px;
+.auth-switch a:hover {
+    text-decoration: underline;
 }
 
-.back-home:hover {
-    color: #FF7628;
+.back-home-bottom {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+    color: #999;
+    font-size: 12px;
 }
 
-@media(max-width: 480px) {
-    body {
-        padding: 16px;
+.back-home-bottom:hover {
+    color: var(--orange);
+}
+
+/* TABLETS */
+
+@media(max-width: 950px) {
+    .auth-layout {
+        grid-template-columns: 42% 58%;
     }
 
-    .auth-box {
-        padding: 35px 23px;
+    .visual-panel {
+        padding: 35px;
     }
 
-    .auth-box h1 {
-        font-size: 26px;
+    .visual-content h1 {
+        font-size: 48px;
+    }
+
+    .form-panel {
+        padding: 40px 7%;
+    }
+}
+
+/* MOBILE */
+
+@media(max-width: 700px) {
+    .auth-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .visual-panel {
+        min-height: 340px;
+        padding: 28px 25px;
+        background-position: center;
+    }
+
+    .visual-logo {
+        font-size: 25px;
+    }
+
+    .visual-content {
+        margin: 55px 0 35px;
+    }
+
+    .visual-content .small-heading {
+        font-size: 11px;
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+    }
+
+    .visual-content h1 {
+        font-size: 43px;
+        margin-bottom: 15px;
+    }
+
+    .visual-content p {
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .explore-button {
+        padding: 13px 21px;
+        font-size: 13px;
+    }
+
+    .visual-footer {
+        font-size: 10px;
+    }
+
+    .form-panel {
+        min-height: auto;
+        padding: 45px 24px;
+    }
+
+    .form-content {
+        max-width: 480px;
+    }
+
+    .home-link {
+        margin-bottom: 25px;
+    }
+
+    .welcome-heading {
+        margin-bottom: 30px;
+    }
+
+    .welcome-heading h2 {
+        font-size: 32px;
+    }
+}
+
+@media(max-width: 380px) {
+    .visual-content h1 {
+        font-size: 36px;
+    }
+
+    .form-panel {
+        padding: 35px 18px;
     }
 }
 </style>
@@ -284,91 +556,184 @@ body {
 
 <body>
 
-<div class="auth-container">
-    <div class="auth-box">
+<div class="auth-layout">
 
-        <a href="index.php" class="logo">
+    <!-- LEFT VISUAL SECTION -->
+
+    <section class="visual-panel">
+
+        <a href="index.php" class="visual-logo">
             Dine<span>Now.</span>
         </a>
 
-        <p class="tagline">BOOK. DINE. ENJOY.</p>
+        <div class="visual-content">
 
-        <h1>Welcome Back</h1>
-
-        <p class="subtitle">
-            Login to your DineNow account and continue exploring.
-        </p>
-
-        <?php if ($registered): ?>
-            <div class="success-message">
-                Registration successful! You can now log in.
+            <div class="small-heading">
+                BOOK. DINE. ENJOY.
             </div>
-        <?php endif; ?>
 
-        <?php if (!empty($error)): ?>
-            <div class="error-message">
-                <?= htmlspecialchars($error) ?>
+            <h1>
+                Welcome to<br>
+                Dine<span>Now</span>
+            </h1>
+
+            <p>
+                Discover and book the best restaurants,
+                enjoy delicious meals, and create
+                unforgettable dining experiences.
+            </p>
+
+            <a href="restaurants.php" class="explore-button">
+                Explore Restaurants <span>→</span>
+            </a>
+
+        </div>
+
+        <div class="visual-footer">
+            GOOD FOOD. GREAT MOMENTS. ONLY ON DINENOW.
+        </div>
+
+    </section>
+
+
+    <!-- RIGHT LOGIN SECTION -->
+
+    <section class="form-panel">
+
+        <div class="form-content">
+
+            <a href="index.php" class="home-link">
+                ← Back to Homepage
+            </a>
+
+            <div class="welcome-heading">
+
+                <p class="welcome-small">
+                    Welcome back to
+                </p>
+
+                <h2>
+                    Dine<span>Now.</span>
+                </h2>
+
+                <p>
+                    Login to your account and continue
+                    your dining experience with us.
+                </p>
+
             </div>
-        <?php endif; ?>
 
-        <form method="POST" action="">
 
-            <input type="hidden" name="csrf_token"
-                   value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            <?php if ($registered): ?>
+                <div class="success-message">
+                    Registration successful! You can now log in.
+                </div>
+            <?php endif; ?>
 
-            <div class="form-group">
-                <label>Email Address</label>
+
+            <?php if (!empty($error)): ?>
+                <div class="error-message">
+                    <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php endif; ?>
+
+
+            <form method="POST" action="">
+
                 <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter your email address"
-                    value="<?= htmlspecialchars($email) ?>"
-                    autocomplete="email"
-                    required
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>"
                 >
-            </div>
 
-            <div class="form-group">
-                <label>Password</label>
+                <div class="form-group">
 
-                <div class="password-wrapper">
+                    <label for="email">
+                        Email Address
+                    </label>
+
                     <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email address"
+                        value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
+                        autocomplete="email"
                         required
                     >
 
-                    <button
-                        type="button"
-                        class="toggle-password"
-                        onclick="togglePassword('password', this)"
-                    >Show</button>
                 </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePassword('password', this)"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-options">
+                    <a href="#" class="forgot-link">
+                        Forgot Password?
+                    </a>
+                </div>
+
+
+                <button type="submit" class="auth-button">
+                    Login to Account →
+                </button>
+
+            </form>
+
+
+            <div class="divider">
+                YOUR DINING EXPERIENCE STARTS HERE
             </div>
 
-            <button type="submit" class="auth-button">
-                Login to Account
-            </button>
 
-        </form>
+            <p class="auth-switch">
+                Don't have an account?
+                <a href="register.php">Create Account</a>
+            </p>
 
-        <p class="auth-switch">
-            Don't have an account?
-            <a href="register.php">Create Account</a>
-        </p>
 
-        <a href="index.php" class="back-home">
-            ← Back to Homepage
-        </a>
+            <a href="index.php" class="back-home-bottom">
+                © <?= date('Y') ?> DineNow. All Rights Reserved.
+            </a>
 
-    </div>
+        </div>
+
+    </section>
+
 </div>
+
 
 <script>
 function togglePassword(inputId, button) {
+
     const passwordInput = document.getElementById(inputId);
 
     if (passwordInput.type === "password") {
@@ -378,6 +743,7 @@ function togglePassword(inputId, button) {
         passwordInput.type = "password";
         button.textContent = "Show";
     }
+
 }
 </script>
 

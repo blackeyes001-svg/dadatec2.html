@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 require_once __DIR__ . "/includes/db.php";
@@ -103,7 +102,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -116,9 +114,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <title>Create Account | DineNow</title>
 
-<link rel="stylesheet" href="css/auth.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+
+:root {
+    --orange: #FF7628;
+    --orange-light: #ff914f;
+    --black: #101010;
+    --dark: #191919;
+    --white: #ffffff;
+    --grey: #777777;
+}
 
 * {
     margin: 0;
@@ -128,94 +138,244 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 body {
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background:
-        radial-gradient(circle at 15% 20%, rgba(255,118,40,0.22), transparent 35%),
-        radial-gradient(circle at 85% 80%, rgba(255,118,40,0.15), transparent 35%),
-        linear-gradient(135deg, #080808, #191919, #090909);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 18px;
-    color: #fff;
+    font-family: 'DM Sans', Arial, sans-serif;
+    background: #f5f5f5;
+    color: var(--black);
 }
 
-.auth-container {
-    width: 100%;
-    max-width: 470px;
-}
-
-.auth-box {
-    width: 100%;
-    padding: 40px 35px;
-    background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 22px;
-    box-shadow:
-        0 8px 40px rgba(0,0,0,0.5),
-        0 0 25px rgba(255,118,40,0.08);
-    text-align: center;
-}
-
-.logo {
-    display: inline-block;
-    font-size: 34px;
-    font-weight: 800;
-    color: #fff;
+a {
     text-decoration: none;
-    letter-spacing: -1px;
 }
 
-.logo span {
-    color: #FF7628;
+/* MAIN LAYOUT */
+
+.auth-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
-.tagline {
-    color: #FF7628;
-    font-size: 11px;
+/* LEFT VISUAL PANEL */
+
+.visual-panel {
+    position: relative;
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(10,10,10,.85),
+            rgba(10,10,10,.48)
+        ),
+        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1800&q=85');
+
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 45px 55px;
+
+    overflow: hidden;
+    color: white;
+}
+
+.visual-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        135deg,
+        rgba(255,118,40,.15),
+        transparent 60%
+    );
+
+    pointer-events: none;
+}
+
+.visual-logo,
+.visual-content,
+.visual-footer {
+    position: relative;
+    z-index: 2;
+}
+
+.visual-logo {
+    font-size: 30px;
+    font-weight: 800;
+    color: white;
+}
+
+.visual-logo span {
+    color: var(--orange);
+}
+
+.visual-content {
+    max-width: 600px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.visual-content .small-heading {
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 800;
     letter-spacing: 4px;
-    margin-top: 7px;
-    margin-bottom: 27px;
-    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
 }
 
-.auth-box h1 {
-    font-size: 29px;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    color: #bdbdbd;
-    font-size: 13px;
-    line-height: 1.6;
+.visual-content h1 {
+    font-size: clamp(45px, 5vw, 76px);
+    line-height: 1.05;
+    font-weight: 800;
     margin-bottom: 25px;
 }
 
+.visual-content h1 span {
+    color: var(--orange);
+}
+
+.visual-content p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #e2e2e2;
+    max-width: 480px;
+    margin-bottom: 35px;
+}
+
+.explore-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+
+    background: var(--orange);
+    color: white;
+
+    padding: 17px 27px;
+    border-radius: 50px;
+
+    font-weight: 700;
+    transition: .3s;
+}
+
+.explore-button:hover {
+    background: var(--orange-light);
+    transform: translateY(-3px);
+}
+
+.visual-footer {
+    color: #c5c5c5;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* RIGHT FORM PANEL */
+
+.form-panel {
+    background: white;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 35px 8%;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 460px;
+}
+
+.home-link {
+    display: inline-block;
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    transition: .3s;
+}
+
+.home-link:hover {
+    transform: translateX(-4px);
+}
+
+/* WELCOME HEADING */
+
+.welcome-heading {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.welcome-heading .welcome-small {
+    color: var(--grey);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.welcome-heading h2 {
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--black);
+    margin-bottom: 10px;
+}
+
+.welcome-heading h2 span {
+    color: var(--orange);
+}
+
+.welcome-heading p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* ERROR MESSAGE */
+
+.error-message {
+    background: #fff0ef;
+    color: #c0392b;
+    border: 1px solid #ffd2cd;
+    padding: 13px;
+    border-radius: 9px;
+    margin-bottom: 18px;
+    font-size: 13px;
+}
+
+/* FORM GROUPS */
+
 .form-group {
-    text-align: left;
-    margin-bottom: 17px;
+    margin-bottom: 16px;
 }
 
 .form-group label {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #292929;
     margin-bottom: 8px;
-    color: #eee;
 }
 
 .form-group input {
     width: 100%;
-    height: 49px;
-    padding: 0 15px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.16);
+    height: 51px;
+
+    padding: 0 16px;
+
+    border: 1px solid #dedede;
     border-radius: 10px;
-    outline: none;
-    color: #fff;
+
+    background: #fafafa;
+    color: #222;
+
     font-size: 14px;
-    transition: 0.3s;
+    outline: none;
+
+    transition: .3s;
 }
 
 .form-group input::placeholder {
@@ -223,12 +383,13 @@ body {
 }
 
 .form-group input:focus {
-    border-color: #FF7628;
-    box-shadow: 0 0 12px rgba(255,118,40,0.2);
-    background: rgba(255,255,255,0.11);
+    border-color: var(--orange);
+    background: white;
+
+    box-shadow: 0 0 0 4px rgba(255,118,40,.10);
 }
 
-/* Password show and hide */
+/* PASSWORD */
 
 .password-wrapper {
     position: relative;
@@ -240,93 +401,200 @@ body {
 
 .toggle-password {
     position: absolute;
-    right: 13px;
+    right: 15px;
     top: 50%;
+
     transform: translateY(-50%);
-    background: none;
+
     border: none;
-    color: #FF7628;
+    background: transparent;
+
+    color: var(--orange);
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 800;
+
     cursor: pointer;
-    padding: 8px 3px;
 }
 
-.toggle-password:hover {
-    color: #fff;
-}
+/* REGISTER BUTTON */
 
 .auth-button {
     width: 100%;
-    height: 51px;
+    height: 54px;
+
     border: none;
     border-radius: 10px;
-    background: #FF7628;
-    color: #fff;
+
+    background: var(--orange);
+    color: white;
+
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 800;
+
     cursor: pointer;
-    transition: 0.3s;
-    margin-top: 9px;
+    transition: .3s;
+
+    margin-top: 8px;
 }
 
 .auth-button:hover {
-    background: #ff8d4d;
-    box-shadow: 0 0 22px rgba(255,118,40,0.4);
+    background: #e9651d;
+
+    box-shadow: 0 8px 22px rgba(255,118,40,.25);
+
     transform: translateY(-2px);
 }
 
-.error-message {
-    background: rgba(255,60,60,0.13);
-    color: #ff9292;
-    border: 1px solid rgba(255,60,60,0.3);
-    padding: 12px;
-    border-radius: 9px;
-    margin-bottom: 20px;
-    font-size: 13px;
+/* DIVIDER */
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    margin: 24px 0;
+
+    color: #999;
+    font-size: 11px;
+    text-align: center;
 }
 
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e7e7e7;
+}
+
+/* ACCOUNT SWITCH */
+
 .auth-switch {
-    margin-top: 24px;
-    font-size: 13px;
-    color: #bbb;
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    line-height: 1.8;
 }
 
 .auth-switch a {
-    color: #FF7628;
-    text-decoration: none;
-    font-weight: bold;
+    color: var(--orange);
+    font-weight: 800;
+    margin-left: 5px;
 }
 
 .auth-switch a:hover {
     text-decoration: underline;
 }
 
-.back-home {
-    display: inline-block;
-    margin-top: 23px;
-    color: #aaa;
-    text-decoration: none;
-    font-size: 13px;
-    transition: 0.3s;
+.back-home-bottom {
+    display: block;
+    text-align: center;
+    margin-top: 24px;
+    color: #999;
+    font-size: 12px;
 }
 
-.back-home:hover {
-    color: #FF7628;
+.back-home-bottom:hover {
+    color: var(--orange);
 }
 
-@media(max-width: 480px) {
+/* TABLETS */
 
-    body {
-        padding: 18px 13px;
+@media(max-width: 950px) {
+
+    .auth-layout {
+        grid-template-columns: 42% 58%;
     }
 
-    .auth-box {
-        padding: 32px 22px;
+    .visual-panel {
+        padding: 35px;
     }
 
-    .auth-box h1 {
-        font-size: 26px;
+    .visual-content h1 {
+        font-size: 48px;
+    }
+
+    .form-panel {
+        padding: 30px 7%;
+    }
+
+}
+
+/* MOBILE */
+
+@media(max-width: 700px) {
+
+    .auth-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .visual-panel {
+        min-height: 340px;
+        padding: 28px 25px;
+        background-position: center;
+    }
+
+    .visual-logo {
+        font-size: 25px;
+    }
+
+    .visual-content {
+        margin: 45px 0 30px;
+    }
+
+    .visual-content .small-heading {
+        font-size: 11px;
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+    }
+
+    .visual-content h1 {
+        font-size: 43px;
+        margin-bottom: 15px;
+    }
+
+    .visual-content p {
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .explore-button {
+        padding: 13px 21px;
+        font-size: 13px;
+    }
+
+    .visual-footer {
+        font-size: 10px;
+    }
+
+    .form-panel {
+        min-height: auto;
+        padding: 40px 24px;
+    }
+
+    .form-content {
+        max-width: 480px;
+    }
+
+    .home-link {
+        margin-bottom: 22px;
+    }
+
+    .welcome-heading h2 {
+        font-size: 32px;
+    }
+
+}
+
+@media(max-width: 380px) {
+
+    .visual-content h1 {
+        font-size: 36px;
+    }
+
+    .form-panel {
+        padding: 35px 18px;
     }
 
 }
@@ -337,160 +605,242 @@ body {
 
 <body>
 
-<div class="auth-container">
+<div class="auth-layout">
 
-    <div class="auth-box">
+    <!-- LEFT VISUAL SECTION -->
 
-        <a href="index.php" class="logo">
+    <section class="visual-panel">
+
+        <a href="index.php" class="visual-logo">
             Dine<span>Now.</span>
         </a>
 
-        <p class="tagline">BOOK. DINE. ENJOY.</p>
+        <div class="visual-content">
 
-        <h1>Create Account</h1>
-
-        <p class="subtitle">
-            Join DineNow and discover amazing restaurants.
-        </p>
-
-        <?php if (!empty($error)): ?>
-
-            <div class="error-message">
-                <?= htmlspecialchars($error) ?>
+            <div class="small-heading">
+                BOOK. DINE. ENJOY.
             </div>
 
-        <?php endif; ?>
+            <h1>
+                Welcome to<br>
+                Dine<span>Now</span>
+            </h1>
 
-        <form method="POST" action="">
+            <p>
+                Discover and book the best restaurants,
+                enjoy delicious meals, and create
+                unforgettable dining experiences.
+            </p>
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-            >
+            <a href="restaurants.php" class="explore-button">
+                Explore Restaurants <span>→</span>
+            </a>
 
-            <div class="form-group">
+        </div>
 
-                <label>Full Name</label>
+        <div class="visual-footer">
+            GOOD FOOD. GREAT MOMENTS. ONLY ON DINENOW.
+        </div>
+
+    </section>
+
+
+    <!-- RIGHT REGISTRATION SECTION -->
+
+    <section class="form-panel">
+
+        <div class="form-content">
+
+            <a href="index.php" class="home-link">
+                ← Back to Homepage
+            </a>
+
+            <div class="welcome-heading">
+
+                <p class="welcome-small">
+                    Join the DineNow experience
+                </p>
+
+                <h2>
+                    Create Your <span>Account.</span>
+                </h2>
+
+                <p>
+                    Sign up today and discover amazing
+                    restaurants and unforgettable meals.
+                </p>
+
+            </div>
+
+
+            <?php if (!empty($error)): ?>
+
+                <div class="error-message">
+                    <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+
+            <?php endif; ?>
+
+
+            <form method="POST" action="">
 
                 <input
-                    type="text"
-                    name="full_name"
-                    placeholder="Enter your full name"
-                    value="<?= htmlspecialchars($full_name) ?>"
-                    maxlength="100"
-                    autocomplete="name"
-                    required
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>"
                 >
 
-            </div>
 
-            <div class="form-group">
+                <div class="form-group">
 
-                <label>Email Address</label>
-
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    value="<?= htmlspecialchars($email) ?>"
-                    maxlength="150"
-                    autocomplete="email"
-                    required
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label>Phone Number</label>
-
-                <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Enter your phone number"
-                    value="<?= htmlspecialchars($phone) ?>"
-                    maxlength="20"
-                    autocomplete="tel"
-                    required
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label>Password</label>
-
-                <div class="password-wrapper">
+                    <label for="full_name">
+                        Full Name
+                    </label>
 
                     <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Minimum 8 characters"
-                        minlength="8"
-                        autocomplete="new-password"
+                        type="text"
+                        id="full_name"
+                        name="full_name"
+                        placeholder="Enter your full name"
+                        value="<?= htmlspecialchars($full_name, ENT_QUOTES, 'UTF-8') ?>"
+                        maxlength="100"
+                        autocomplete="name"
                         required
                     >
 
-                    <button
-                        type="button"
-                        class="toggle-password"
-                        onclick="togglePassword('password', this)"
-                    >
-                        Show
-                    </button>
-
                 </div>
 
-            </div>
 
-            <div class="form-group">
+                <div class="form-group">
 
-                <label>Confirm Password</label>
-
-                <div class="password-wrapper">
+                    <label for="email">
+                        Email Address
+                    </label>
 
                     <input
-                        type="password"
-                        id="confirm_password"
-                        name="confirm_password"
-                        placeholder="Confirm your password"
-                        minlength="8"
-                        autocomplete="new-password"
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email address"
+                        value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
+                        maxlength="150"
+                        autocomplete="email"
                         required
                     >
 
-                    <button
-                        type="button"
-                        class="toggle-password"
-                        onclick="togglePassword('confirm_password', this)"
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        Phone Number
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter your phone number"
+                        value="<?= htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') ?>"
+                        maxlength="20"
+                        autocomplete="tel"
+                        required
                     >
-                        Show
-                    </button>
 
                 </div>
 
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Minimum 8 characters"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePassword('password', this)"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="confirm_password">
+                        Confirm Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="Confirm your password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePassword('confirm_password', this)"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button type="submit" class="auth-button">
+                    Create My Account →
+                </button>
+
+            </form>
+
+
+            <div class="divider">
+                YOUR DINING EXPERIENCE STARTS HERE
             </div>
 
-            <button type="submit" class="auth-button">
-                Create Account
-            </button>
 
-        </form>
+            <p class="auth-switch">
+                Already have an account?
+                <a href="login.php">Login</a>
+            </p>
 
-        <p class="auth-switch">
-            Already have an account?
-            <a href="login.php">Login</a>
-        </p>
 
-        <a href="index.php" class="back-home">
-            ← Back to Homepage
-        </a>
+            <a href="index.php" class="back-home-bottom">
+                © <?= date('Y') ?> DineNow. All Rights Reserved.
+            </a>
 
-    </div>
+        </div>
+
+    </section>
 
 </div>
+
 
 <script>
 
