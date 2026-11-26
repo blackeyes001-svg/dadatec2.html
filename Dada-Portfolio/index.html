@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="David Dada Babatunde — Computer Science student and aspiring full-stack web developer. Explore my skills, projects and journey.">
+  <meta name="theme-color" content="#090d1a">
+  <title>David Dada Babatunde | Developer Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="David Dada home">
+        <span class="brand-mark">D<span>.</span></span>
+        <span class="brand-name">DAVID <b>DADA</b></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#journey" class="nav-link">Journey</a>
+        <a href="#contact" class="nav-link nav-contact">Let's talk <span>↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero section" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="availability"><span class="status-dot"></span> OPEN TO LEARNING & OPPORTUNITIES</div>
+          <p class="eyebrow">HELLO, I'M</p>
+          <h1>David Dada<br><span class="gradient-text">Babatunde.</span></h1>
+          <h2 class="hero-role">I build for the <span id="typedText">web</span><span class="typing-cursor">|</span></h2>
+          <p class="hero-description">I'm a Computer Science student and aspiring full-stack developer who enjoys turning ideas into useful, thoughtful digital experiences.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#projects">Explore my work <span>↗</span></a>
+            <a class="button button-secondary" href="https://mail.google.com/mail/?view=cm&fs=1&to=dadadavid097@gmail.com&su=Portfolio%20Enquiry%20%E2%80%94%20David%20Dada" target="_blank" rel="noopener">Message me <span>✉</span></a>
+          </div>
+          <div class="hero-meta">
+            <span><i class="meta-line"></i> Based in Nigeria</span>
+            <span>Computer Science · JOSTUM</span>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="hero-card">
+            <div class="card-top"><span class="window-dots"><i></i><i></i><i></i></span><span>developer.profile</span><span>✳</span></div>
+            <div class="avatar-wrap"><div class="avatar">DD<span>.</span></div><div class="avatar-ring"></div></div>
+            <p class="card-kicker">THE PERSON BEHIND THE CODE</p>
+            <h3>Curious mind.<br><span class="gradient-text">Builder's mindset.</span></h3>
+            <p class="card-note">Learning, experimenting, building — one project at a time.</p>
+            <div class="card-bottom"><span>HTML · CSS · JS · PHP</span><span class="live-pulse"></span></div>
+          </div>
+          <div class="floating-chip chip-code"><span>&lt;/&gt;</span> Clean code</div>
+          <div class="floating-chip chip-idea"><span>✦</span> Always learning</div>
+        </div>
+      </div>
+      <a class="scroll-cue" href="#about"><span></span> SCROLL TO EXPLORE</a>
+    </section>
+
+    <section class="section about-section" id="about">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">A LITTLE ABOUT ME</p><h2>Not just writing code.<br><span class="gradient-text">Growing through it.</span></h2></div>
+        <div class="about-grid">
+          <div class="about-copy reveal">
+            <p class="lead">I'm David Dada Babatunde, a Computer Science undergraduate at Joseph Sarwuan Tarka University, Makurdi, Nigeria.</p>
+            <p>My journey in technology is driven by curiosity and a genuine interest in how digital products are designed and built. I enjoy working on websites and web applications, learning how the front end connects with the back end, and improving my skills through practical projects.</p>
+            <p>I've been building with HTML, CSS, JavaScript, PHP and MySQL. Each project gives me a chance to solve a real problem, learn something new and become a better developer. I'm still growing, and I'm intentional about that process.</p>
+            <a class="text-link" href="#contact">Let's connect <span>↗</span></a>
+          </div>
+          <div class="about-facts reveal">
+            <div class="fact-card"><span class="fact-icon">⌘</span><div><b>My focus</b><p>Web development & practical problem-solving</p></div></div>
+            <div class="fact-card"><span class="fact-icon">◎</span><div><b>My approach</b><p>Learn by building, testing and improving</p></div></div>
+            <div class="fact-card"><span class="fact-icon">⌖</span><div><b>My direction</b><p>Growing towards full-stack development</p></div></div>
+            <div class="fact-card"><span class="fact-icon">✦</span><div><b>Beyond code</b><p>Curiosity, consistency and collaboration</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section skills-section" id="skills">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">TOOLS OF THE TRADE</p><h2>Technologies I'm <span class="gradient-text">working with.</span></h2><p class="section-subtitle">A growing toolkit, strengthened through practice and projects.</p></div>
+        <div class="skills-grid">
+          <article class="skill-card reveal"><span class="skill-symbol orange">&lt;/&gt;</span><h3>HTML5</h3><p>Building clear, semantic page structures.</p><span class="skill-tag">FRONT END</span></article>
+          <article class="skill-card reveal"><span class="skill-symbol blue">✳</span><h3>CSS3</h3><p>Responsive layouts, styling and interactions.</p><span class="skill-tag">FRONT END</span></article>
+          <article class="skill-card reveal"><span class="skill-symbol yellow">JS</span><h3>JavaScript</h3><p>Adding behaviour and interactivity to websites.</p><span class="skill-tag">FRONT END</span></article>
+          <article class="skill-card reveal"><span class="skill-symbol violet">PHP</span><h3>PHP</h3><p>Learning server-side logic and application features.</p><span class="skill-tag">BACK END</span></article>
+          <article class="skill-card reveal"><span class="skill-symbol cyan">▤</span><h3>MySQL</h3><p>Working with relational databases and queries.</p><span class="skill-tag">DATABASE</span></article>
+          <article class="skill-card reveal"><span class="skill-symbol green">Py</span><h3>Python</h3><p>Programming fundamentals and problem-solving.</p><span class="skill-tag">PROGRAMMING</span></article>
+          <article class="skill-card reveal"><span class="skill-symbol white">⌘</span><h3>Git & GitHub</h3><p>Exploring version control and project sharing.</p><span class="skill-tag">WORKFLOW</span></article>
+          <article class="skill-card skill-learning reveal"><span class="skill-symbol gradient-symbol">＋</span><h3>Always learning</h3><p>Improving my workflow and exploring new tools.</p><span class="skill-tag">GROWTH MINDSET</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects-section" id="projects">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">SELECTED WORK</p><h2>Things I've been <span class="gradient-text">building.</span></h2><p class="section-subtitle">A selection of practical projects. More details and live links can be added as each project is published.</p></div>
+        <div class="projects-grid">
+          <article class="project-card project-featured reveal">
+            <div class="project-art sports-art"><div class="art-grid"></div><span class="art-label">E-COMMERCE / PHP</span><div class="mock-store"><div class="mock-store-nav">BAYOGOAL <span>SPORTS</span></div><div class="mock-store-title">GEAR UP.<br><b>PLAY BIG.</b></div><div class="mock-store-ball">⚽</div><div class="mock-store-foot">SPORTS EQUIPMENT STORE</div></div></div>
+            <div class="project-info"><div class="project-type">01 / E-COMMERCE</div><h3>BayoGoal Enterprises</h3><p>A sports equipment e-commerce project with product browsing, customer accounts, cart, checkout and an admin area for managing products and orders.</p><div class="tag-row"><span>PHP</span><span>MySQL</span><span>HTML</span><span>CSS</span><span>JavaScript</span></div><a class="project-link" href="mailto:dadadavid097@gmail.com?subject=BayoGoal%20Project%20Enquiry">Ask about this project <span>↗</span></a></div>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-art tech-art"><div class="art-label">WEB DESIGN / FRONT END</div><div class="tech-window"><span class="window-dots"><i></i><i></i><i></i></span><div class="tech-logo">DADA<span>'S</span><br>TECH.</div><div class="tech-caption">TECHNOLOGY<br>BUILT FOR YOU.</div><div class="tech-bars"><i></i><i></i><i></i></div></div></div>
+            <div class="project-info"><div class="project-type">02 / BUSINESS WEBSITE</div><h3>Dada's Tech</h3><p>A computer hardware and accessories website concept, designed to present technology products in a clean, accessible storefront.</p><div class="tag-row"><span>HTML</span><span>CSS</span><span>JavaScript</span></div><a class="project-link" href="mailto:dadadavid097@gmail.com?subject=Dadas%20Tech%20Project%20Enquiry">Ask about this project <span>↗</span></a></div>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-art restaurant-art"><div class="art-label">BOOKING SYSTEM / PHP</div><div class="restaurant-scene"><span class="restaurant-spark">✦</span><div class="restaurant-name">THE<br><b>TABLE</b></div><div class="restaurant-line"></div><small>GOOD FOOD. GOOD MOMENTS.</small></div></div>
+            <div class="project-info"><div class="project-type">03 / WEB APPLICATION</div><h3>Restaurant Booking System</h3><p>A restaurant website project focused on table reservations, booking management and administrative functionality.</p><div class="tag-row"><span>PHP</span><span>MySQL</span><span>CSS</span><span>JavaScript</span></div><a class="project-link" href="mailto:dadadavid097@gmail.com?subject=Restaurant%20Booking%20Project%20Enquiry">Ask about this project <span>↗</span></a></div>
+          </article>
+        </div>
+        <p class="project-note">Project previews are illustrative designs. Replace them with real screenshots and add live demo or GitHub links when ready.</p>
+      </div>
+    </section>
+
+    <section class="section journey-section" id="journey">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">THE ROAD SO FAR</p><h2>My learning <span class="gradient-text">journey.</span></h2></div>
+        <div class="timeline">
+          <div class="timeline-item reveal"><span class="timeline-dot"></span><div class="timeline-date">ACADEMIC FOUNDATION</div><h3>Computer Science — JOSTUM</h3><p>Studying for a B.Sc. in Computer Science at Joseph Sarwuan Tarka University, Makurdi.</p></div>
+          <div class="timeline-item reveal"><span class="timeline-dot"></span><div class="timeline-date">PRACTICAL DEVELOPMENT</div><h3>Building web projects</h3><p>Developing practical websites and applications while strengthening my knowledge of front-end and back-end development.</p></div>
+          <div class="timeline-item reveal"><span class="timeline-dot"></span><div class="timeline-date">19 OCT 2026 — 19 JAN 2027</div><h3>SIWES / Industrial Training</h3><p>Gaining practical experience and expanding my web development skills through industrial training.</p></div>
+          <div class="timeline-item timeline-current reveal"><span class="timeline-dot"></span><div class="timeline-date">CURRENTLY</div><h3>Learning. Building. Improving.</h3><p>Continuing to practise, improve existing projects and work towards becoming a well-rounded developer.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact-section" id="contact">
+      <div class="container">
+        <div class="contact-panel reveal">
+          <div class="contact-orb"></div>
+          <p class="eyebrow">HAVE A PROJECT OR AN OPPORTUNITY?</p>
+          <h2>Let's make something<br><span class="gradient-text">meaningful.</span></h2>
+          <p class="contact-description">Have an idea, want to collaborate, or simply want to connect? My inbox is open.</p>
+          <a class="button button-primary contact-button" href="https://mail.google.com/mail/?view=cm&fs=1&to=dadadavid097@gmail.com&su=Portfolio%20Enquiry%20%E2%80%94%20David%20Dada" target="_blank" rel="noopener">Message me on Gmail <span>↗</span></a>
+          <div class="contact-email"> <span>EMAIL ME DIRECTLY</span><a href="mailto:dadadavid097@gmail.com">dadadavid097@gmail.com</a><button class="copy-email" id="copyEmail" aria-label="Copy email address" title="Copy email">▢</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner"><a class="brand" href="#home"><span class="brand-mark">D<span>.</span></span><span class="brand-name">DAVID <b>DADA</b></span></a><p>Designed & built with curiosity by David Dada Babatunde.</p><a href="#top" class="back-top">BACK TO TOP ↑</a></div>
+    <div class="footer-bottom">© <span id="year"></span> David Dada Babatunde. All rights reserved.</div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
