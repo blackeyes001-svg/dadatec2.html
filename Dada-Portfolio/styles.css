@@ -1624,3 +1624,183 @@ button {
 .project-note {
     text-align: center;
 }
+/* ==================================================
+   19. CONTACT SECTION
+================================================== */
+
+.contact-section {
+    padding: 100px 8%;
+    position: relative;
+}
+
+
+/* CONTACT GRID */
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+
+    max-width: 950px;
+    margin: 50px auto 0;
+}
+
+
+/* CONTACT CARD */
+
+.contact-card {
+    padding: 35px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    backdrop-filter: blur(15px);
+
+    transition: 0.3s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-7px);
+
+    border-color: var(--primary);
+
+    box-shadow: 0 15px 35px rgba(56, 189, 248, 0.10);
+}
+
+
+/* CONTACT ICON */
+
+.contact-icon {
+    width: 55px;
+    height: 55px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(56, 189, 248, 0.10);
+
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    border-radius: 12px;
+
+    font-size: 25px;
+
+    margin-bottom: 22px;
+}
+
+
+/* CONTACT TEXT */
+
+.contact-card h3 {
+    color: var(--white);
+
+    font-size: 20px;
+
+    margin-bottom: 12px;
+}
+
+.contact-card p {
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.8;
+
+    margin-bottom: 20px;
+}
+
+
+/* CONTACT DETAILS */
+
+.contact-number,
+.contact-email {
+    display: block;
+
+    color: var(--primary);
+
+    font-size: 13px;
+    font-weight: 600;
+
+    margin-bottom: 20px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* CONTACT BUTTON */
+
+.contact-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    padding: 12px 18px;
+
+    background: linear-gradient(
+        110deg,
+        #259bd2,
+        #7160dc
+    );
+
+    color: white;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition: 0.3s ease;
+}
+
+.contact-button:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 20px rgba(56, 189, 248, 0.20);
+}
+
+
+/* PHONE CALL OPTIONS */
+
+.contact-call-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-call-options a {
+    color: var(--primary);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.3s ease;
+}
+
+.contact-call-options a:hover {
+    color: var(--white);
+    padding-left: 5px;
+}
+
+
+/* CONTACT RESPONSIVENESS */
+
+@media (max-width: 700px) {
+
+    .contact-section {
+        padding: 75px 6%;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+
+        margin-top: 35px;
+    }
+
+    .contact-card {
+        padding: 28px;
+    }
+
+}
