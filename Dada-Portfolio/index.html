@@ -21,7 +21,6 @@
     <script src="script.js" defer></script>
 </head>
 
-
 <body>
 
     <div class="ambient ambient-one"></div>
@@ -47,10 +46,13 @@
             </a>
 
 
-            <button class="menu-toggle"
-                    id="menuToggle"
-                    aria-label="Open navigation"
-                    aria-expanded="false">
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open navigation"
+                aria-expanded="false"
+                aria-controls="navLinks">
 
                 <span></span>
                 <span></span>
@@ -82,6 +84,10 @@
     </header>
 
 
+    <!-- MOBILE NAVIGATION OVERLAY -->
+
+    <div class="nav-overlay" id="navOverlay"></div>
+
 
     <main>
 
@@ -93,7 +99,6 @@
         <section class="hero section" id="home">
 
             <div class="container hero-grid">
-
 
                 <div class="hero-copy reveal">
 
@@ -165,7 +170,6 @@
                     </div>
 
                 </div>
-
 
 
                 <!-- PROFILE CARD -->
@@ -278,11 +282,9 @@
 
             <div class="container">
 
-
                 <div class="section-heading reveal">
 
                     <p class="eyebrow">A LITTLE ABOUT ME</p>
-
 
                     <h2>
 
@@ -297,9 +299,7 @@
                 </div>
 
 
-
                 <div class="about-grid">
-
 
                     <div class="about-copy reveal">
 
@@ -341,9 +341,7 @@
                     </div>
 
 
-
                     <div class="about-facts reveal">
-
 
                         <div class="fact-card">
 
@@ -355,7 +353,6 @@
                             </div>
 
                         </div>
-
 
 
                         <div class="fact-card">
@@ -370,7 +367,6 @@
                         </div>
 
 
-
                         <div class="fact-card">
 
                             <span class="fact-icon">⌖</span>
@@ -381,7 +377,6 @@
                             </div>
 
                         </div>
-
 
 
                         <div class="fact-card">
@@ -413,11 +408,9 @@
 
             <div class="container">
 
-
                 <div class="section-heading reveal">
 
                     <p class="eyebrow">TOOLS OF THE TRADE</p>
-
 
                     <h2>
 
@@ -429,7 +422,6 @@
 
                     </h2>
 
-
                     <p class="section-subtitle">
 
                         A growing toolkit, strengthened through practice and projects.
@@ -439,9 +431,7 @@
                 </div>
 
 
-
                 <div class="skills-grid">
-
 
                     <article class="skill-card reveal">
 
@@ -454,7 +444,6 @@
                         <span class="skill-tag">FRONT END</span>
 
                     </article>
-
 
 
                     <article class="skill-card reveal">
@@ -470,7 +459,6 @@
                     </article>
 
 
-
                     <article class="skill-card reveal">
 
                         <span class="skill-symbol yellow">JS</span>
@@ -482,7 +470,6 @@
                         <span class="skill-tag">FRONT END</span>
 
                     </article>
-
 
 
                     <article class="skill-card reveal">
@@ -498,7 +485,6 @@
                     </article>
 
 
-
                     <article class="skill-card reveal">
 
                         <span class="skill-symbol cyan">▤</span>
@@ -510,7 +496,6 @@
                         <span class="skill-tag">DATABASE</span>
 
                     </article>
-
 
 
                     <article class="skill-card reveal">
@@ -526,7 +511,6 @@
                     </article>
 
 
-
                     <article class="skill-card reveal">
 
                         <span class="skill-symbol white">⌘</span>
@@ -538,7 +522,6 @@
                         <span class="skill-tag">WORKFLOW</span>
 
                     </article>
-
 
 
                     <article class="skill-card skill-learning reveal">
@@ -569,11 +552,9 @@
 
             <div class="container">
 
-
                 <div class="section-heading reveal">
 
                     <p class="eyebrow">SELECTED WORK</p>
-
 
                     <h2>
 
@@ -585,7 +566,6 @@
 
                     </h2>
 
-
                     <p class="section-subtitle">
 
                         A selection of practical projects I've worked on
@@ -596,14 +576,12 @@
                 </div>
 
 
-
                 <div class="projects-grid">
 
 
                     <!-- PROJECT 1: BAYOGOAL ENTERPRISES -->
 
                     <article class="project-card project-featured reveal">
-
 
                         <div class="project-art sports-art">
 
@@ -642,9 +620,7 @@
                         </div>
 
 
-
                         <div class="project-info">
-
 
                             <div class="project-type">
                                 01 / E-COMMERCE
@@ -669,13 +645,9 @@
                             <div class="tag-row">
 
                                 <span>PHP</span>
-
                                 <span>MySQL</span>
-
                                 <span>HTML</span>
-
                                 <span>CSS</span>
-
                                 <span>JavaScript</span>
 
                             </div>
@@ -714,9 +686,7 @@
 
                     <article class="project-card reveal">
 
-
                         <div class="project-art tech-art">
-
 
                             <div class="art-label">
                                 WEB DESIGN / FRONT END
@@ -765,9 +735,7 @@
                         </div>
 
 
-
                         <div class="project-info">
-
 
                             <div class="project-type">
                                 02 / BUSINESS WEBSITE
@@ -791,9 +759,7 @@
                             <div class="tag-row">
 
                                 <span>HTML</span>
-
                                 <span>CSS</span>
-
                                 <span>JavaScript</span>
 
                             </div>
@@ -832,9 +798,7 @@
 
                     <article class="project-card reveal">
 
-
                         <div class="project-art restaurant-art">
-
 
                             <div class="art-label">
                                 BOOKING SYSTEM / PHP
@@ -867,9 +831,7 @@
                         </div>
 
 
-
                         <div class="project-info">
-
 
                             <div class="project-type">
                                 03 / WEB APPLICATION
@@ -893,13 +855,9 @@
                             <div class="tag-row">
 
                                 <span>PHP</span>
-
                                 <span>MySQL</span>
-
                                 <span>HTML</span>
-
                                 <span>CSS</span>
-
                                 <span>JavaScript</span>
 
                             </div>
@@ -932,9 +890,7 @@
 
                     </article>
 
-
                 </div>
-
 
 
                 <p class="project-note">
@@ -943,7 +899,6 @@
                     when the projects are published.
 
                 </p>
-
 
             </div>
 
@@ -959,11 +914,9 @@
 
             <div class="container">
 
-
                 <div class="section-heading reveal">
 
                     <p class="eyebrow">THE ROAD SO FAR</p>
-
 
                     <h2>
 
@@ -978,9 +931,7 @@
                 </div>
 
 
-
                 <div class="timeline">
-
 
                     <div class="timeline-item reveal">
 
@@ -1000,7 +951,6 @@
                         </p>
 
                     </div>
-
 
 
                     <div class="timeline-item reveal">
@@ -1024,7 +974,6 @@
                     </div>
 
 
-
                     <div class="timeline-item reveal">
 
                         <span class="timeline-dot"></span>
@@ -1041,7 +990,6 @@
                         </p>
 
                     </div>
-
 
 
                     <div class="timeline-item timeline-current reveal">
@@ -1063,7 +1011,6 @@
 
                     </div>
 
-
                 </div>
 
             </div>
@@ -1071,134 +1018,147 @@
         </section>
 
 
-<!-- ==========================================
-     CONTACT SECTION
-========================================== -->
 
-<section class="contact-section" id="contact">
+        <!-- ==========================================
+             CONTACT SECTION
+        ========================================== -->
 
-    <div class="section-heading">
+        <section class="contact-section" id="contact">
 
-        <span class="section-label">GET IN TOUCH</span>
+            <div class="section-heading">
 
-        <h2>Let's <span>Connect</span></h2>
+                <span class="section-label">GET IN TOUCH</span>
 
-        <p>
-            Have a project, an idea, or an opportunity?
-            Send me a message. I'd love to hear from you.
-        </p>
+                <h2>Let's <span>Connect</span></h2>
 
-    </div>
+                <p>
 
+                    Have a project, an idea, or an opportunity?
+                    Send me a message. I'd love to hear from you.
 
-    <div class="contact-container">
-
-        <form class="contact-form" onsubmit="sendContactMessage(event)">
-
-            <!-- NAME -->
-
-            <div class="form-group">
-
-                <input
-                    type="text"
-                    id="contactName"
-                    placeholder="Your Name"
-                    required
-                >
-
-            </div>
-
-
-            <!-- EMAIL -->
-
-            <div class="form-group">
-
-                <input
-                    type="email"
-                    id="contactEmail"
-                    placeholder="Your Email Address"
-                    required
-                >
-
-            </div>
-
-
-            <!-- MESSAGE -->
-
-            <div class="form-group">
-
-                <textarea
-                    id="contactMessage"
-                    placeholder="Enter your message..."
-                    required
-                ></textarea>
-
-            </div>
-
-
-            <!-- SUBMIT BUTTON -->
-
-            <button type="submit" class="contact-submit">
-
-                Send Message <span>↗</span>
-
-            </button>
-
-
-            <!-- CONTACT DETAILS -->
-
-            <div class="contact-details">
-
-                <p class="contact-details-title">
-                    OR CONTACT ME DIRECTLY
                 </p>
 
+            </div>
 
-                <!-- WHATSAPP NUMBERS -->
 
-                <div class="contact-detail-row">
+            <div class="contact-container">
 
-                    <span>WhatsApp / Call</span>
+                <form class="contact-form" onsubmit="sendContactMessage(event)">
 
-                    <div class="contact-phone-list">
+                    <!-- NAME -->
 
-                        <a href="https://wa.me/2347040628118"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                            07040628118 ↗
-                        </a>
+                    <div class="form-group">
 
-                        <a href="https://wa.me/2349026789129"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                            09026789129 ↗
-                        </a>
+                        <input
+                            type="text"
+                            id="contactName"
+                            placeholder="Your Name"
+                            required
+                        >
 
                     </div>
 
-                </div>
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <input
+                            type="email"
+                            id="contactEmail"
+                            placeholder="Your Email Address"
+                            required
+                        >
+
+                    </div>
 
 
-                <!-- EMAIL -->
+                    <!-- MESSAGE -->
 
-                <div class="contact-detail-row">
+                    <div class="form-group">
 
-                    <span>Email Address</span>
+                        <textarea
+                            id="contactMessage"
+                            placeholder="Enter your message..."
+                            required
+                        ></textarea>
 
-                    <a href="mailto:dadadavid097@gmail.com">
-                        dadadavid097@gmail.com ↗
-                    </a>
+                    </div>
 
-                </div>
+
+                    <!-- SUBMIT BUTTON -->
+
+                    <button type="submit" class="contact-submit">
+
+                        Send Message <span>↗</span>
+
+                    </button>
+
+
+                    <!-- CONTACT DETAILS -->
+
+                    <div class="contact-details">
+
+                        <p class="contact-details-title">
+                            OR CONTACT ME DIRECTLY
+                        </p>
+
+
+                        <!-- WHATSAPP NUMBERS -->
+
+                        <div class="contact-detail-row">
+
+                            <span>WhatsApp / Call</span>
+
+                            <div class="contact-phone-list">
+
+                                <a href="https://wa.me/2347040628118"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+
+                                    07040628118 ↗
+
+                                </a>
+
+
+                                <a href="https://wa.me/2349026789129"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+
+                                    09026789129 ↗
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="contact-detail-row">
+
+                            <span>Email Address</span>
+
+                            <a href="mailto:dadadavid097@gmail.com">
+
+                                dadadavid097@gmail.com ↗
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </form>
 
             </div>
 
-        </form>
+        </section>
 
-    </div>
 
-</section>
-       
+    </main>
+
 
     <!-- ==========================================
          FOOTER
@@ -1207,7 +1167,6 @@
     <footer class="footer">
 
         <div class="container footer-inner">
-
 
             <a class="brand" href="#home">
 
@@ -1227,7 +1186,6 @@
                 BACK TO TOP ↑
             </a>
 
-
         </div>
 
 
@@ -1238,7 +1196,6 @@
         </div>
 
     </footer>
-
 
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>

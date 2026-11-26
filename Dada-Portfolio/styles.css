@@ -195,11 +195,49 @@ button {
     margin-left: 7px;
 }
 
+
+/* Hamburger Button */
+
 .menu-toggle {
     display: none;
-    background: none;
-    border: none;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+
+    width: 42px;
+    height: 42px;
+
+    background: transparent;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
     cursor: pointer;
+
+    z-index: 102;
+}
+
+.menu-toggle span {
+    display: block;
+
+    width: 22px;
+    height: 2px;
+
+    background: var(--white);
+    border-radius: 5px;
+
+    transition:
+        transform 0.3s ease,
+        opacity 0.3s ease;
+}
+
+
+/* Mobile Navigation Overlay - Hidden on Desktop */
+
+.nav-overlay {
+    display: none;
 }
 
 
@@ -487,7 +525,8 @@ button {
     color: var(--primary);
 }
 
-/* Profile picture */
+
+/* Profile Picture */
 
 .avatar-photo {
     width: 140px;
@@ -734,7 +773,8 @@ button {
     margin-bottom: 18px;
 }
 
-/* Skill colours */
+
+/* Skill Colours */
 
 .orange {
     color: #fb923c;
@@ -848,7 +888,8 @@ button {
     z-index: 2;
 }
 
-/* BayoGoal project preview */
+
+/* BayoGoal Project Preview */
 
 .sports-art {
     background: radial-gradient(
@@ -923,7 +964,7 @@ button {
 }
 
 
-/* Dada's Tech project preview */
+/* Dada's Tech Project Preview */
 
 .tech-art {
     background: radial-gradient(
@@ -978,7 +1019,7 @@ button {
 }
 
 
-/* Restaurant project preview */
+/* Restaurant Project Preview */
 
 .restaurant-art {
     background: radial-gradient(
@@ -1021,7 +1062,7 @@ button {
 }
 
 
-/* Project descriptions */
+/* Project Descriptions */
 
 .project-info {
     padding: 25px;
@@ -1139,7 +1180,7 @@ button {
 
 
 /* ==================================================
-   11. CONTACT SECTION
+   11. CONTACT PANEL
 ================================================== */
 
 .contact-panel {
@@ -1352,26 +1393,19 @@ button {
     }
 
 
-    /* Mobile menu button */
+    /* ==========================================
+       MOBILE MENU BUTTON
+    ========================================== */
 
     .menu-toggle {
         display: flex;
-        flex-direction: column;
-
-        gap: 5px;
     }
 
-    .menu-toggle span {
-        width: 23px;
-        height: 2px;
 
-        background: white;
-
-        transition: 0.3s;
-    }
+    /* Hamburger Animation */
 
     .menu-toggle.open span:first-child {
-        transform: translateY(7px) rotate(45deg);
+        transform: translateY(8px) rotate(45deg);
     }
 
     .menu-toggle.open span:nth-child(2) {
@@ -1379,51 +1413,127 @@ button {
     }
 
     .menu-toggle.open span:last-child {
-        transform: translateY(-7px) rotate(-45deg);
+        transform: translateY(-8px) rotate(-45deg);
     }
 
 
-    /* Mobile navigation links */
+    /* ==========================================
+       SLIDING MOBILE NAVIGATION
+    ========================================== */
 
     .nav-links {
-        position: absolute;
+        position: fixed;
 
-        top: 69px;
+        top: 78px;
         left: 0;
 
-        width: 100%;
+        width: min(82vw, 320px);
+        height: calc(100vh - 78px);
+        height: calc(100dvh - 78px);
 
         display: flex;
         flex-direction: column;
         align-items: stretch;
+        gap: 8px;
 
-        padding: 20px 5%;
+        padding: 30px 25px;
 
-        background: var(--bg);
+        background: var(--bg-light);
 
-        border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+
+        z-index: 101;
 
         visibility: hidden;
         opacity: 0;
 
-        transform: translateY(-10px);
+        transform: translateX(-105%);
 
-        transition: 0.3s;
+        transition:
+            transform 0.35s ease,
+            opacity 0.35s ease,
+            visibility 0.35s ease;
+
+        overflow-y: auto;
     }
+
+
+    /* Open Navigation */
 
     .nav-links.open {
         visibility: visible;
         opacity: 1;
 
-        transform: translateY(0);
+        transform: translateX(0);
     }
+
+
+    /* Navigation Links */
 
     .nav-link {
-        padding: 12px 0;
+        display: block;
+
+        padding: 15px 5px;
+
+        font-size: 15px;
+
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-contact {
+        margin-top: 15px;
+
+        text-align: center;
+
+        border: 1px solid var(--primary);
+        border-radius: 8px;
     }
 
 
-    /* Hero section */
+    /* ==========================================
+       DARK OVERLAY
+    ========================================== */
+
+    .nav-overlay {
+        display: block;
+
+        position: fixed;
+
+        top: 78px;
+        left: 0;
+
+        width: 100%;
+        height: calc(100vh - 78px);
+        height: calc(100dvh - 78px);
+
+        background: rgba(0, 0, 0, 0.65);
+
+        opacity: 0;
+        visibility: hidden;
+
+        z-index: 99;
+
+        transition:
+            opacity 0.3s ease,
+            visibility 0.3s ease;
+    }
+
+    .nav-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+
+    /* Prevent Background Scrolling */
+
+    body.menu-open {
+        overflow: hidden;
+    }
+
+
+    /* ==========================================
+       HERO SECTION
+    ========================================== */
 
     .hero {
         padding-top: 130px;
@@ -1456,21 +1566,27 @@ button {
     }
 
 
-    /* About section */
+    /* ==========================================
+       ABOUT SECTION
+    ========================================== */
 
     .about-grid {
         grid-template-columns: 1fr;
     }
 
 
-    /* Section headings */
+    /* ==========================================
+       SECTION HEADINGS
+    ========================================== */
 
     .section-heading h2 {
         font-size: 35px;
     }
 
 
-    /* Projects section */
+    /* ==========================================
+       PROJECTS SECTION
+    ========================================== */
 
     .projects-grid {
         grid-template-columns: 1fr;
@@ -1490,14 +1606,18 @@ button {
     }
 
 
-    /* Contact section */
+    /* ==========================================
+       CONTACT SECTION
+    ========================================== */
 
     .contact-panel h2 {
         font-size: 38px;
     }
 
 
-    /* Footer */
+    /* ==========================================
+       FOOTER
+    ========================================== */
 
     .footer-inner {
         flex-wrap: wrap;
@@ -1561,8 +1681,10 @@ button {
     }
 
 }
+
+
 /* ==================================================
-   19. CONTACT SECTION
+   19. CONTACT FORM SECTION
 ================================================== */
 
 .contact-section {
@@ -1571,7 +1693,7 @@ button {
 }
 
 
-/* CONTACT CONTAINER */
+/* Contact Container */
 
 .contact-container {
     display: flex;
@@ -1581,7 +1703,7 @@ button {
 }
 
 
-/* CONTACT FORM */
+/* Contact Form */
 
 .contact-form {
     width: 100%;
@@ -1602,7 +1724,7 @@ button {
 }
 
 
-/* TOP GLOW */
+/* Top Glow */
 
 .contact-form::before {
     content: "";
@@ -1627,7 +1749,7 @@ button {
 }
 
 
-/* FORM INPUTS */
+/* Form Inputs */
 
 .form-group {
     margin-bottom: 25px;
@@ -1655,7 +1777,7 @@ button {
 }
 
 
-/* PLACEHOLDERS */
+/* Placeholders */
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
@@ -1663,7 +1785,7 @@ button {
 }
 
 
-/* INPUT FOCUS */
+/* Input Focus */
 
 .form-group input:focus,
 .form-group textarea:focus {
@@ -1671,7 +1793,7 @@ button {
 }
 
 
-/* MESSAGE FIELD */
+/* Message Field */
 
 .form-group textarea {
     min-height: 125px;
@@ -1679,7 +1801,7 @@ button {
 }
 
 
-/* SUBMIT BUTTON */
+/* Submit Button */
 
 .contact-submit {
     width: 65%;
@@ -1725,7 +1847,7 @@ button {
 }
 
 
-/* CONTACT DETAILS */
+/* Contact Details */
 
 .contact-details {
     margin-top: 35px;
@@ -1747,7 +1869,7 @@ button {
 }
 
 
-/* CONTACT ROWS */
+/* Contact Rows */
 
 .contact-detail-row {
     display: flex;
@@ -1766,7 +1888,7 @@ button {
 }
 
 
-/* PHONE NUMBERS */
+/* Phone Numbers */
 
 .contact-phone-list {
     display: flex;
@@ -1777,7 +1899,7 @@ button {
 }
 
 
-/* CONTACT LINKS */
+/* Contact Links */
 
 .contact-detail-row a {
     color: var(--primary);
@@ -1792,7 +1914,7 @@ button {
 }
 
 
-/* MOBILE RESPONSIVENESS */
+/* Contact Form Mobile Responsiveness */
 
 @media (max-width: 600px) {
 
