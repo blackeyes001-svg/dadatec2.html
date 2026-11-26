@@ -7,6 +7,8 @@ const navLinks = document.getElementById("navLinks");
 const navOverlay = document.getElementById("navOverlay");
 
 function openMenu() {
+    if (!menuToggle || !navLinks) return;
+
     navLinks.classList.add("open");
     menuToggle.classList.add("open");
 
@@ -21,6 +23,8 @@ function openMenu() {
 }
 
 function closeMenu() {
+    if (!menuToggle || !navLinks) return;
+
     navLinks.classList.remove("open");
     menuToggle.classList.remove("open");
 
@@ -34,70 +38,66 @@ function closeMenu() {
     document.body.classList.remove("menu-open");
 }
 
-menuToggle.addEventListener("click", () => {
-    const isOpen = navLinks.classList.contains("open");
+if (menuToggle && navLinks) {
 
-    if (isOpen) {
-        closeMenu();
-    } else {
-        openMenu();
+    menuToggle.addEventListener("click", () => {
+        const isOpen = navLinks.classList.contains("open");
+
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+        link.addEventListener("click", closeMenu);
+    });
+
+    if (navOverlay) {
+        navOverlay.addEventListener("click", closeMenu);
     }
-});
 
-/* Close menu when a navigation link is selected */
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeMenu();
+        }
+    });
 
-document.querySelectorAll(".nav-link").forEach(link => {
-    link.addEventListener("click", closeMenu);
-});
-
-/* Close menu when overlay is clicked */
-
-if (navOverlay) {
-    navOverlay.addEventListener("click", closeMenu);
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 700) {
+            closeMenu();
+        }
+    });
 }
-
-/* Close menu when Escape is pressed */
-
-document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-        closeMenu();
-    }
-});
-
-/* Close menu when screen returns to desktop size */
-
-window.addEventListener("resize", () => {
-    if (window.innerWidth > 700) {
-        closeMenu();
-    }
-});
 
 
 /* ==========================================
    REVEAL SECTIONS
 ========================================== */
 
-const revealObserver = new IntersectionObserver(entries => {
+if ("IntersectionObserver" in window) {
 
-    entries.forEach(entry => {
+    const revealObserver = new IntersectionObserver(entries => {
 
-        if (entry.isIntersecting) {
+        entries.forEach(entry => {
 
-            entry.target.classList.add("visible");
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                revealObserver.unobserve(entry.target);
+            }
 
-            revealObserver.unobserve(entry.target);
+        });
 
-        }
-
+    }, {
+        threshold: 0.12
     });
 
-}, {
-    threshold: 0.12
-});
+    document.querySelectorAll(".reveal").forEach(element => {
+        revealObserver.observe(element);
+    });
 
-document.querySelectorAll(".reveal").forEach(element => {
-    revealObserver.observe(element);
-});
+}
 
 
 /* ==========================================
@@ -159,6 +159,7 @@ function typeLoop() {
 
             return;
         }
+
     }
 
     setTimeout(typeLoop, deleting ? 65 : 105);
@@ -197,32 +198,36 @@ window.addEventListener("scroll", () => {
 
 const sections = document.querySelectorAll("main section[id]");
 
-const navObserver = new IntersectionObserver(entries => {
+if ("IntersectionObserver" in window) {
 
-    entries.forEach(entry => {
+    const navObserver = new IntersectionObserver(entries => {
 
-        if (entry.isIntersecting) {
+        entries.forEach(entry => {
 
-            document.querySelectorAll(".nav-link").forEach(link => {
+            if (entry.isIntersecting) {
 
-                link.classList.toggle(
-                    "active",
-                    link.getAttribute("href") === `#${entry.target.id}`
-                );
+                document.querySelectorAll(".nav-link").forEach(link => {
 
-            });
+                    link.classList.toggle(
+                        "active",
+                        link.getAttribute("href") === `#${entry.target.id}`
+                    );
 
-        }
+                });
 
+            }
+
+        });
+
+    }, {
+        rootMargin: "-35% 0px -55% 0px"
     });
 
-}, {
-    rootMargin: "-35% 0px -55% 0px"
-});
+    sections.forEach(section => {
+        navObserver.observe(section);
+    });
 
-sections.forEach(section => {
-    navObserver.observe(section);
-});
+}
 
 
 /* ==========================================
@@ -280,11 +285,17 @@ function sendContactMessage(event) {
 
     event.preventDefault();
 
-    const name = document.getElementById("contactName").value.trim();
+    const nameField = document.getElementById("contactName");
+    const emailField = document.getElementById("contactEmail");
+    const messageField = document.getElementById("contactMessage");
 
-    const email = document.getElementById("contactEmail").value.trim();
+    if (!nameField || !emailField || !messageField) {
+        return;
+    }
 
-    const message = document.getElementById("contactMessage").value.trim();
+    const name = nameField.value.trim();
+    const email = emailField.value.trim();
+    const message = messageField.value.trim();
 
     const subject = encodeURIComponent(
         "Portfolio Contact Message"
