@@ -95,3 +95,32 @@ copyButton.addEventListener("click", async () => {
 });
 
 document.getElementById("year").textContent = new Date().getFullYear();
+/* ==========================================
+   CONTACT FORM
+========================================== */
+
+function sendContactMessage(event) {
+
+    event.preventDefault();
+
+    const name = document.getElementById("contactName").value.trim();
+
+    const email = document.getElementById("contactEmail").value.trim();
+
+    const message = document.getElementById("contactMessage").value.trim();
+
+    const subject = encodeURIComponent("Portfolio Contact Message");
+
+    const body = encodeURIComponent(
+        "Name: " + name + "\n" +
+        "Email: " + email + "\n\n" +
+        "Message:\n" + message
+    );
+
+    window.location.href =
+        "mailto:dadadavid097@gmail.com?subject=" +
+        subject +
+        "&body=" +
+        body;
+
+}

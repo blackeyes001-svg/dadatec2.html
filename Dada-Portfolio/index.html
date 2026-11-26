@@ -1071,8 +1071,6 @@
         </section>
 
 
-
-       
 <!-- ==========================================
      CONTACT SECTION
 ========================================== -->
@@ -1086,138 +1084,122 @@
         <h2>Let's <span>Connect</span></h2>
 
         <p>
-            Have a project in mind, an opportunity, or just want to say hello?
-            I'd be happy to hear from you.
+            Have a project, an idea, or an opportunity?
+            Send me a message. I'd love to hear from you.
         </p>
 
     </div>
 
 
-    <div class="contact-grid">
+    <div class="contact-container">
 
-        <!-- WHATSAPP 1 -->
+        <form class="contact-form" onsubmit="sendContactMessage(event)">
 
-        <div class="contact-card">
+            <!-- NAME -->
 
-            <div class="contact-icon">
-                💬
-            </div>
+            <div class="form-group">
 
-            <h3>WhatsApp</h3>
-
-            <p>
-                Send me a direct message. I'm available to discuss
-                projects, ideas and opportunities.
-            </p>
-
-            <span class="contact-number">
-                07040628118
-            </span>
-
-            <a href="https://wa.me/2347040628118"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="contact-button">
-
-                Chat on WhatsApp <span>↗</span>
-
-            </a>
-
-        </div>
-
-
-        <!-- WHATSAPP 2 -->
-
-        <div class="contact-card">
-
-            <div class="contact-icon">
-                📱
-            </div>
-
-            <h3>WhatsApp 2</h3>
-
-            <p>
-                You can also reach me through my second WhatsApp
-                number whenever you need to get in touch.
-            </p>
-
-            <span class="contact-number">
-                09026789129
-            </span>
-
-            <a href="https://wa.me/2349026789129"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="contact-button">
-
-                Chat on WhatsApp <span>↗</span>
-
-            </a>
-
-        </div>
-
-
-        <!-- PHONE CALL -->
-
-        <div class="contact-card">
-
-            <div class="contact-icon">
-                📞
-            </div>
-
-            <h3>Call Me</h3>
-
-            <p>
-                Prefer speaking directly? You can call me using
-                either of my available phone numbers.
-            </p>
-
-            <div class="contact-call-options">
-
-                <a href="tel:+2347040628118">
-                    07040628118
-                </a>
-
-                <a href="tel:+2349026789129">
-                    09026789129
-                </a>
+                <input
+                    type="text"
+                    id="contactName"
+                    placeholder="Your Name"
+                    required
+                >
 
             </div>
 
-        </div>
 
+            <!-- EMAIL -->
 
-        <!-- EMAIL -->
+            <div class="form-group">
 
-        <div class="contact-card">
+                <input
+                    type="email"
+                    id="contactEmail"
+                    placeholder="Your Email Address"
+                    required
+                >
 
-            <div class="contact-icon">
-                ✉️
             </div>
 
-            <h3>Email Me</h3>
 
-            <p>
-                For professional enquiries, collaborations,
-                project discussions or opportunities, send me an email.
-            </p>
+            <!-- MESSAGE -->
 
-            <span class="contact-email">
-                dadadavid097@gmail.com
-            </span>
+            <div class="form-group">
 
-            <a href="mailto:dadadavid097@gmail.com"
-               class="contact-button">
+                <textarea
+                    id="contactMessage"
+                    placeholder="Enter your message..."
+                    required
+                ></textarea>
 
-                Send Me an Email <span>↗</span>
+            </div>
 
-            </a>
 
-        </div>
+            <!-- SUBMIT BUTTON -->
+
+            <button type="submit" class="contact-submit">
+
+                Send Message <span>↗</span>
+
+            </button>
+
+
+            <!-- CONTACT DETAILS -->
+
+            <div class="contact-details">
+
+                <p class="contact-details-title">
+                    OR CONTACT ME DIRECTLY
+                </p>
+
+
+                <!-- WHATSAPP NUMBERS -->
+
+                <div class="contact-detail-row">
+
+                    <span>WhatsApp / Call</span>
+
+                    <div class="contact-phone-list">
+
+                        <a href="https://wa.me/2347040628118"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            07040628118 ↗
+                        </a>
+
+                        <a href="https://wa.me/2349026789129"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            09026789129 ↗
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="contact-detail-row">
+
+                    <span>Email Address</span>
+
+                    <a href="mailto:dadadavid097@gmail.com">
+                        dadadavid097@gmail.com ↗
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
 
     </div>
 
 </section>
+       
+
     <!-- ==========================================
          FOOTER
     ========================================== -->
